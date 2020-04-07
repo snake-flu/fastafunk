@@ -22,14 +22,16 @@ from Bio.SeqRecord import SeqRecord
 from Bio import AlignIO
 from Bio.Align import AlignInfo
 
-def create_consensus(in_fasta,in_metadata,index_field,index_column,clade_file,out_fasta):
+from fastafunk.utils import *
+
+def create_consensus(in_fasta,in_metadata,index_field,index_column,clade_file,out_fasta,log_file):
     metadata_dic = {}
     phylotype_dic = {}
     seq_dic = {}
     consensus_dic = {}
     output_folder = os.path.dirname(out_fasta)
-    log_file = open(out_fasta+".log","w")
-    print(output_folder)
+    log_handle = get_log_handle(log_file, out_fasta)
+    log_handle.write("Output folder: %s" %output_folder)
 
     with open(in_metadata,"r",encoding='utf-8-sig') as f:
         reader = csv.DictReader(f)
@@ -38,8 +40,7 @@ def create_consensus(in_fasta,in_metadata,index_field,index_column,clade_file,ou
 
     for items in metadata:
         if index_field.lower() not in reader.fieldnames or index_column.lower() not in reader.fieldnames:
-            print("Column name not in metadata file, please re-check metadata file and reinsert a column name.")
-            sys.exit()
+            sys.exit("Column name not in metadata file, please re-check metadata file and reinsert a column name.")
         else:
             metadata_dic[items[index_column]] = items[index_field.lower()]
 
@@ -59,8 +60,7 @@ def create_consensus(in_fasta,in_metadata,index_field,index_column,clade_file,ou
     trait_order.sort(key=lambda x: re.sub("[^A-Z0-9]", "",x),reverse=True)
 
     if len(set(metadata_dic.keys())&set(seq_dic.keys())) == 0:
-        print("No matching sequence name with metadata name. Program Exit")
-        sys.exit()
+        sys.exit("No matching sequence name with metadata name. Program Exit")
 
     for cluster in trait_order:
         for seq_id,phylotype in metadata_dic.items():
@@ -75,10 +75,10 @@ def create_consensus(in_fasta,in_metadata,index_field,index_column,clade_file,ou
                     del seq_dic[seq_id]
 
     for key,value in phylotype_dic.items():
-        print(key,len(value))
+        log_handle.write("%s\t%i" %(key,len(value)))
 
     for seq in seq_dic.keys():
-        log_file.write("Sequence " + seq + " did not find any matches to metadata file.\n")
+        log_handle.write("Sequence " + seq + " did not find any matches to metadata file.\n")
 
     for key in phylotype_dic.keys():
         if len(phylotype_dic[key]) > 2:
@@ -99,11 +99,11 @@ def create_consensus(in_fasta,in_metadata,index_field,index_column,clade_file,ou
             consensus_dic[consensus_name] = consensus_seq
             os.remove(alignment_name)
         else:
-            log_file.write("Phylotype " + key + " does not have 2 or more sequences for an alignment to work.\n")
-    log_file.close()
+            log_handle.write("Phylotype " + key + " does not have 2 or more sequences for an alignment to work.\n")
+    close_handle(log_handle)
 
-    consensus_file = open(out_fasta,"w")
+    out_handle = get_out_handle(out_fasta)
     for key, value in consensus_dic.items():
         record = SeqRecord(value,id=key,description="")
-        SeqIO.write(record, consensus_file, "fasta")
-    consensus_file.close()
+        SeqIO.write(record, out_handle, "fasta")
+    close_handle(out_handle)

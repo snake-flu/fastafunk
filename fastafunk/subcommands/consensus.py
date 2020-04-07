@@ -7,5 +7,6 @@ def run(options):
                      options.index_field,
                      options.index_column,
                      options.clade_file,
-                     options.out_fasta
+                     options.out_fasta,
+                     options.log_file
                      )

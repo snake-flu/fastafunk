@@ -20,11 +20,13 @@ import re
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 
-def split_fasta(in_fasta,in_metadata,index_field,index_column,out_folder):
+from fastafunk.utils import *
+
+def split_fasta(in_fasta,in_metadata,index_field,index_column,out_folder,log_file):
     metadata_dic = {}
     phylotype_dic = {}
     seq_dic = {}
-    log_file = open(out_folder + "split_fasta.log","w")
+    log_handle = get_log_handle(log_file, out_folder)
 
     with open(in_metadata,"r",encoding='utf-8-sig') as f:
         reader = csv.DictReader(f)
@@ -43,9 +45,9 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,out_folder):
 
     for seq,trait in metadata_dic.items():
         if trait == "":
-            log_file.write("Sequence " + seq + " have an empty " + trait + " value.\n")
+            print("Sequence " + seq + " have an empty " + trait + " value.", file=log_handle)
         if seq not in seq_dic.keys():
-            log_file.write("Sequence " + seq + " does not match metadata sequence name.\n")
+            print("Sequence " + seq + " does not match metadata sequence name.", file=log_handle)
             continue
         if trait not in phylotype_dic.keys():
             phylotype_dic[trait] = []
@@ -59,5 +61,4 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,out_folder):
             record = SeqRecord(sequences[1],id=sequences[0],description="")
             SeqIO.write(record, outfile, "fasta")
         outfile.close()
-        
-    log_file.close()
+    close_handle(log_handle)

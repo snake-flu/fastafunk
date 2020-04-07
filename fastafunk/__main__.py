@@ -65,7 +65,10 @@ def main(args=None):
         "-v", "--verbose", dest="verbose", action="store_true",
         help="Run with high verbosity " "(debug level logging)",
     )
-
+    common.add_argument(
+        "--log-file", dest="log_file", required=False, default=None,
+        help="Log file to use (otherwise uses stdout, or stderr if out-fasta to stdout)"
+    )
     # _______________________________  consensus  __________________________________#
 
     subparser_consensus = subparsers.add_parser(
@@ -92,7 +95,7 @@ def main(args=None):
         help='Column(s) in the metadata file to use to match to the sequence'
     )
     subparser_consensus.add_argument(
-        '--out-fasta', dest='out_fasta', metavar='<filename>', required=False,
+        '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="",
         help='A FASTA file (else writes to stdout)'
     )
     subparser_consensus.add_argument(
@@ -119,7 +122,7 @@ def main(args=None):
         help='One or more CSV or TSV tables of metadata'
     )
     subparser_extract.add_argument(
-        '--out-fasta', dest='out_fasta', metavar='<filename>', required=False,
+        '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="",
         help='A FASTA file (else writes to stdout)'
     )
 
@@ -143,7 +146,7 @@ def main(args=None):
         help='One or more CSV or TSV tables of metadata'
     )
     subparser_merge.add_argument(
-        '--out-fasta', dest='out_fasta', metavar='<filename>', required=False,
+        '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="",
         help='A FASTA file (else writes to stdout)'
     )
 
@@ -166,7 +169,7 @@ def main(args=None):
         help='One or more CSV or TSV tables of metadata'
     )
     subparser_remove.add_argument(
-        '--out-fasta', dest='out_fasta', metavar='<filename>', required=False,
+        '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="",
         help='A FASTA file (else writes to stdout)'
     )
 

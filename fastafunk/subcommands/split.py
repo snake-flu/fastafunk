@@ -7,5 +7,6 @@ def run(options):
         options.in_metadata,
         options.index_field,
         options.index_column,
-        options.out_folder
+        options.out_folder,
+        options.log_file
     )
