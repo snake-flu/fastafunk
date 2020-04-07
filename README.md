@@ -1,0 +1,2 @@
+# fastafunk
+Fasta manipulation
