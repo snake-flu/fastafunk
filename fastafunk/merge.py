@@ -28,15 +28,3 @@ def merge_fasta(in_fasta, in_metadata, out_fasta):
 
     merged_file.close()
     log_file.close()
-
-merge = argparse.ArgumentParser(description='Merges two fasta files avoiding duplicates based on matches to metadata')
-merge.add_argument("--in-fasta", nargs='+', required=True, default=None,type=str, help="<filename> [<filename> ...] two or more fasta files of sequences")
-merge.add_argument("--in-metadata", required=True, default=None,type=str, help="<filename> [<filename> ...] one CSV table of metadata")
-merge.add_argument("--out-fasta", required=False, default="merged.fasta",type=str, help="<filename> output a fasta file")
-args = merge.parse_args()
-
-in_fasta = args.in_fasta
-in_metadata = args.in_metadata
-out_fasta  = args.out_fasta
-
-merge_fasta(in_fasta, in_metadata, out_fasta)

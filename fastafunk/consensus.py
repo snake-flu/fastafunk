@@ -93,23 +93,3 @@ def create_consensus(in_fasta,in_metadata,index_field,index_column,clade_file,ou
         record = SeqRecord(value,id=key,description="")
         SeqIO.write(record, consensus_file, "fasta")
     consensus_file.close()
-
-consensus = argparse.ArgumentParser(description='Removes sequences based on matches to the metadata')
-consensus.add_argument("--in-fasta", required=True, default=None,type=str, help="<filename> [<filename> ...] one fasta files of sequences")
-consensus.add_argument("--in-metadata", required=True, default=None,type=str, help="<filename> [<filename> ...] one CSV table of metadata")
-consensus.add_argument("--index-field", required=True, default=None,type=str, help="<column> [<column> ...] the field(s) in the header to match the metadata")
-consensus.add_argument("--index-column", required=False, default="header",type=str, help="<column> [<column> ...] the column(s) in the metadata file to use to match to the sequence")
-consensus.add_argument("--clade-file", required=False, default="",type=str, help="<filename> [<filename> ...] text file including specific traits to collapse by")
-consensus.add_argument("--out-fasta", required=False, default="consensus.fasta",type=str, help="<filename> output a consensus fasta file")
-args = consensus.parse_args()
-
-print(args)
-
-in_fasta = args.in_fasta
-in_metadata = args.in_metadata
-out_fasta  = args.out_fasta
-index_field = args.index_field
-index_column = args.index_column
-clade_file = args.clade_file
-
-create_consensus(in_fasta,in_metadata,index_field,index_column,clade_file,out_fasta)
