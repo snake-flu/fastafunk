@@ -20,23 +20,23 @@ import csv
 from fastafunk.utils import *
 
 def merge_fasta(in_fasta, in_metadata, out_fasta, log_file):
-    metadata_dictionary = {}
+    if not in_fasta:
+        in_fasta = [""]
+    metadata_dictionary = metadata_to_dict(in_metadata)
     sequence_dictionary = {}
     out_handle = get_out_handle(out_fasta)
     log_handle = get_log_handle(log_file, out_fasta)
-    with open(in_metadata) as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        for row in csv_reader:
-            metadata_dictionary[row[0]] = row[1:]
 
     for fasta_file in in_fasta:
-        for record in SeqIO.parse(fasta_file, "fasta"):
+        fasta_handle = get_in_handle(fasta_file)
+        for record in SeqIO.parse(fasta_handle, "fasta"):
             if record.id in metadata_dictionary.keys() and record.id not in sequence_dictionary.keys():
                 sequence_dictionary[record.id] = record.seq
             elif record.id not in metadata_dictionary.keys():
                 log_handle.write(record.id + " sequence is not in metadata file or the name is wrong (in file " + fasta_file + ")\n")
             elif record.id in sequence_dictionary.keys():
                 log_handle.write(record.id + " is a duplicate (in file " + fasta_file + ")\n")
+        close_handle(fasta_handle)
 
     for key, value in sequence_dictionary.items():
         records = SeqRecord(value, key, description= '')

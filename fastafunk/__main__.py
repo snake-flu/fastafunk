@@ -79,7 +79,7 @@ def main(args=None):
     )
 
     subparser_consensus.add_argument(
-        '--in-fasta', dest='in_fasta', nargs='+', metavar='<filename>', required=True,
+        '--in-fasta', dest='in_fasta', nargs='+', metavar='<filename>', required=False,
         help='One or more FASTA files of sequences (else reads from stdin)'
     )
     subparser_consensus.add_argument(
@@ -138,7 +138,7 @@ def main(args=None):
     )
 
     subparser_merge.add_argument(
-        '--in-fasta', dest='in_fasta', nargs='+', metavar='<filename>', required=True,
+        '--in-fasta', dest='in_fasta', nargs='+', metavar='<filename>', required=False,
         help='One or more FASTA files of sequences (else reads from stdin)'
     )
     subparser_merge.add_argument(
