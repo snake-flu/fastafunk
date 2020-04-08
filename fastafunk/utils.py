@@ -30,6 +30,12 @@ def close_handle(handle):
     if handle:
         handle.close()
 
+def fix_header_string(header):
+    return header\
+        .replace("hCoV-19/","")\
+        .replace("hCov-19/","")\
+        .replace(" ","_")
+
 def metadata_to_dict(list_metadata_files):
     metadata_dictionary = {}
 
@@ -51,7 +57,6 @@ def find_column_with_regex(df, column, regex):
     regex = re.compile(regex)
     for original_column in df.columns:
         match = re.search(regex, original_column)
-        print(original_column, regex, match)
         if match:
             df[column] = df[original_column]
             return df
@@ -63,21 +68,16 @@ def load_dataframe(metadata_file, index_columns, where_columns):
         sep = '\t'
     df = pd.read_csv(metadata_file, sep=sep)
 
-    print(df)
     if where_columns:
         for pair in where_columns:
             column,regex = pair.split("=")
-            print(pair, column, regex)
             df = find_column_with_regex(df, column, regex)
-            print(df)
 
     df.rename(str.lower, axis='columns', inplace=True)
-    print(df)
 
     if index_columns:
         index_columns = [s.lower() for s in index_columns]
         df = df.loc[:, df.columns.isin(index_columns)]
-    print(df)
     return df
 
 def load_metadata(list_metadata_files, index_columns, where_columns):
@@ -92,4 +92,58 @@ def load_metadata(list_metadata_files, index_columns, where_columns):
             column_intersection = [s for s in new_data.columns if s in master.columns]
             master = master.merge(new_data, how='outer', on=column_intersection)
     return master
+
+def grouped_to_csv(grouped, index_columns, log_handle):
+    index_columns.append("count")
+    log_handle.write("%s\n" %','.join(index_columns))
+
+    for name, group in grouped:
+        if isinstance(name, str):
+            v = [name]
+        else:
+            v = list(name)
+        num_in_group = len(group.index)
+        v.append(num_in_group)
+        str_v = [str(s) for s in v]
+        log_handle.write("%s\n" %','.join(str_v))
+
+def get_groups(df, index_columns, log_handle=None):
+    grouped = df.groupby(index_columns)
+    if log_handle:
+        grouped_to_csv(grouped, index_columns, log_handle)
+    return grouped
+
+def load_target_sample_sizes(target_file, index_columns):
+    targets = {}
+    df = pd.read_csv(target_file)
+    df.set_index(index_columns, inplace=True)
+    for name, row in df.iterrows():
+        targets[name] = row["count"]
+    return targets
+
+def subsample_metadata(df, index_columns, sample_size, target_file, exclude_uk, log_handle=None):
+    grouped = get_groups(df, index_columns, log_handle)
+    targets = {}
+    if target_file:
+        targets = load_target_sample_sizes(target_file, index_columns)
+
+    subsampled_indexes = []
+
+    if exclude_uk:
+        uk_mask = df['admin0'] == "UK"
+        subsampled_indexes.extend(df[uk_mask].index)
+        non_uk_df = df[~uk_mask]
+        grouped = non_uk_df.groupby(index_columns)
+
+    for name, group in grouped:
+        num_in_group = len(group.index)
+        target_size = sample_size
+        if name in targets:
+            target_size = targets[name]
+        if num_in_group > target_size:
+            subsampled_indexes.extend(group.sample(n=target_size, random_state=1).index)
+        else:
+            subsampled_indexes.extend(group.index)
+
+    return df.iloc[subsampled_indexes]
 

@@ -66,7 +66,7 @@ def main(args=None):
         help="Run with high verbosity " "(debug level logging)",
     )
     common.add_argument(
-        "--log-file", dest="log_file", required=False, default=None,
+        "--log-file", dest="log_file", metavar='<filename>', required=False, default=None,
         help="Log file to use (otherwise uses stdout, or stderr if out-fasta to stdout)"
     )
     # _______________________________  consensus  __________________________________#
@@ -206,6 +206,73 @@ def main(args=None):
     )
 
     subparser_split.set_defaults(func=fastafunk.subcommands.split.run)
+
+    # _______________________________  count  __________________________________#
+
+    subparser_count = subparsers.add_parser(
+        "count",
+        parents=[common],
+        help="Counts the number in each group, defined by a number of metadata columns",
+    )
+
+    subparser_count.add_argument(
+        '--in-metadata', dest='in_metadata', nargs='+', metavar='<filename>', required=True,
+        help='One or more CSV or TSV tables of metadata'
+    )
+    subparser_count.add_argument(
+        '--index-column', dest='index_column', nargs='+', metavar='<column>', required=True,
+        help='Column(s) in the metadata file to use to match to the sequence'
+    )
+
+    subparser_count.set_defaults(func=fastafunk.subcommands.count.run)
+
+    # _______________________________  subsample  __________________________________#
+
+    subparser_subsample = subparsers.add_parser(
+        "subsample",
+        parents=[common],
+        help="Subsamples a fasta based on groups defined by a metadata file",
+    )
+
+    subparser_subsample.add_argument(
+        '--in-fasta', dest='in_fasta', nargs='+', metavar='<filename>', required=False,
+        help='One or more FASTA files of sequences (else reads from stdin)'
+    )
+    subparser_subsample.add_argument(
+        '--in-metadata', dest='in_metadata', nargs='+', metavar='<filename>', required=True,
+        help='One or more CSV or TSV tables of metadata'
+    )
+    subparser_subsample.add_argument(
+        '--index-field', dest='index_field', nargs='+', metavar='<field>', required=False,
+        help='Field(s) in the fasta header to match the metadata (else matches column names)'
+    )
+    subparser_subsample.add_argument(
+        '--index-column', dest='index_column', nargs='+', metavar='<column>', required=True,
+        help='Column(s) in the metadata file to use to match to the sequence'
+    )
+    subparser_subsample.add_argument(
+        '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="",
+        help='A FASTA file (else writes to stdout)'
+    )
+    subparser_subsample.add_argument(
+        '--out-metadata', dest='out_metadata', metavar='<filename>', required=False,
+        help='A metadata file'
+    )
+    subparser_subsample.add_argument(
+        "--target-file", dest='target_file', metavar="<filename>", required=False, default="",
+        help="CSV file of target numbers per group e.g. an edited version of the count output"
+    )
+    subparser_subsample.add_argument(
+        "--sample-size", dest='sample_size', metavar="<int>", type=int, required=False, default=10,
+        help="The number of samples per group to select if not specified by target file"
+    )
+    subparser_subsample.add_argument(
+        "--exclude-uk", dest='exclude_uk', action="store_true",
+        help="Includes all UK samples in subsample, and additionally keeps the target number of "
+             "non-UK samples per group"
+    )
+
+    subparser_subsample.set_defaults(func=fastafunk.subcommands.subsample.run)
     # ___________________________________________________________________________#
 
 

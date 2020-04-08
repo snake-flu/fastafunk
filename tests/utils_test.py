@@ -113,3 +113,79 @@ class TestUtils(unittest.TestCase):
         print(result)
         print(expect)
         self.assertEqual(result, expect)
+
+    def test_grouped_to_csv(self):
+        df = pd.DataFrame({'name': ['a', 'b', 'b', 'd'], "place": ['x', 'y', 'y', 'x1'],
+                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
+        index_columns = ["name","place"]
+        grouped = df.groupby(index_columns)
+        result = "%s/tmp.group_counts.csv" %data_dir
+        result_handle = open(result,'w')
+        grouped_to_csv(grouped, index_columns, result_handle)
+        result_handle.close()
+        expect = "%s/group_counts.csv" %data_dir
+        self.assertTrue(filecmp.cmp(result, expect, shallow=False))
+
+    def test_load_target_sample_sizes(self):
+        target_file = "%s/group_counts.csv" %data_dir
+        index_columns = ["name","place"]
+        targets = load_target_sample_sizes(target_file, index_columns)
+        expect = {('a', 'x'): 1, ('b', 'y'): 2, ('d', 'x1'): 1}
+        self.assertEqual(targets, expect)
+
+    def test_subsample_metadata_sample_size(self):
+        df = pd.DataFrame({'name': ['a', 'b', 'b', 'd'], "place": ['x', 'y', 'y', 'x1'],
+                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
+        index_columns = ["name", "place"]
+        target_file = None
+        sample_size = 1
+        exclude_uk = False
+        log_handle = None
+        result = subsample_metadata(df, index_columns, sample_size, target_file, exclude_uk, log_handle)
+        result.reset_index(drop=True, inplace=True)
+        expect1 = pd.DataFrame({'name': ['a', 'b', 'd'], "place": ['x', 'y', 'x1'],
+                           "date": ['2020-04-01', '2020-03-29', '2020-04-02']})
+        expect2 = pd.DataFrame({'name': ['a', 'b', 'd'], "place": ['x', 'y', 'x1'],
+                                "date": ['2020-04-01', '2020-04-05', '2020-04-02']})
+        if expect1.equals(result):
+            self.assertEqual(result, expect1)
+        else:
+            self.assertEqual(result, expect2)
+
+    def test_subsample_metadata_target_file(self):
+        df = pd.DataFrame({'name': ['a', 'b', 'b', 'd'], "place": ['x', 'y', 'y', 'x1'],
+                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
+        index_columns = ["name", "place"]
+        target_file = "%s/target_counts.csv" %data_dir
+        sample_size = 0
+        exclude_uk = False
+        log_handle = None
+        result = subsample_metadata(df, index_columns, sample_size, target_file, exclude_uk, log_handle)
+        result.reset_index(drop=True, inplace=True)
+        expect1 = pd.DataFrame({'name': ['a', 'b', 'd'], "place": ['x', 'y', 'x1'],
+                           "date": ['2020-04-01', '2020-03-29', '2020-04-02']})
+        expect2 = pd.DataFrame({'name': ['a', 'b', 'd'], "place": ['x', 'y', 'x1'],
+                                "date": ['2020-04-01', '2020-04-05', '2020-04-02']})
+        if expect1.equals(result):
+            self.assertEqual(result, expect1)
+        else:
+            self.assertEqual(result, expect2)
+
+    def test_subsample_metadata_target_file_overrides_sample_size(self):
+        df = pd.DataFrame({'name': ['a', 'b', 'b', 'd'], "place": ['x', 'y', 'y', 'x1'],
+                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
+        index_columns = ["name", "place"]
+        target_file = "%s/target_counts.csv" %data_dir
+        sample_size = 4
+        exclude_uk = False
+        log_handle = None
+        result = subsample_metadata(df, index_columns, sample_size, target_file, exclude_uk, log_handle)
+        result.reset_index(drop=True, inplace=True)
+        expect1 = pd.DataFrame({'name': ['a', 'b', 'd'], "place": ['x', 'y', 'x1'],
+                           "date": ['2020-04-01', '2020-03-29', '2020-04-02']})
+        expect2 = pd.DataFrame({'name': ['a', 'b', 'd'], "place": ['x', 'y', 'x1'],
+                                "date": ['2020-04-01', '2020-04-05', '2020-04-02']})
+        if expect1.equals(result):
+            self.assertEqual(result, expect1)
+        else:
+            self.assertEqual(result, expect2)
