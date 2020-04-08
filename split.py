@@ -87,7 +87,7 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,out_folder):
     log_file.close()
 
 #Arguments for stand alone usage
-split = argparse.ArgumentParser(description='Removes sequences based on matches to the metadata')
+split = argparse.ArgumentParser(description='Splits sequences into fasta files based on index column or index field')
 split.add_argument("--in-fasta", required=True, default=None,type=str, help="<filename> [<filename> ...] one fasta files of sequences")
 split.add_argument("--in-metadata", required=True, default=None,type=str, help="<filename> [<filename> ...] one CSV table of metadata")
 split.add_argument("--index-field", required=True, default=None,type=str, help="the field(s) in the header to match the metadata")

@@ -14,7 +14,7 @@ python3 consensus.py
 --index-field sequence_id
 --index-column trait
 --clade-file clade_file.txt
---out-fasta output_folder
+--out-fasta output_fasta
 
 Commands: 
 --in-fasta: Fasta file with sequences that needs to be splitted according to criteria to create a consensus set by user according to metadata file. (Required)
@@ -141,7 +141,7 @@ def create_consensus(in_fasta,in_metadata,index_field,index_column,clade_file,ou
     consensus_file.close()
 
 #Arguments for stand alone usage
-consensus = argparse.ArgumentParser(description='Removes sequences based on matches to the metadata')
+consensus = argparse.ArgumentParser(description='Collapses sequences into consensus sequences based on grouping by index column or index field')
 consensus.add_argument("--in-fasta", required=True, default=None,type=str, help="<filename> [<filename> ...] one fasta files of sequences")
 consensus.add_argument("--in-metadata", required=True, default=None,type=str, help="<filename> [<filename> ...] one CSV table of metadata")
 consensus.add_argument("--index-field", required=True, default=None,type=str, help="<column> [<column> ...] the field(s) in the header to match the metadata")
