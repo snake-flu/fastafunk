@@ -1,3 +1,13 @@
+"""
+Name: utils.py
+Author: Rachel Colquhoun
+Date: 08 April 2020
+Description: Utility functions used within Fastafunk
+
+This file is part of Fastafunk (https://github.com/cov-ert/fastafunk).
+Copyright 2020 Xiaoyu Yu (xiaoyu.yu@ed.ac.uk) & Rachel Colquhoun (rachel.colquhoun@ed.ac.uk).
+"""
+
 import sys
 import csv
 import pandas as pd

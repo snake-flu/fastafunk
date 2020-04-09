@@ -1,16 +1,19 @@
 """
-Copyright 2020 Xiaoyu Yu (xiaoyu.yu@ed.ac.uk) & Rachel Colquhoun (rachel.colquhoun@ed.ac.uk)
-https://github.com/cov-ert/fastafunk
+Name: consensus.py
+Author: Xiaoyu Yu
+Date: 07 April 2020
+Description: Collapses fasta sequences into consensus sequences based on criteria set by user. 
 
-This module collapses fasta sequences into consensus sequences based on groupings by some index.
+For example, if the metadata file contains field lineage, the user can split the main fasta file 
+into individual fasta files with all sequences of that lineage. The program will then create an 
+alignment of that group of which a consensus will be built upon. The output file will consist of 
+a single consensus file with all consensus sequences for each group divided by the trait. If a 
+clade file is given (only work for lineages), the grouping will be collapse to the closest lineage 
+(i.e. 1.1.2.1 collapsed to 1.1.2). The Log file will flag all sequences with no trait value and 
+sequences that does not have a match between fasta and metadata files.
 
-This file is part of Fastafunk. Fastafunk is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the Free Software Foundation,
-either version 3 of the License, or (at your option) any later version. Fastafunk is distributed in
-the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
-details. You should have received a copy of the GNU General Public License along with Fastafunk. If
-not, see <http://www.gnu.org/licenses/>.
+This file is part of Fastafunk (https://github.com/cov-ert/fastafunk).
+Copyright 2020 Xiaoyu Yu (xiaoyu.yu@ed.ac.uk) & Rachel Colquhoun (rachel.colquhoun@ed.ac.uk).
 """
 
 import os
@@ -25,6 +28,23 @@ from Bio.Align import AlignInfo
 from fastafunk.utils import *
 
 def create_consensus(in_fasta,in_metadata,index_field,index_column,clade_file,out_fasta,log_file):
+    """
+    Collapses sequences into consensus sequences based on grouping by index column or index field
+
+    :param in_fasta: Fasta file with sequences that needs to be splitted according to criteria to create a consensus
+    set by user according to metadata file. (Required)
+    :param in_metadata: Matching metadata file with same naming convention as fasta file. Contains all sequence
+    metadata that the user wants to split the fasta file by for consensus to be created. Metadata file must be in .csv
+    format (Required)
+    :param index_field: The matching criteria the fasta file needs to be splitted by. (Required)
+    :param index_column: The column with matching sequence IDs with fasta file (Default: header). (Optional)
+    :param clade_file: Specific lineages the user wants to split by. All sub-lineages will be collapsed to the closest
+    lineage (e.g. 1.1.2 to 1.1)
+    :param out_fasta: Output fasta file with consensus sequences of all groups based on trait (Default: consensus.fasta). (Optional)
+    :param log_file: Output log file (Default: stdout). (Optional)
+
+    :return:
+    """
     metadata_dic = {}
     phylotype_dic = {}
     seq_dic = {}
@@ -86,7 +106,7 @@ def create_consensus(in_fasta,in_metadata,index_field,index_column,clade_file,ou
             outfile = open(outfile_name,"w")
             for sequences in phylotype_dic[key]:
                 record = SeqRecord(sequences[1],id=sequences[0],description="")
-                SeqIO.write(record, outfile, "fasta")
+                SeqIO.write(record, outfile, "fasta-2line")
             outfile.close()
             alignment_name = outfile_name[:-6] + "_alignment.fasta"
             align_command = "mafft " + outfile_name + " > " + alignment_name
@@ -105,5 +125,5 @@ def create_consensus(in_fasta,in_metadata,index_field,index_column,clade_file,ou
     out_handle = get_out_handle(out_fasta)
     for key, value in consensus_dic.items():
         record = SeqRecord(value,id=key,description="")
-        SeqIO.write(record, out_handle, "fasta")
+        SeqIO.write(record, out_handle, "fasta-2line")
     close_handle(out_handle)

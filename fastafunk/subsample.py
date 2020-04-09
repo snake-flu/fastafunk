@@ -1,16 +1,12 @@
 """
-Copyright 2020 Rachel Colquhoun (rachel.colquhoun@ed.ac.uk) & Xiaoyu Yu (xiaoyu.yu@ed.ac.uk)
-https://github.com/cov-ert/fastafunk
+Name: subsample.py
+Author: Rachel Colquhoun
+Date: 08 April 2020
+Description: This module subsamples a fasta based on counts in groupings defined by
+a set of index fields in metadata.
 
-This module subsamples a fasta based on counts in groupings defined by a set of index fields in metadata.
-
-This file is part of Fastafunk. Fastafunk is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the Free Software Foundation,
-either version 3 of the License, or (at your option) any later version. Fastafunk is distributed in
-the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
-details. You should have received a copy of the GNU General Public License along with Fastafunk. If
-not, see <http://www.gnu.org/licenses/>.
+This file is part of Fastafunk (https://github.com/cov-ert/fastafunk).
+Copyright 2020 Xiaoyu Yu (xiaoyu.yu@ed.ac.uk) & Rachel Colquhoun (rachel.colquhoun@ed.ac.uk).
 """
 
 import os
@@ -22,7 +18,8 @@ from Bio.SeqRecord import SeqRecord
 
 from fastafunk.utils import *
 
-def subsample_fasta(in_fasta,in_metadata,index_field,index_column,out_fasta,out_metadata,log_file,sample_size,target_file,exclude_uk):
+def subsample_fasta(in_fasta,in_metadata,index_field,index_column,out_fasta,out_metadata,log_file,sample_size,
+                    target_file,exclude_uk):
     log_handle = get_log_handle(log_file, out_fasta)
 
     metadata = load_metadata(in_metadata, None, None)
@@ -41,7 +38,7 @@ def subsample_fasta(in_fasta,in_metadata,index_field,index_column,out_fasta,out_
         for record in SeqIO.parse(fasta_handle, "fasta"):
             id_string = record.id.split('|')[0]
             if id_string in to_keep:
-                SeqIO.write(record, out_handle, "fasta")
+                SeqIO.write(record, out_handle, "fasta-2line")
                 to_keep.remove(id_string)
             else:
                 log_handle.write("%s\n" %record.id)

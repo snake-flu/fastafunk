@@ -1,16 +1,13 @@
 """
-Copyright 2020 Xiaoyu Yu (xiaoyu.yu@ed.ac.uk) & Rachel Colquhoun (rachel.colquhoun@ed.ac.uk)
-https://github.com/cov-ert/fastafunk
+Name: remove.py
+Author: Xiaoyu Yu
+Date: 07 April 2020
+Description: Remove sequences from fasta file with matching sequence names within the metadata file.
 
-This module removes sequences based on matches to the metadata.
+Log file will flag all sequences removed from fasta file based on matches on metadata file.
 
-This file is part of Fastafunk. Fastafunk is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the Free Software Foundation,
-either version 3 of the License, or (at your option) any later version. Fastafunk is distributed in
-the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
-details. You should have received a copy of the GNU General Public License along with Fastafunk. If
-not, see <http://www.gnu.org/licenses/>.
+This file is part of Fastafunk (https://github.com/cov-ert/fastafunk).
+Copyright 2020 Xiaoyu Yu (xiaoyu.yu@ed.ac.uk) & Rachel Colquhoun (rachel.colquhoun@ed.ac.uk).
 """
 
 import csv
@@ -19,6 +16,18 @@ from Bio import SeqIO
 from fastafunk.utils import *
 
 def remove_fasta(in_fasta, in_metadata, out_fasta, log_file):
+    """
+    Remove sequences from fasta file with matching sequence names within the metadata file
+
+    :param in_fasta: Fasta file with sequences that needs to be filtered according to metadata file. (Required)
+    :param in_metadata: Matching metadata file with same naming convention as fasta file. Contains sequences that the
+    user wants to remove from the fasta file. Metadata file must be in .csv format (Required)
+    :param out_fasta: Output fasta file filtered sequences removed based on metadata file
+    (Default: remove_by_metadata.fasta). (Optional)
+    :param log_file: Output log file (Default: stdout). (Optional)
+
+    :return:
+    """
     if not in_fasta:
         in_fasta = [""]
     metadata_dictionary = metadata_to_dict(in_metadata)
@@ -30,7 +39,7 @@ def remove_fasta(in_fasta, in_metadata, out_fasta, log_file):
         fasta_handle = get_in_handle(fasta_file)
         for record in SeqIO.parse(fasta_handle, "fasta"):
             if record.id not in metadata_dictionary.keys():
-                SeqIO.write(record, out_handle, "fasta")
+                SeqIO.write(record, out_handle, "fasta-2line")
             else:
                 print("Sequence " + record.id + " removed due to match to metadata", file=log_handle)
         close_handle(fasta_handle)

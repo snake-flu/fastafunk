@@ -1,16 +1,16 @@
 """
-Copyright 2020 Xiaoyu Yu (xiaoyu.yu@ed.ac.uk) & Rachel Colquhoun (rachel.colquhoun@ed.ac.uk)
-https://github.com/cov-ert/fastafunk
+Name: split.py
+Author: Xiaoyu Yu
+Date: 07 April 2020
+Description: Split the fasta file into multiple fasta files based on criteria set by user.
 
-This module splits sequences into fasta files based on index column or index field in metadata.
+For example, if the metadata file contains field country, the user can split the main fasta
+file into individual fasta files with all sequences of that country. Log file will flag all
+sequences with no trait value and sequences that does not have a match between fasta and
+metadata files.
 
-This file is part of Fastafunk. Fastafunk is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the Free Software Foundation,
-either version 3 of the License, or (at your option) any later version. Fastafunk is distributed in
-the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
-details. You should have received a copy of the GNU General Public License along with Fastafunk. If
-not, see <http://www.gnu.org/licenses/>.
+This file is part of Fastafunk (https://github.com/cov-ert/fastafunk).
+Copyright 2020 Xiaoyu Yu (xiaoyu.yu@ed.ac.uk) & Rachel Colquhoun (rachel.colquhoun@ed.ac.uk).
 """
 
 import os
@@ -23,6 +23,20 @@ from Bio.SeqRecord import SeqRecord
 from fastafunk.utils import *
 
 def split_fasta(in_fasta,in_metadata,index_field,index_column,out_folder,log_file):
+    """
+    Split the fasta file into multiple fasta files based on criteria set by user
+
+    :param in_fasta: Fasta file with sequences that needs to be splitted according to criteria set by user according to
+    metadata file. (Required)
+    :param in_metadata: Matching metadata file with same naming convention as fasta file. Contains all sequence metadata
+    that the user wants to split the fasta file by. Metadata file must be in .csv format (Required)
+    :param index_field: The matching criteria the fasta file needs to be splitted by. (Required)
+    :param index_column: The column with matching sequence IDs with fasta file (Default: header). (Optional)
+    :param out_folder: Output folder for all fasta files splitted based on matching criteria (Default: ./). (Optional)
+    :param log_file: Output log file (Default: stdout). (Optional)
+
+    :return:
+    """
     metadata_dic = {}
     phylotype_dic = {}
     seq_dic = {}
@@ -59,6 +73,6 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,out_folder,log_fil
         outfile = open(out_folder + key + ".fasta","w")
         for sequences in value:
             record = SeqRecord(sequences[1],id=sequences[0],description="")
-            SeqIO.write(record, outfile, "fasta")
+            SeqIO.write(record, outfile, "fasta-2line")
         outfile.close()
     close_handle(log_handle)
