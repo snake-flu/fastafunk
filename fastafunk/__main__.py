@@ -225,8 +225,8 @@ def main(args=None):
         help='One or more CSV or TSV tables of metadata'
     )
     subparser_count.add_argument(
-        '--index-column', dest='index_column', nargs='+', metavar='<column>', required=True,
-        help='Column(s) in the metadata file to use to match to the sequence'
+        '--group-column', dest='group_column', nargs='+', metavar='<column>', required=True,
+        help='Column(s) in the metadata file to define groupings'
     )
 
     subparser_count.set_defaults(func=fastafunk.subcommands.count.run)
@@ -256,6 +256,10 @@ def main(args=None):
         help='Column(s) in the metadata file to use to match to the sequence'
     )
     subparser_subsample.add_argument(
+        '--group-column', dest='group_column', nargs='+', metavar='<column>', required=True,
+        help='Column(s) in the metadata file to define groupings'
+    )
+    subparser_subsample.add_argument(
         '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="",
         help='A FASTA file (else writes to stdout)'
     )
@@ -278,6 +282,45 @@ def main(args=None):
     )
 
     subparser_subsample.set_defaults(func=fastafunk.subcommands.subsample.run)
+
+    # _______________________________  annotate  __________________________________#
+
+    subparser_annotate = subparsers.add_parser(
+        "annotate",
+        parents=[common],
+        help="Subsamples a fasta based on groups defined by a metadata file",
+    )
+
+    subparser_annotate.add_argument(
+        '--in-fasta', dest='in_fasta', nargs='+', metavar='<filename>', required=False,
+        help='One or more FASTA files of sequences (else reads from stdin)'
+    )
+    subparser_annotate.add_argument(
+        '--in-metadata', dest='in_metadata', nargs='+', metavar='<filename>', required=True,
+        help='One or more CSV or TSV tables of metadata'
+    )
+    subparser_annotate.add_argument(
+        '--index-field', dest='index_field', nargs='+', metavar='<field>', required=False,
+        help='Field(s) in the fasta header to match the metadata (else matches column names)'
+    )
+    subparser_annotate.add_argument(
+        '--index-column', dest='index_column', nargs='+', metavar='<column>', required=True,
+        help='Column(s) in the metadata file to use to match to the sequence'
+    )
+    subparser_annotate.add_argument(
+        '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="",
+        help='A FASTA file (else writes to stdout)'
+    )
+    subparser_annotate.add_argument(
+        '--out-metadata', dest='out_metadata', metavar='<filename>', required=False,
+        help='A metadata file'
+    )
+    common.add_argument(
+        '--header-delimiter', dest='header_delimiter', default='|', metavar='<symbol>', required=False,
+        help='Header delimiter'
+    )
+
+    subparser_annotate.set_defaults(func=fastafunk.subcommands.annotate.run)
     # ___________________________________________________________________________#
 
 

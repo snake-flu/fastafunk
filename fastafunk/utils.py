@@ -72,7 +72,7 @@ def find_column_with_regex(df, column, regex):
             return df
     return df
 
-def load_dataframe(metadata_file, index_columns, where_columns):
+def load_dataframe(metadata_file, filter_columns, where_columns):
     sep = ','
     if metadata_file.endswith('tsv'):
         sep = '\t'
@@ -85,22 +85,24 @@ def load_dataframe(metadata_file, index_columns, where_columns):
 
     df.rename(str.lower, axis='columns', inplace=True)
 
-    if index_columns:
-        index_columns = [s.lower() for s in index_columns]
-        df = df.loc[:, df.columns.isin(index_columns)]
+    if filter_columns:
+        filter_columns = [s.lower() for s in filter_columns]
+        df = df.loc[:, df.columns.isin(filter_columns)]
     return df
 
-def load_metadata(list_metadata_files, index_columns, where_columns):
-    master = None
-    master_key = None
+def add_data(new_dataframe, master_dataframe):
+    column_intersection = [s for s in new_dataframe.columns if s in master_dataframe.columns]
+    master_dataframe = master_dataframe.merge(new_dataframe, how='outer', on=column_intersection)
+    return master_dataframe
 
+def load_metadata(list_metadata_files, filter_columns, where_columns):
+    master = None
     for metadata_file in list_metadata_files:
         if master is None:
-            master = load_dataframe(metadata_file, index_columns, where_columns)
+            master = load_dataframe(metadata_file, filter_columns, where_columns)
         else:
-            new_data = load_dataframe(metadata_file, index_columns, where_columns)
-            column_intersection = [s for s in new_data.columns if s in master.columns]
-            master = master.merge(new_data, how='outer', on=column_intersection)
+            new_data = load_dataframe(metadata_file, filter_columns, where_columns)
+            master = add_data(new_data, master)
     return master
 
 def grouped_to_csv(grouped, index_columns, log_handle):
@@ -156,4 +158,20 @@ def subsample_metadata(df, index_columns, sample_size, target_file, exclude_uk, 
             subsampled_indexes.extend(group.index)
 
     return df.iloc[subsampled_indexes]
+
+def get_index_field_from_header(record, header_delimiter, index_field):
+    if not index_field:
+        return record.id
+
+    fields = record.id.split(header_delim)
+
+    if isinstance(index_field, int):
+        assert index_field < len(fields)
+        return fields[index_field]
+
+    for field in fields:
+        if field.startswith(index_field):
+            return field[len(index_field)+1:]
+
+    return record.id
 
