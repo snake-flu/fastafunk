@@ -18,13 +18,13 @@ from Bio.SeqRecord import SeqRecord
 
 from fastafunk.utils import *
 
-def subsample_fasta(in_fasta,in_metadata,index_field,index_column,out_fasta,out_metadata,log_file,sample_size,
-                    target_file,exclude_uk):
+def subsample_fasta(in_fasta,in_metadata,index_field,index_column,group_column,out_fasta,out_metadata,log_file,
+                    sample_size,target_file,exclude_uk):
     log_handle = get_log_handle(log_file, out_fasta)
 
     metadata = load_metadata(in_metadata, None, None)
-    subsampled_metadata = subsample_metadata(metadata, index_column, sample_size, target_file, exclude_uk)
-    metadata_id_key = "covv_virus_name"#"edin_id"
+    subsampled_metadata = subsample_metadata(metadata, group_column, sample_size, target_file, exclude_uk)
+    metadata_id_key = index_column
 
     if not in_fasta:
         in_fasta = [""]

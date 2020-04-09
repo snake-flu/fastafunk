@@ -12,6 +12,7 @@ def run(options):
         options.in_metadata,
         options.index_field,
         options.index_column,
+        options.group_column,
         options.out_fasta,
         options.out_metadata,
         options.log_file,
