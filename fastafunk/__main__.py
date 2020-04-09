@@ -88,8 +88,8 @@ def main(args=None):
         help='One or more FASTA files of sequences (else reads from stdin)'
     )
     subparser_consensus.add_argument(
-        '--in-metadata', dest='in_metadata', nargs='+', metavar='<filename>', required=True,
-        help='One or more CSV or TSV tables of metadata'
+        '--in-metadata', dest='in_metadata', metavar='<filename>', required=True,
+        help='CSV of metadata with same naming convention as fasta file'
     )
     subparser_consensus.add_argument(
         '--index-field', dest='index_field', nargs='+', metavar='<field>', required=True,
@@ -194,8 +194,8 @@ def main(args=None):
         help='One or more FASTA files of sequences (else reads from stdin)'
     )
     subparser_split.add_argument(
-        '--in-metadata', dest='in_metadata', nargs='+', metavar='<filename>', required=True,
-        help='One or more CSV or TSV tables of metadata'
+        '--in-metadata', dest='in_metadata', metavar='<filename>', required=True,
+        help='One CSV of metadata'
     )
     subparser_split.add_argument(
         '--index-column', dest='index_column', nargs='+', metavar='<column>', required=False,
