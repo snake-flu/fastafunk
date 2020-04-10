@@ -315,7 +315,7 @@ def main(args=None):
         '--out-metadata', dest='out_metadata', metavar='<filename>', required=False,
         help='A metadata file'
     )
-    common.add_argument(
+    subparser_annotate.add_argument(
         '--header-delimiter', dest='header_delimiter', default='|', metavar='<symbol>', required=False,
         help='Header delimiter'
     )
