@@ -18,5 +18,7 @@ def run(options):
         options.log_file,
         options.sample_size,
         options.target_file,
+        options.select_by_max_column,
+        options.select_by_min_column,
         options.exclude_uk
     )

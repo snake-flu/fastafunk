@@ -139,15 +139,77 @@ class TestUtils(unittest.TestCase):
         expect = {('a', 'x'): 1, ('b', 'y'): 2, ('d', 'x1'): 1}
         self.assertEqual(targets, expect)
 
+    def test_get_subsample_indexes_max(self):
+        group = df = pd.DataFrame({'name': ['a', 'b', 'b', 'd'], "place": ['x', 'y', 'y', 'x1'],
+                                   "missing": [3,5,7,3], "length": [10,2,11,12],
+                                   "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
+        target_size = 1
+        select_by_max_column = "length"
+        select_by_min_column = None
+        result = get_subsample_indexes(group, target_size, select_by_max_column, select_by_min_column)
+        expect = [3]
+        self.assertEqual(result, expect)
+
+    def test_get_subsample_indexes_min(self):
+        group = df = pd.DataFrame({'name': ['a', 'b', 'b', 'd'], "place": ['x', 'y', 'y', 'x1'],
+                                   "missing": [3,5,7,3], "length": [10,2,10,10],
+                                   "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
+        target_size = 1
+        select_by_max_column = None
+        select_by_min_column = "missing"
+        result = get_subsample_indexes(group, target_size, select_by_max_column, select_by_min_column)
+        expect1 = [0]
+        expect2 = [3]
+        if result == expect1:
+            self.assertEqual(result, expect1)
+        else:
+            self.assertEqual(result, expect2)
+
+    def test_get_subsample_indexes_na(self):
+        group = df = pd.DataFrame({'name': ['a', 'b', 'b', 'd'], "place": ['x', 'y', 'y', 'x1'],
+                                   "missing": [3,5,None,3], "length": [10,2,None,10],
+                                   "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
+        target_size = 3
+        select_by_max_column = None
+        select_by_min_column = "missing"
+        result = get_subsample_indexes(group, target_size, select_by_max_column, select_by_min_column)
+        expect = [0,1,3]
+        self.assertEqual(result, expect)
+
+    def test_get_subsample_indexes_na_max_target_size(self):
+        group = df = pd.DataFrame({'name': ['a', 'b', 'b', 'd'], "place": ['x', 'y', 'y', 'x1'],
+                                   "missing": [3,5,None,3], "length": [10,2,None,10],
+                                   "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
+        target_size = 4
+        select_by_max_column = None
+        select_by_min_column = "missing"
+        result = get_subsample_indexes(group, target_size, select_by_max_column, select_by_min_column)
+        expect = [0,1,3]
+        self.assertEqual(result, expect)
+
+    def test_get_subsample_indexes_max_target_size(self):
+        group = df = pd.DataFrame({'name': ['a', 'b', 'b', 'd'], "place": ['x', 'y', 'y', 'x1'],
+                                   "missing": [3,5,None,3], "length": [10,2,None,10],
+                                   "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
+        target_size = 4
+        select_by_max_column = None
+        select_by_min_column = None
+        result = get_subsample_indexes(group, target_size, select_by_max_column, select_by_min_column)
+        expect = [0,1,2,3]
+        self.assertEqual(result, expect)
+
     def test_subsample_metadata_sample_size(self):
         df = pd.DataFrame({'name': ['a', 'b', 'b', 'd'], "place": ['x', 'y', 'y', 'x1'],
                            "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
         index_columns = ["name", "place"]
         target_file = None
         sample_size = 1
+        select_by_max_column = None
+        select_by_min_column = None
         exclude_uk = False
         log_handle = None
-        result = subsample_metadata(df, index_columns, sample_size, target_file, exclude_uk, log_handle)
+        result = subsample_metadata(df, index_columns, sample_size, target_file, select_by_max_column,
+                                    select_by_min_column, exclude_uk, log_handle)
         result.reset_index(drop=True, inplace=True)
         expect1 = pd.DataFrame({'name': ['a', 'b', 'd'], "place": ['x', 'y', 'x1'],
                            "date": ['2020-04-01', '2020-03-29', '2020-04-02']})
@@ -164,9 +226,12 @@ class TestUtils(unittest.TestCase):
         index_columns = ["name", "place"]
         target_file = "%s/target_counts.csv" %data_dir
         sample_size = 0
+        select_by_max_column = None
+        select_by_min_column = None
         exclude_uk = False
         log_handle = None
-        result = subsample_metadata(df, index_columns, sample_size, target_file, exclude_uk, log_handle)
+        result = subsample_metadata(df, index_columns, sample_size, target_file, select_by_max_column,
+                                    select_by_min_column, exclude_uk, log_handle)
         result.reset_index(drop=True, inplace=True)
         expect1 = pd.DataFrame({'name': ['a', 'b', 'd'], "place": ['x', 'y', 'x1'],
                            "date": ['2020-04-01', '2020-03-29', '2020-04-02']})
@@ -183,9 +248,12 @@ class TestUtils(unittest.TestCase):
         index_columns = ["name", "place"]
         target_file = "%s/target_counts.csv" %data_dir
         sample_size = 4
+        select_by_max_column = None
+        select_by_min_column = None
         exclude_uk = False
         log_handle = None
-        result = subsample_metadata(df, index_columns, sample_size, target_file, exclude_uk, log_handle)
+        result = subsample_metadata(df, index_columns, sample_size, target_file, select_by_max_column,
+                                    select_by_min_column, exclude_uk, log_handle)
         result.reset_index(drop=True, inplace=True)
         expect1 = pd.DataFrame({'name': ['a', 'b', 'd'], "place": ['x', 'y', 'x1'],
                            "date": ['2020-04-01', '2020-03-29', '2020-04-02']})
