@@ -264,7 +264,7 @@ class TestUtils(unittest.TestCase):
         df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "header": ['x', 'y', 'z', 'x1'],
                            "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
         index_column = None
-        result = get_index_column_values(df, index_column)
+        index_column, result = get_index_column_values(df, index_column)
         expect = ['x', 'y', 'z', 'x1']
         self.assertEqual(result, expect)
 
@@ -272,7 +272,7 @@ class TestUtils(unittest.TestCase):
         df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "place": ['x', 'y', 'z', 'x1'],
                            "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
         index_column = None
-        result = get_index_column_values(df, index_column)
+        index_column, result = get_index_column_values(df, index_column)
         expect = ['a', 'b', 'c', 'd']
         self.assertEqual(result, expect)
 
@@ -280,7 +280,7 @@ class TestUtils(unittest.TestCase):
         df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "place": ['x', 'y', 'z', 'x1'],
                            "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
         index_column = 2
-        result = get_index_column_values(df, index_column)
+        index_column, result = get_index_column_values(df, index_column)
         expect = ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']
         self.assertEqual(result, expect)
 
@@ -288,7 +288,7 @@ class TestUtils(unittest.TestCase):
         df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "place": ['x', 'y', 'z', 'x1'],
                            "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
         index_column = "date"
-        result = get_index_column_values(df, index_column)
+        index_column, result = get_index_column_values(df, index_column)
         expect = ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']
         self.assertEqual(result, expect)
 

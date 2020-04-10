@@ -191,4 +191,4 @@ def get_index_column_values(df, index_column):
 
     assert index_column in df.columns
     assert not df[index_column].duplicated().any()
-    return list(df[index_column].values)
+    return index_column, list(df[index_column].values)

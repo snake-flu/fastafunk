@@ -54,3 +54,35 @@ class TestAnnotate(unittest.TestCase):
         expected = "%s/expect_simple.fasta" %data_dir
         self.assertTrue(filecmp.cmp(out_fasta, expected, shallow=False))
         os.unlink(out_fasta)
+
+    def test_annotate_metadata_simple(self):
+        in_fasta = ["%s/annotate.fasta" %data_dir]
+        in_metadata = ["%s/simple_metadata.csv" % data_dir]
+        index_column = ""
+        index_field = None
+        out_fasta = "%s/tmp.annotated.fasta" %data_dir
+        out_metadata = "%s/tmp.annotated.csv" %data_dir
+        header_delimiter = "|"
+        log_file = None
+        annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_metadata, header_delimiter, log_file)
+
+        expected = "%s/expect_annotated.csv" %data_dir
+        self.assertTrue(filecmp.cmp(out_metadata, expected, shallow=False))
+        os.unlink(out_metadata)
+        os.unlink(out_fasta)
+
+    def test_annotate_metadata_superset(self):
+        in_fasta = ["%s/annotate.fasta" %data_dir]
+        in_metadata = ["%s/superset_metadata.csv" % data_dir]
+        index_column = ""
+        index_field = None
+        out_fasta = "%s/tmp.annotated.fasta" %data_dir
+        out_metadata = "%s/tmp.annotated.csv" %data_dir
+        header_delimiter = "|"
+        log_file = None
+        annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_metadata, header_delimiter, log_file)
+
+        expected = "%s/expect_annotated_superset.csv" %data_dir
+        self.assertTrue(filecmp.cmp(out_metadata, expected, shallow=False))
+        os.unlink(out_metadata)
+        os.unlink(out_fasta)
