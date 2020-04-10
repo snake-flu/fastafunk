@@ -25,7 +25,7 @@ def annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_me
     metadata_keys = None
     if in_metadata:
         metadata = load_metadata(in_metadata, None, None)
-        index_column, metadata_keys = get_index_column_values(metadata, index_column)
+        metadata, metadata_keys = get_index_column_values(metadata, index_column)
 
     stats = {"length": [], "missing": [], "gaps": []}
     ids = []
@@ -55,12 +55,8 @@ def annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_me
         close_handle(fasta_handle)
 
     if out_metadata:
-        print("print out metadata", out_metadata)
-        if index_column is None or index_column == "":
-            index_column = "header"
-        stats[index_column] = ids
+        stats["header"] = ids
         stats_data = pd.DataFrame(stats)
-        print(stats_data)
         if in_metadata:
             metadata = add_data(stats_data, metadata)
         else:

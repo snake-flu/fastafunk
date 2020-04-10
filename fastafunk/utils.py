@@ -205,17 +205,25 @@ def get_index_field_from_header(record, header_delimiter, index_field):
 
     return record.id
 
-def get_index_column_values(df, index_column):
-    if not index_column:
+def get_index_column_values(df, index_columns, header_delimiter='|'):
+    if not index_columns or len(index_columns) == 0:
         if "header" in df.columns:
-            index_column = "header"
+            index_columns = ["header"]
         else:
-            index_column = 0
+            index_columns = [0]
 
-    if isinstance(index_column, int):
-        assert index_column < len(df.columns.values)
-        index_column = df.columns[index_column]
+    str_index_columns = []
+    for column in index_columns:
+        if isinstance(column, int):
+            assert column < len(df.columns.values)
+            column = df.columns[column]
+        assert column in df.columns.values
+        str_index_columns.append(column)
 
-    assert index_column in df.columns
-    assert not df[index_column].duplicated().any()
-    return index_column, list(df[index_column].values)
+    column_values = []
+    for i,row in df.iterrows():
+        column_values.append(header_delimiter.join([str(row[c]) for c in str_index_columns]))
+    df["header"] = column_values
+    assert not df["header"].duplicated().any()
+
+    return df, column_values
