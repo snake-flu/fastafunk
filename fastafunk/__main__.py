@@ -308,6 +308,15 @@ def main(args=None):
         help='Column(s) in the metadata file to use to match to the sequence'
     )
     subparser_annotate.add_argument(
+        '--select-by-max-column', dest='select_by_max_column', metavar='<column>', required=False,
+        help='Column in the metadata file maximize over when subsetting'
+    )
+    subparser_annotate.add_argument(
+        '--select-by-min-column', dest='select_by_min_column', metavar='<column>', required=False,
+        help='Column in the metadata file minimize over when subsetting'
+    )
+    subparser_annotate.add_argument(
+
         '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="",
         help='A FASTA file (else writes to stdout)'
     )

@@ -11,6 +11,7 @@ Copyright 2020 Xiaoyu Yu (xiaoyu.yu@ed.ac.uk) & Rachel Colquhoun (rachel.colquho
 import sys
 import csv
 import pandas as pd
+import numpy as np
 import re
 
 def get_log_handle(log_file, out_fasta):
@@ -33,7 +34,7 @@ def get_in_handle(in_fasta):
     if not in_fasta:
         in_handle = sys.stdin
     else:
-        in_handle = open(in_fasta,"r")
+        in_handle = open(in_fasta)
     return in_handle
 
 def close_handle(handle):
@@ -105,9 +106,9 @@ def load_metadata(list_metadata_files, filter_columns, where_columns):
             master = add_data(new_data, master)
     return master
 
-def grouped_to_csv(grouped, index_columns, log_handle):
-    index_columns.append("count")
-    log_handle.write("%s\n" %','.join(index_columns))
+def grouped_to_csv(grouped, group_columns, log_handle):
+    group_columns.append("count")
+    log_handle.write("%s\n" %','.join(group_columns))
 
     for name, group in grouped:
         if isinstance(name, str):
@@ -119,25 +120,49 @@ def grouped_to_csv(grouped, index_columns, log_handle):
         str_v = [str(s) for s in v]
         log_handle.write("%s\n" %','.join(str_v))
 
-def get_groups(df, index_columns, log_handle=None):
-    grouped = df.groupby(index_columns)
+def get_groups(df, group_columns, log_handle=None):
+    grouped = df.groupby(group_columns)
     if log_handle:
-        grouped_to_csv(grouped, index_columns, log_handle)
+        grouped_to_csv(grouped, group_columns, log_handle)
     return grouped
 
-def load_target_sample_sizes(target_file, index_columns):
+def load_target_sample_sizes(target_file, group_columns):
     targets = {}
     df = pd.read_csv(target_file)
-    df.set_index(index_columns, inplace=True)
+    df.set_index(group_columns, inplace=True)
     for name, row in df.iterrows():
         targets[name] = row["count"]
     return targets
 
-def subsample_metadata(df, index_columns, sample_size, target_file, exclude_uk, log_handle=None):
-    grouped = get_groups(df, index_columns, log_handle)
+def get_subsample_indexes(group, target_size, select_by_max_column, select_by_min_column):
+    subsampled_indexes = []
+    idx = 0
+
+    if select_by_max_column and select_by_max_column in group.columns:
+        while len(subsampled_indexes) < target_size and not np.isnan(idx):
+            idx = group[select_by_max_column].idxmax(axis=0, skipna=True)
+            if not np.isnan(idx):
+                subsampled_indexes.append(idx)
+                group.drop(idx, inplace=True)
+        return sorted(subsampled_indexes)
+
+    elif select_by_min_column and select_by_min_column in group.columns:
+        while len(subsampled_indexes) < target_size and not np.isnan(idx):
+            idx = group[select_by_min_column].idxmin(axis=0, skipna=True)
+            if not np.isnan(idx):
+                subsampled_indexes.append(idx)
+                group.drop(idx, inplace=True)
+        return sorted(subsampled_indexes)
+
+    else:
+        return sorted(list(group.sample(n=target_size, random_state=1).index))
+
+def subsample_metadata(df, group_columns, sample_size, target_file, select_by_max_column, select_by_min_column,
+                       exclude_uk, log_handle=None):
+    grouped = get_groups(df, group_columns, log_handle)
     targets = {}
     if target_file:
-        targets = load_target_sample_sizes(target_file, index_columns)
+        targets = load_target_sample_sizes(target_file, group_columns)
 
     subsampled_indexes = []
 
@@ -145,7 +170,7 @@ def subsample_metadata(df, index_columns, sample_size, target_file, exclude_uk, 
         uk_mask = df['admin0'] == "UK"
         subsampled_indexes.extend(df[uk_mask].index)
         non_uk_df = df[~uk_mask]
-        grouped = non_uk_df.groupby(index_columns)
+        grouped = non_uk_df.groupby(group_columns)
 
     for name, group in grouped:
         num_in_group = len(group.index)
@@ -153,17 +178,22 @@ def subsample_metadata(df, index_columns, sample_size, target_file, exclude_uk, 
         if name in targets:
             target_size = targets[name]
         if num_in_group > target_size:
-            subsampled_indexes.extend(group.sample(n=target_size, random_state=1).index)
+            subsampled_indexes.extend(get_subsample_indexes(group, target_size, select_by_max_column,
+                                                            select_by_min_column))
         else:
             subsampled_indexes.extend(group.index)
 
     return df.iloc[subsampled_indexes]
 
 def get_index_field_from_header(record, header_delimiter, index_field):
-    if not index_field:
+    if index_field is None or index_field == "":
         return record.id
 
-    fields = record.id.split(header_delim)
+    if header_delimiter == " ":
+        fields = record.description.split()
+    else:
+        fields = record.id.split(header_delimiter)
+
 
     if isinstance(index_field, int):
         assert index_field < len(fields)
@@ -175,3 +205,17 @@ def get_index_field_from_header(record, header_delimiter, index_field):
 
     return record.id
 
+def get_index_column_values(df, index_column):
+    if not index_column:
+        if "header" in df.columns:
+            index_column = "header"
+        else:
+            index_column = 0
+
+    if isinstance(index_column, int):
+        assert index_column < len(df.columns.values)
+        index_column = df.columns[index_column]
+
+    assert index_column in df.columns
+    assert not df[index_column].duplicated().any()
+    return index_column, list(df[index_column].values)
