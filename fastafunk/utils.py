@@ -33,7 +33,7 @@ def get_in_handle(in_fasta):
     if not in_fasta:
         in_handle = sys.stdin
     else:
-        in_handle = open(in_fasta,"r")
+        in_handle = open(in_fasta)
     return in_handle
 
 def close_handle(handle):
@@ -160,10 +160,13 @@ def subsample_metadata(df, index_columns, sample_size, target_file, exclude_uk, 
     return df.iloc[subsampled_indexes]
 
 def get_index_field_from_header(record, header_delimiter, index_field):
-    if not index_field:
+    if index_field is None or index_field == "":
         return record.id
 
-    fields = record.id.split(header_delim)
+    if header_delimiter == " ":
+        fields = record.description.split()
+    else:
+        fields = record.id.split(header_delimiter)
 
     if isinstance(index_field, int):
         assert index_field < len(fields)
@@ -175,3 +178,17 @@ def get_index_field_from_header(record, header_delimiter, index_field):
 
     return record.id
 
+def get_index_column_values(df, index_column):
+    if not index_column:
+        if "header" in df.columns:
+            index_column = "header"
+        else:
+            index_column = 0
+
+    if isinstance(index_column, int):
+        assert index_column < len(df.columns.values)
+        index_column = df.columns[index_column]
+
+    assert index_column in df.columns
+    assert not df[index_column].duplicated().any()
+    return list(df[index_column].values)

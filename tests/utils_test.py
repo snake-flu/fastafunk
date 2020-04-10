@@ -8,6 +8,7 @@ import unittest
 import filecmp
 import pandas as pd
 import pandas.testing as pd_testing
+from Bio import SeqIO
 
 from fastafunk.utils import *
 
@@ -194,3 +195,117 @@ class TestUtils(unittest.TestCase):
             self.assertEqual(result, expect1)
         else:
             self.assertEqual(result, expect2)
+
+    def test_get_index_field_from_header_no_index_field(self):
+        record = SeqIO.read("%s/single.fasta" %data_dir, "fasta")
+        index_field = None
+        header_delimiter = '|'
+        result = get_index_field_from_header(record, header_delimiter, index_field)
+        expect = "COUNTRY/CODE/YEAR|ID||DATE|BLAH=XXX|CLOWN:YYY"
+        self.assertEqual(result, expect)
+
+    def test_get_index_field_from_header_int_index_field(self):
+        record = SeqIO.read("%s/single.fasta" %data_dir, "fasta")
+        index_field = 0
+        header_delimiter = '|'
+        result = get_index_field_from_header(record, header_delimiter, index_field)
+        expect = "COUNTRY/CODE/YEAR"
+        self.assertEqual(result, expect)
+
+    def test_get_index_field_from_header_int_index_field1(self):
+        record = SeqIO.read("%s/single.fasta" %data_dir, "fasta")
+        index_field = 1
+        header_delimiter = '|'
+        result = get_index_field_from_header(record, header_delimiter, index_field)
+        expect = "ID"
+        self.assertEqual(result, expect)
+
+    def test_get_index_field_from_header_int_index_field_empty(self):
+        record = SeqIO.read("%s/single.fasta" %data_dir, "fasta")
+        index_field = 2
+        header_delimiter = '|'
+        result = get_index_field_from_header(record, header_delimiter, index_field)
+        expect = ""
+        self.assertEqual(result, expect)
+
+    def test_get_index_field_from_header_str_index_field(self):
+        record = SeqIO.read("%s/single.fasta" %data_dir, "fasta")
+        index_field = "BLAH"
+        header_delimiter = '|'
+        result = get_index_field_from_header(record, header_delimiter, index_field)
+        expect = "XXX"
+        self.assertEqual(result, expect)
+
+    def test_get_index_field_from_header_str_index_field1(self):
+        record = SeqIO.read("%s/single.fasta" %data_dir, "fasta")
+        index_field = "CLOWN"
+        header_delimiter = '|'
+        result = get_index_field_from_header(record, header_delimiter, index_field)
+        expect = "YYY"
+        self.assertEqual(result, expect)
+
+    def test_get_index_field_from_header_str_index_field_header_delim(self):
+        record = SeqIO.read("%s/single.fasta" %data_dir, "fasta")
+        index_field = "foo"
+        header_delimiter = ' '
+        result = get_index_field_from_header(record, header_delimiter, index_field)
+        expect = "bar"
+        self.assertEqual(result, expect)
+
+    def test_get_index_field_from_header_str_index_field_header_delim1(self):
+        record = SeqIO.read("%s/single.fasta" %data_dir, "fasta")
+        index_field = "parrot"
+        header_delimiter = ' '
+        result = get_index_field_from_header(record, header_delimiter, index_field)
+        expect = "clown"
+        self.assertEqual(result, expect)
+
+    def test_get_index_column_values_default(self):
+        df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "header": ['x', 'y', 'z', 'x1'],
+                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
+        index_column = None
+        result = get_index_column_values(df, index_column)
+        expect = ['x', 'y', 'z', 'x1']
+        self.assertEqual(result, expect)
+
+    def test_get_index_column_values_default_no_header(self):
+        df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "place": ['x', 'y', 'z', 'x1'],
+                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
+        index_column = None
+        result = get_index_column_values(df, index_column)
+        expect = ['a', 'b', 'c', 'd']
+        self.assertEqual(result, expect)
+
+    def test_get_index_column_values_int(self):
+        df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "place": ['x', 'y', 'z', 'x1'],
+                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
+        index_column = 2
+        result = get_index_column_values(df, index_column)
+        expect = ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']
+        self.assertEqual(result, expect)
+
+    def test_get_index_column_values_string(self):
+        df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "place": ['x', 'y', 'z', 'x1'],
+                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
+        index_column = "date"
+        result = get_index_column_values(df, index_column)
+        expect = ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']
+        self.assertEqual(result, expect)
+
+    def test_get_index_column_values_int_too_big(self):
+        df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "place": ['x', 'y', 'z', 'x1'],
+                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
+        index_column = 3
+        self.assertRaises(AssertionError, get_index_column_values, df, index_column)
+
+    def test_get_index_column_values_string_not_column(self):
+        df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "place": ['x', 'y', 'z', 'x1'],
+                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
+        index_column = "id"
+        self.assertRaises(AssertionError, get_index_column_values, df, index_column)
+
+    def test_get_index_column_values_column_has_duplicates(self):
+        df = pd.DataFrame({'name': ['a', 'b', 'b', 'd'], "place": ['x', 'y', 'z', 'x1'],
+                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
+        index_column = "name"
+        self.assertRaises(AssertionError, get_index_column_values, df, index_column)
