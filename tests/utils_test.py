@@ -114,7 +114,7 @@ class TestUtils(unittest.TestCase):
                                "place": ['x','y','z','x1','x','y','z'],
                                "date": ['2020-04-01', '2020-04-05', '2020-03-29','2020-04-02',
                                         '2020-04-01', '2020-04-05', '2020-03-29'],
-                               "blah": ['NaN','NaN','NaN', 4.0, 1.0, 2.0, 3.0]})
+                               "blah": [None, None, None, 4, 1, 2, 3]})
         print(result)
         print(expect)
         self.assertEqual(result, expect)
