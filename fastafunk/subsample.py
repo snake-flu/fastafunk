@@ -25,6 +25,7 @@ def subsample_fasta(in_fasta,in_metadata,index_field,index_column,group_column,o
     metadata = load_metadata(in_metadata, None, None)
     subsampled_metadata = subsample_metadata(metadata, group_column, sample_size, target_file, select_by_max_column,
                                              select_by_min_column, exclude_uk)
+
     metadata_id_key = index_column
 
     if not in_fasta:

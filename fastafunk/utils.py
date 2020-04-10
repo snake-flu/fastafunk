@@ -194,6 +194,7 @@ def get_index_field_from_header(record, header_delimiter, index_field):
     else:
         fields = record.id.split(header_delimiter)
 
+
     if isinstance(index_field, int):
         assert index_field < len(fields)
         return fields[index_field]

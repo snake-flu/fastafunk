@@ -21,6 +21,7 @@ from fastafunk.stats import *
 def annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_metadata, header_delimiter, log_file):
     log_handle = get_log_handle(log_file, out_fasta)
 
+
     metadata_keys = None
     if in_metadata:
         metadata = load_metadata(in_metadata, None, None)

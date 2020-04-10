@@ -316,6 +316,7 @@ def main(args=None):
         help='Column in the metadata file minimize over when subsetting'
     )
     subparser_annotate.add_argument(
+
         '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="",
         help='A FASTA file (else writes to stdout)'
     )
