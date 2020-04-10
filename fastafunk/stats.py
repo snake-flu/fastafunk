@@ -6,12 +6,15 @@ def get_sequence(sequence, unaligned=True):
     return sequence
 
 def remove_terminal_gaps(sequence):
+    if len(sequence) == 0:
+        return sequence
     i = 0
-    while sequence[i] in ["N","-"] and i < len(sequence):
+    while i < len(sequence) and sequence[i] in ["N","-"]:
         i += 1
     j = len(sequence)
     while j > 0 and sequence[j-1] in ["N","-"]:
         j -= 1
+    assert i < j
     return sequence[i:j]
 
 def get_length(sequence, unaligned=True, exclude_terminal_gaps=True):

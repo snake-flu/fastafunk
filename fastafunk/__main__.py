@@ -296,7 +296,7 @@ def main(args=None):
         help='One or more FASTA files of sequences (else reads from stdin)'
     )
     subparser_annotate.add_argument(
-        '--in-metadata', dest='in_metadata', nargs='+', metavar='<filename>', required=True,
+        '--in-metadata', dest='in_metadata', nargs='+', metavar='<filename>', required=False,
         help='One or more CSV or TSV tables of metadata'
     )
     subparser_annotate.add_argument(
@@ -304,7 +304,7 @@ def main(args=None):
         help='Field(s) in the fasta header to match the metadata (else matches column names)'
     )
     subparser_annotate.add_argument(
-        '--index-column', dest='index_column', nargs='+', metavar='<column>', required=True,
+        '--index-column', dest='index_column', nargs='+', metavar='<column>', required=False,
         help='Column(s) in the metadata file to use to match to the sequence'
     )
     subparser_annotate.add_argument(

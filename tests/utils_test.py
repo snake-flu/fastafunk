@@ -332,7 +332,7 @@ class TestUtils(unittest.TestCase):
         df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "header": ['x', 'y', 'z', 'x1'],
                            "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
         index_column = None
-        index_column, result = get_index_column_values(df, index_column)
+        df, result = get_index_column_values(df, index_column)
         expect = ['x', 'y', 'z', 'x1']
         self.assertEqual(result, expect)
 
@@ -340,40 +340,48 @@ class TestUtils(unittest.TestCase):
         df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "place": ['x', 'y', 'z', 'x1'],
                            "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
         index_column = None
-        index_column, result = get_index_column_values(df, index_column)
+        df, result = get_index_column_values(df, index_column)
         expect = ['a', 'b', 'c', 'd']
         self.assertEqual(result, expect)
 
     def test_get_index_column_values_int(self):
         df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "place": ['x', 'y', 'z', 'x1'],
                            "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
-        index_column = 2
-        index_column, result = get_index_column_values(df, index_column)
+        index_column = [2]
+        df, result = get_index_column_values(df, index_column)
         expect = ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']
         self.assertEqual(result, expect)
 
     def test_get_index_column_values_string(self):
         df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "place": ['x', 'y', 'z', 'x1'],
                            "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
-        index_column = "date"
-        index_column, result = get_index_column_values(df, index_column)
+        index_column = ["date"]
+        df, result = get_index_column_values(df, index_column)
         expect = ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']
         self.assertEqual(result, expect)
 
     def test_get_index_column_values_int_too_big(self):
         df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "place": ['x', 'y', 'z', 'x1'],
                            "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
-        index_column = 3
+        index_column = [3]
         self.assertRaises(AssertionError, get_index_column_values, df, index_column)
 
     def test_get_index_column_values_string_not_column(self):
         df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "place": ['x', 'y', 'z', 'x1'],
                            "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
-        index_column = "id"
+        index_column = ["id"]
         self.assertRaises(AssertionError, get_index_column_values, df, index_column)
 
     def test_get_index_column_values_column_has_duplicates(self):
         df = pd.DataFrame({'name': ['a', 'b', 'b', 'd'], "place": ['x', 'y', 'z', 'x1'],
                            "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
-        index_column = "name"
+        index_column = ["name"]
         self.assertRaises(AssertionError, get_index_column_values, df, index_column)
+
+    def test_get_index_column_values_strings(self):
+        df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "place": ['x', 'y', 'z', 'x1'],
+                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
+        index_column = ["name","date"]
+        df, result = get_index_column_values(df, index_column)
+        expect = ['a|2020-04-01', 'b|2020-04-05', 'c|2020-03-29', 'd|2020-04-02']
+        self.assertEqual(result, expect)
