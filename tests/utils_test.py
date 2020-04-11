@@ -59,6 +59,41 @@ class TestUtils(unittest.TestCase):
         print(expect)
         self.assertEqual(result, expect)
 
+    def test_find_field_with_regex_no_match(self):
+        header = ">hCoV-19/place/code/2020||country|date"
+        regex = "EPI_[\w_]+"
+        result = find_field_with_regex(header, regex)
+        expect = ""
+        self.assertEqual(result, expect)
+
+    def test_find_field_with_regex_match(self):
+        header = ">EPI_ISL_422243|hCoV-19/place/code/2020||country|date"
+        regex = "EPI_[\w_]+"
+        result = find_field_with_regex(header, regex)
+        expect = "EPI_ISL_422243"
+        self.assertEqual(result, expect)
+
+    def test_find_field_with_regex_no_match2(self):
+        header = ">EPI_ISL_422243|place/code/2020||country|date"
+        regex = "hCo[vV]-19/\w+/[\w_-]+/\w+"
+        result = find_field_with_regex(header, regex)
+        expect = ""
+        self.assertEqual(result, expect)
+
+    def test_find_field_with_regex_match2(self):
+        header = ">EPI_ISL_422243|hCoV-19/place/code/2020||country|date"
+        regex = "hCo[vV]-19/\w+/[\w_-]+/\w+"
+        result = find_field_with_regex(header, regex)
+        expect = "hCoV-19/place/code/2020"
+        self.assertEqual(result, expect)
+
+    def test_find_field_with_regex_match3(self):
+        header = ">hCoV-19/place/code/2020||country|date"
+        regex = "hCo[vV]-19/\w+/[\w_-]+/\w+"
+        result = find_field_with_regex(header, regex)
+        expect = "hCoV-19/place/code/2020"
+        self.assertEqual(result, expect)
+
     def test_load_dataframe_csv(self):
         metadata_file = "%s/metadata.csv" %data_dir
         index_columns = None

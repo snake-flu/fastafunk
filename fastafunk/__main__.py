@@ -260,6 +260,10 @@ def main(args=None):
         help='Column(s) in the metadata file to define groupings'
     )
     subparser_subsample.add_argument(
+        '--where-field', dest='where_field', metavar='<field>=<regex>', required=False,
+        help='Additional matches to header fields'
+    )
+    subparser_subsample.add_argument(
         '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="",
         help='A FASTA file (else writes to stdout)'
     )
@@ -320,7 +324,6 @@ def main(args=None):
         help='Column(s) in the metadata file to use to match to the sequence'
     )
     subparser_annotate.add_argument(
-
         '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="",
         help='A FASTA file (else writes to stdout)'
     )

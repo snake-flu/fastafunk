@@ -73,6 +73,21 @@ def find_column_with_regex(df, column, regex):
             return df
     return df
 
+def find_field_with_regex(header, regex):
+    regex = re.compile(regex)
+    match = re.search(regex, header)
+    if match:
+        return match.group()
+    else:
+        return ""
+
+def get_header_id(record, where_field):
+    if where_field is None:
+        return record.id
+    else:
+        field, regex = where_field.split("=")
+        return find_field_with_regex(record.description, regex)
+
 def load_dataframe(metadata_file, filter_columns, where_columns):
     sep = ','
     if metadata_file.endswith('tsv'):
