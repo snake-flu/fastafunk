@@ -223,7 +223,7 @@ def get_index_column_values(df, index_columns, header_delimiter='|'):
     column_values = []
     for i,row in df.iterrows():
         column_values.append(header_delimiter.join([str(row[c]) for c in str_index_columns]))
-    df["header"] = column_values
+    df.loc[:,"header"] = column_values
     #bad_headers = df[df["header"].duplicated()]["header"].index.values
     #df.drop(bad_headers, inplace=True)
     assert not df["header"].duplicated().any()
