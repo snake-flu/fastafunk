@@ -376,6 +376,8 @@ class TestUtils(unittest.TestCase):
         df = pd.DataFrame({'name': ['a', 'b', 'b', 'd'], "place": ['x', 'y', 'z', 'x1'],
                            "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
         index_column = ["name"]
+        #df, result = get_index_column_values(df, index_column)
+        #self.assertEqual(len(df.index.values),2)
         self.assertRaises(AssertionError, get_index_column_values, df, index_column)
 
     def test_get_index_column_values_strings(self):

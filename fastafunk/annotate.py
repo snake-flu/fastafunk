@@ -18,7 +18,8 @@ from fastafunk.utils import *
 from fastafunk.stats import *
 
 
-def annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_metadata, header_delimiter, log_file):
+def annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_metadata, header_delimiter,
+             add_cov_id, log_file):
     log_handle = get_log_handle(log_file, out_fasta)
 
 
@@ -29,6 +30,7 @@ def annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_me
 
     stats = {"length": [], "missing": [], "gaps": []}
     ids = []
+    cov_ids = []
 
     out_handle = None
     if out_fasta or not out_metadata:
@@ -50,12 +52,18 @@ def annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_me
                 stats[stat].append(result)
             ids.append(id)
             if out_handle:
+                if add_cov_id:
+                    cov_id = get_cov_id(record)
+                    cov_ids.append(cov_id)
+                    record_stats.append("id=%s" % cov_id)
                 record.description += " " + " ".join(record_stats)
                 SeqIO.write(record, out_handle, "fasta-2line")
         close_handle(fasta_handle)
 
     if out_metadata:
         stats["header"] = ids
+        if add_cov_id:
+            stats["cov_id"] = cov_ids
         stats_data = pd.DataFrame(stats)
         if in_metadata:
             metadata = add_data(stats_data, metadata)

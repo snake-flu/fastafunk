@@ -224,6 +224,18 @@ def get_index_column_values(df, index_columns, header_delimiter='|'):
     for i,row in df.iterrows():
         column_values.append(header_delimiter.join([str(row[c]) for c in str_index_columns]))
     df["header"] = column_values
+    #bad_headers = df[df["header"].duplicated()]["header"].index.values
+    #df.drop(bad_headers, inplace=True)
     assert not df["header"].duplicated().any()
 
     return df, column_values
+
+def get_cov_id(record):
+    id_strings = record.id.split('|')[0].split('/')
+    if len(id_strings) > 2 and id_strings[0].startswith("hCo"):
+        id_string = id_strings[2]
+    elif len(id_strings) > 1:
+        id_string = id_strings[1]
+    else:
+        id_string = ""
+    return id_string

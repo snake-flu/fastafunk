@@ -328,6 +328,10 @@ def main(args=None):
         '--header-delimiter', dest='header_delimiter', default='|', metavar='<symbol>', required=False,
         help='Header delimiter'
     )
+    subparser_annotate.add_argument(
+        '--add-cov-id', dest='add_cov_id', action="store_true", required=False,
+        help='Parses header for COG or GISAID unique id and stores'
+    )
 
     subparser_annotate.set_defaults(func=fastafunk.subcommands.annotate.run)
     # ___________________________________________________________________________#
