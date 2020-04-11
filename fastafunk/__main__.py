@@ -272,6 +272,14 @@ def main(args=None):
         help="CSV file of target numbers per group e.g. an edited version of the count output"
     )
     subparser_subsample.add_argument(
+        '--select-by-max-column', dest='select_by_max_column', metavar='<column>', required=False,
+        help='Column in the metadata file maximize over when subsetting'
+    )
+    subparser_subsample.add_argument(
+        '--select-by-min-column', dest='select_by_min_column', metavar='<column>', required=False,
+        help='Column in the metadata file minimize over when subsetting'
+    )
+    subparser_subsample.add_argument(
         "--sample-size", dest='sample_size', metavar="<int>", type=int, required=False, default=10,
         help="The number of samples per group to select if not specified by target file"
     )
@@ -306,14 +314,6 @@ def main(args=None):
     subparser_annotate.add_argument(
         '--index-column', dest='index_column', nargs='+', metavar='<column>', required=False,
         help='Column(s) in the metadata file to use to match to the sequence'
-    )
-    subparser_annotate.add_argument(
-        '--select-by-max-column', dest='select_by_max_column', metavar='<column>', required=False,
-        help='Column in the metadata file maximize over when subsetting'
-    )
-    subparser_annotate.add_argument(
-        '--select-by-min-column', dest='select_by_min_column', metavar='<column>', required=False,
-        help='Column in the metadata file minimize over when subsetting'
     )
     subparser_annotate.add_argument(
 
