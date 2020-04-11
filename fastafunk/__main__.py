@@ -84,19 +84,19 @@ def main(args=None):
     )
 
     subparser_consensus.add_argument(
-        '--in-fasta', dest='in_fasta', nargs='+', metavar='<filename>', required=False,
-        help='One or more FASTA files of sequences (else reads from stdin)'
+        '--in-fasta', dest='in_fasta', metavar='<filename>', required=False,
+        help='One FASTA files of sequences (else reads from stdin)'
     )
     subparser_consensus.add_argument(
         '--in-metadata', dest='in_metadata', metavar='<filename>', required=True,
         help='CSV of metadata with same naming convention as fasta file'
     )
     subparser_consensus.add_argument(
-        '--index-field', dest='index_field', nargs='+', metavar='<field>', required=True,
+        '--index-field', dest='index_field', metavar='<field>', required=True,
         help='Field(s) in the fasta header to match the metadata (else matches column names)'
     )
     subparser_consensus.add_argument(
-        '--index-column', dest='index_column', nargs='+', metavar='<column>', required=False,
+        '--index-column', dest='index_column',default='header', metavar='<column>', required=False,
         help='Column(s) in the metadata file to use to match to the sequence'
     )
     subparser_consensus.add_argument(
@@ -104,7 +104,7 @@ def main(args=None):
         help='A FASTA file (else writes to stdout)'
     )
     subparser_consensus.add_argument(
-        "--clade-file", required=False, default="", type=str, nargs='+', metavar="<filename>",
+        "--lineage", required=False, default="", type=str, metavar="<filename>",
         help="Text file including specific traits to collapse by"
     )
 
@@ -190,20 +190,24 @@ def main(args=None):
     )
 
     subparser_split.add_argument(
-        '--in-fasta', dest='in_fasta', nargs='+', metavar='<filename>', required=True,
-        help='One or more FASTA files of sequences (else reads from stdin)'
+        '--in-fasta', dest='in_fasta', metavar='<filename>', required=True,
+        help='One FASTA files of sequences (else reads from stdin)'
     )
     subparser_split.add_argument(
         '--in-metadata', dest='in_metadata', metavar='<filename>', required=True,
         help='One CSV of metadata'
     )
     subparser_split.add_argument(
-        '--index-column', dest='index_column', nargs='+', metavar='<column>', required=False,
+        '--index-column', dest='index_column', default='header', metavar='<column>', required=False,
         help='Column(s) in the metadata file to use to match to the sequence'
     )
     subparser_split.add_argument(
-        '--index-field', dest='index_field', nargs='+', metavar='<field>', required=True,
+        '--index-field', dest='index_field', metavar='<field>', required=True,
         help='Field(s) in the fasta header to match the metadata (else matches column names)'
+    )
+    subparser_split.add_argument(
+        "--lineage", required=False, default="", type=str, metavar="<filename>",
+        help="Text file including specific traits to collapse by"
     )
     subparser_split.add_argument(
         '--out-folder', dest='out_folder', metavar='<filename>', default="./", required=False,
@@ -343,6 +347,71 @@ def main(args=None):
     subparser_annotate.set_defaults(func=fastafunk.subcommands.annotate.run)
     # ___________________________________________________________________________#
 
+    # _______________________________  unwrap  __________________________________#
+
+    subparser_unwrap = subparsers.add_parser(
+        "unwrap",
+        parents=[common],
+        help="Remove whitespace from the sequences in 2 line fasta format"
+    )
+
+    subparser_unwrap.add_argument(
+        '--in-fasta', dest='in_fasta', nargs='+', metavar='<filename>', required=True,
+        help='One or more FASTA files of sequences (else reads from stdin)'
+    )
+    subparser_unwrap.add_argument(
+        '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="",
+        help='A FASTA file (else writes to stdout)'
+    )
+
+    subparser_unwrap.set_defaults(func=fastafunk.subcommands.unwrap.run)
+
+    # _______________________________  unwrap  __________________________________#
+
+    # _______________________________  strip  __________________________________#
+
+    subparser_strip = subparsers.add_parser(
+        "strip",
+        parents=[common],
+        help="Strip sites based on various options"
+    )
+
+    subparser_strip.add_argument(
+        '--in-fasta', dest='in_fasta', nargs='+', metavar='<filename>', required=True,
+        help='One or more FASTA files of sequences (else reads from stdin)'
+    )
+    subparser_strip.add_argument(
+        '--gap', dest='gap', default=True, metavar='<filename>', required=False,
+        help='Remove gaps from sequences (Default:True)'
+    )
+    subparser_strip.add_argument(
+        '--ambiguity', dest='ambiguity', default=True, metavar='<filename>', required=False,
+        help='Remove ambiguous sites from sequences ("N") (Default:True)'
+    )
+    subparser_strip.add_argument(
+        '--missing', dest='missing', default=True, metavar='<filename>', required=False,
+        help='Remove missing sites from sequences ("?") (Default:True)'
+    )
+    subparser_strip.add_argument(
+        '--keep-alignment', dest='keep_alignment', default=True, metavar='<filename>', required=False,
+        help='Remove gaps shared by all sequences at the same site (Default:True)'
+    )
+    subparser_strip.add_argument(
+        '--front', dest='front', default=False, metavar='<filename>', required=False,
+        help='Remove only from the front of the sequence (Default:False)'
+    )
+    subparser_strip.add_argument(
+        '--back', dest='back', default=False, metavar='<filename>', required=False,
+        help='Remove only from the back of the sequence (Default:False)'
+    )
+    subparser_strip.add_argument(
+        '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="",
+        help='A FASTA file (else writes to stdout)'
+    )
+
+    subparser_strip.set_defaults(func=fastafunk.subcommands.strip.run)
+
+    # _______________________________  strip __________________________________#
 
     args = parser.parse_args()
 

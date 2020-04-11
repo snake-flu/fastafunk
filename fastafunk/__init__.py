@@ -10,6 +10,7 @@ try:
 except:
     __version__ = "local"
 
-__all__ = ["consensus", "extract", "merge", "remove", "split", "count", "subsample", "annotate"]
+__all__ = ["consensus", "extract", "merge", "remove", "split", "count", "subsample", "annotate",
+           "unwrap","strip"]
 
 from fastafunk import *
