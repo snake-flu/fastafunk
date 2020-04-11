@@ -34,12 +34,12 @@ def subsample_fasta(in_fasta,in_metadata,index_field,index_column,group_column,w
 
     out_handle = get_out_handle(out_fasta)
 
-    to_keep = [fix_header_string(s) for s in index_column_values]
+    to_keep = index_column_values#[fix_header_string(s) for s in index_column_values]
     log_handle.write("\n#Pruned ids:\n")
     for fasta_file in in_fasta:
         fasta_handle = get_in_handle(fasta_file)
         for record in SeqIO.parse(fasta_handle, "fasta"):
-            id_string = record.id.split('|')[0]
+            id_string = record.id
             if id_string in to_keep:
                 SeqIO.write(record, out_handle, "fasta-2line")
                 to_keep.remove(id_string)
