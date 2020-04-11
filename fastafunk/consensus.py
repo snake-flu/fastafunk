@@ -27,7 +27,7 @@ from Bio.Align import AlignInfo
 
 from fastafunk.utils import *
 
-def create_consensus(in_fasta,in_metadata,index_field,index_column,clade_file,out_fasta,log_file):
+def create_consensus(in_fasta,in_metadata,index_field,index_column,lineage,out_fasta,log_file):
     """
     Collapses sequences into consensus sequences based on grouping by index column or index field
 
@@ -38,8 +38,8 @@ def create_consensus(in_fasta,in_metadata,index_field,index_column,clade_file,ou
     format (Required)
     :param index_field: The matching criteria the fasta file needs to be splitted by. (Required)
     :param index_column: The column with matching sequence IDs with fasta file (Default: header). (Optional)
-    :param clade_file: Specific lineages the user wants to split by. All sub-lineages will be collapsed to the closest
-    lineage (e.g. 1.1.2 to 1.1)
+    :param lineage: Specific lineages the user wants to split by. All sub-lineages will be collapsed to the closest
+    lineage (e.g. 1.1.2 to 1.1). (Optional)
     :param out_fasta: Output fasta file with consensus sequences of all groups based on trait (Default: consensus.fasta). (Optional)
     :param log_file: Output log file (Default: stdout). (Optional)
 
@@ -67,42 +67,48 @@ def create_consensus(in_fasta,in_metadata,index_field,index_column,clade_file,ou
     for record in SeqIO.parse(in_fasta, 'fasta'):
         seq_dic[record.id]= record.seq
 
-    if os.path.isfile(clade_file):
-        with open(clade_file,"r") as f:
-            for line in f:
-                phylotype_dic[line.rstrip()] = []
-    else:
-        for trait in metadata_dic.values():
-            if trait not in phylotype_dic.keys():
-                phylotype_dic[trait] = []
-
-    trait_order = list(phylotype_dic.keys())
-    trait_order.sort(key=lambda x: re.sub("[^A-Z0-9]", "",x),reverse=True)
-
     if len(set(metadata_dic.keys())&set(seq_dic.keys())) == 0:
         sys.exit("No matching sequence name with metadata name. Program Exit")
 
-    for cluster in trait_order:
-        for seq_id,phylotype in metadata_dic.items():
-            cluster_type = cluster.split(".")
-            cluster_length = len(cluster_type)
-            phylo_type = phylotype.split(".")
-            if len(phylo_type) < cluster_length:
-                continue
-            if phylo_type[:cluster_length] == cluster_type:
-                if seq_id in seq_dic.keys():
-                    phylotype_dic[cluster].append([seq_id,seq_dic[seq_id],phylotype])
-                    del seq_dic[seq_id]
+    if os.path.isfile(lineage):
+        with open(lineage,"r") as f:
+            for line in f:
+                phylotype_dic[line.rstrip()] = []
 
-    for key,value in phylotype_dic.items():
-        log_handle.write("%s\t%i" %(key,len(value)))
+        trait_order = list(phylotype_dic.keys())
+        trait_order.sort(key=lambda x: re.sub("[^A-Z0-9]", "",x),reverse=True)
+
+        for cluster in trait_order:
+            for seq_id,phylotype in metadata_dic.items():
+                cluster_type = cluster.split(".")
+                cluster_length = len(cluster_type)
+                phylo_type = phylotype.split(".")
+                if len(phylo_type) < cluster_length:
+                    continue
+                if phylo_type[:cluster_length] == cluster_type:
+                    if seq_id in seq_dic.keys():
+                        phylotype_dic[cluster].append([seq_id,seq_dic[seq_id],phylotype])
+                        del seq_dic[seq_id]
+    else:
+        for seq,trait in metadata_dic.items():
+            if trait == "":
+                print("Sequence " + seq + " have an empty " + trait + " value.", file=log_handle)
+            if seq not in seq_dic.keys():
+                print("Sequence " + seq + " does not match metadata sequence name.", file=log_handle)
+                continue
+            if trait not in phylotype_dic.keys():
+                phylotype_dic[trait] = []
+                phylotype_dic[trait].append([seq,seq_dic[seq]])
+            else:
+                phylotype_dic[trait].append([seq,seq_dic[seq]])
 
     for seq in seq_dic.keys():
         log_handle.write("Sequence " + seq + " did not find any matches to metadata file.\n")
 
     for key in phylotype_dic.keys():
         if len(phylotype_dic[key]) > 2:
-            outfile_name = output_folder + trait + ".fasta"
+            print("Trait:" + key + "\t\tTotal Number:" + str(len(phylotype_dic[key])), file=log_handle)
+            outfile_name = output_folder + key + ".fasta"
             outfile = open(outfile_name,"w")
             for sequences in phylotype_dic[key]:
                 record = SeqRecord(sequences[1],id=sequences[0],description="")

@@ -11,7 +11,7 @@ def run(options):
                      options.in_metadata,
                      options.index_field,
                      options.index_column,
-                     options.clade_file,
+                     options.lineage,
                      options.out_fasta,
                      options.log_file
                      )
