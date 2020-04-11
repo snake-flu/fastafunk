@@ -33,8 +33,10 @@ class TestAnnotate(unittest.TestCase):
         out_fasta = "%s/tmp.annotated.fasta" %data_dir
         out_metadata = None
         header_delimiter = "|"
+        add_cov_id = False
         log_file = None
-        annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_metadata, header_delimiter, log_file)
+        annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_metadata, header_delimiter,
+                 add_cov_id, log_file)
 
         expected = "%s/expect_simple.fasta" %data_dir
         self.assertTrue(filecmp.cmp(out_fasta, expected, shallow=False))
@@ -48,8 +50,10 @@ class TestAnnotate(unittest.TestCase):
         out_fasta = "%s/tmp.annotated.fasta" %data_dir
         out_metadata = None
         header_delimiter = "|"
+        add_cov_id = False
         log_file = None
-        annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_metadata, header_delimiter, log_file)
+        annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_metadata, header_delimiter,
+                 add_cov_id, log_file)
 
         expected = "%s/expect_simple.fasta" %data_dir
         self.assertTrue(filecmp.cmp(out_fasta, expected, shallow=False))
@@ -63,8 +67,10 @@ class TestAnnotate(unittest.TestCase):
         out_fasta = "%s/tmp.annotated.fasta" %data_dir
         out_metadata = "%s/tmp.annotated.csv" %data_dir
         header_delimiter = "|"
+        add_cov_id = False
         log_file = None
-        annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_metadata, header_delimiter, log_file)
+        annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_metadata, header_delimiter,
+                 add_cov_id, log_file)
 
         expected = "%s/expect_simple.fasta" % data_dir
         self.assertTrue(filecmp.cmp(out_fasta, expected, shallow=False))
@@ -82,8 +88,10 @@ class TestAnnotate(unittest.TestCase):
         out_fasta = "%s/tmp.annotated.fasta" %data_dir
         out_metadata = "%s/tmp.annotated.csv" %data_dir
         header_delimiter = "|"
+        add_cov_id = False
         log_file = None
-        annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_metadata, header_delimiter, log_file)
+        annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_metadata, header_delimiter,
+                 add_cov_id, log_file)
 
         expected = "%s/expect_simple.fasta" % data_dir
         self.assertTrue(filecmp.cmp(out_fasta, expected, shallow=False))
@@ -101,8 +109,10 @@ class TestAnnotate(unittest.TestCase):
         out_fasta = "%s/tmp.annotated.fasta" %data_dir
         out_metadata = "%s/tmp.annotated.csv" %data_dir
         header_delimiter = "|"
+        add_cov_id = False
         log_file = None
-        annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_metadata, header_delimiter, log_file)
+        annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_metadata, header_delimiter,
+                 add_cov_id, log_file)
 
         expected = "%s/expect_subset.fasta" % data_dir
         self.assertTrue(filecmp.cmp(out_fasta, expected, shallow=False))

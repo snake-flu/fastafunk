@@ -15,5 +15,6 @@ def run(options):
         options.out_fasta,
         options.out_metadata,
         options.header_delimiter,
+        options.add_cov_id,
         options.log_file,
     )
