@@ -13,6 +13,7 @@ def run(options):
         options.index_field,
         options.index_column,
         options.group_column,
+        options.where_field,
         options.out_fasta,
         options.out_metadata,
         options.log_file,
