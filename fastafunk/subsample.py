@@ -19,13 +19,14 @@ from Bio.SeqRecord import SeqRecord
 from fastafunk.utils import *
 
 def subsample_fasta(in_fasta,in_metadata,index_field,index_column,group_column,out_fasta,out_metadata,log_file,
-                    sample_size,target_file,select_by_max_column,select_by_min_column,exclude_uk):
+                    sample_size,target_file,select_by_max_column,select_by_min_column,exclude_uk, header_delimiter):
     log_handle = get_log_handle(log_file, out_fasta)
 
     metadata = load_metadata(in_metadata, None, None)
     subsampled_metadata = subsample_metadata(metadata, group_column, sample_size, target_file, select_by_max_column,
                                              select_by_min_column, exclude_uk)
-    subsampled_metadata, index_column_values = get_index_column_values(df, index_column, header_delimiter)
+    subsampled_metadata, index_column_values = get_index_column_values(subsampled_metadata, index_column,
+                                                                       header_delimiter)
 
     if not in_fasta:
         in_fasta = [""]

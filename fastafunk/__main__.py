@@ -288,6 +288,10 @@ def main(args=None):
         help="Includes all UK samples in subsample, and additionally keeps the target number of "
              "non-UK samples per group"
     )
+    subparser_subsample.add_argument(
+        '--header-delimiter', dest='header_delimiter', default='|', metavar='<symbol>', required=False,
+        help='Header delimiter'
+    )
 
     subparser_subsample.set_defaults(func=fastafunk.subcommands.subsample.run)
 
