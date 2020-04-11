@@ -25,15 +25,14 @@ def subsample_fasta(in_fasta,in_metadata,index_field,index_column,group_column,o
     metadata = load_metadata(in_metadata, None, None)
     subsampled_metadata = subsample_metadata(metadata, group_column, sample_size, target_file, select_by_max_column,
                                              select_by_min_column, exclude_uk)
-
-    metadata_id_key = index_column
+    subsampled_metadata, index_column_values = get_index_column_values(df, index_column, header_delimiter)
 
     if not in_fasta:
         in_fasta = [""]
 
     out_handle = get_out_handle(out_fasta)
 
-    to_keep = [fix_header_string(s) for s in subsampled_metadata[metadata_id_key].values]
+    to_keep = [fix_header_string(s) for s in index_column_values]
     log_handle.write("\n#Pruned ids:\n")
     for fasta_file in in_fasta:
         fasta_handle = get_in_handle(fasta_file)
