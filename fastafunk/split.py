@@ -1,7 +1,7 @@
 """
 Name: split.py
 Author: Xiaoyu Yu
-Date: 07 April 2020
+Date: 13 April 2020
 Description: Split the fasta file into multiple fasta files based on criteria set by user.
 
 For example, if the metadata file contains field country, the user can split the main fasta
@@ -10,7 +10,10 @@ sequences with no trait value and sequences that does not have a match between f
 metadata files.
 
 Options:
-    --lineage: Allow user to specify specific lineages to split by. The lineage list does not need to consist of all the lineage present. All sub-lineages will collapse to the closes lineage (e.g. 1.1.1 collapse to 1.1)
+    --lineage: Allow user to specify specific lineages to split by. The lineage list does not 
+    need to consist of all the lineage present. All sub-lineages will collapse to the closes 
+    lineage. For example --lineage A, B, B.1 will collapse all B.1* to B.1 and others to B while
+    all A* will be grouped into A 
 
 This file is part of Fastafunk (https://github.com/cov-ert/fastafunk).
 Copyright 2020 Xiaoyu Yu (xiaoyu.yu@ed.ac.uk) & Rachel Colquhoun (rachel.colquhoun@ed.ac.uk).
@@ -57,6 +60,8 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,lineage,out_folder
             print("Column name not in metadata file, please re-check metadata file and reinsert a column name.")
             sys.exit()
         else:
+            if items[index_column] in metadata_dic.keys():
+                print("Duplicate sequences with name: " + items[index_column] + " in metadata file.", file=log_handle)
             metadata_dic[items[index_column]] = items[index_field.lower()]
 
     for record in SeqIO.parse(in_fasta, 'fasta'):
@@ -65,10 +70,9 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,lineage,out_folder
     if len(set(metadata_dic.keys())&set(seq_dic.keys())) == 0:
         sys.exit("No matching sequence name with metadata name. Program Exit")
 
-    if os.path.isfile(lineage):
-        with open(lineage,"r") as f:
-            for line in f:
-                phylotype_dic[line.rstrip()] = []
+    if lineage != "":
+        for clades in lineage:
+            phylotype_dic[clades] = []
 
         trait_order = list(phylotype_dic.keys())
         trait_order.sort(key=lambda x: re.sub("[^A-Z0-9]", "",x),reverse=True)
@@ -98,11 +102,14 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,lineage,out_folder
                 phylotype_dic[trait].append([seq,seq_dic[seq]])
 
     sort_key = sorted(phylotype_dic.keys())
+    sum_values = 0
     for key in sort_key:
         print("Trait:" + key + "\t\tTotal Number:" + str(len(phylotype_dic[key])), file=log_handle)
+        sum_values += len(phylotype_dic[key])
         outfile = open(out_folder + key + ".fasta","w")
         for sequences in phylotype_dic[key]:
             record = SeqRecord(sequences[1],id=sequences[0],description="")
             SeqIO.write(record, outfile, "fasta-2line")
         outfile.close()
+    print("Total number of Sequences: " + str(sum_values),file=log_handle)
     close_handle(log_handle)

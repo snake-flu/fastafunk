@@ -100,12 +100,12 @@ def main(args=None):
         help='Column(s) in the metadata file to use to match to the sequence'
     )
     subparser_consensus.add_argument(
-        '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="",
-        help='A FASTA file (else writes to stdout)'
+        "--lineage", nargs='+', required=False, default="",
+        help="Specific list of lineages to split by with others collpasing to nearest lineage."
     )
     subparser_consensus.add_argument(
-        "--lineage", required=False, default="", type=str, metavar="<filename>",
-        help="Text file including specific traits to collapse by"
+        '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="",
+        help='A FASTA file (else writes to stdout)'
     )
 
     subparser_consensus.set_defaults(func=fastafunk.subcommands.consensus.run)
@@ -206,8 +206,8 @@ def main(args=None):
         help='Field(s) in the fasta header to match the metadata (else matches column names)'
     )
     subparser_split.add_argument(
-        "--lineage", required=False, default="", type=str, metavar="<filename>",
-        help="Text file including specific traits to collapse by"
+        "--lineage", nargs='+', required=False, default="",
+        help="Specific list of lineages to split by with others collpasing to nearest lineage."
     )
     subparser_split.add_argument(
         '--out-folder', dest='out_folder', metavar='<filename>', default="./", required=False,
