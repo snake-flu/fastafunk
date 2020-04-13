@@ -51,11 +51,11 @@ def annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_me
                 record_stats.append("%s=%s" %(stat,str(result)))
                 stats[stat].append(result)
             ids.append(id)
+            if add_cov_id:
+                cov_id = get_cov_id(record)
+                cov_ids.append(cov_id)
+                record_stats.append("id=%s" % cov_id)
             if out_handle:
-                if add_cov_id:
-                    cov_id = get_cov_id(record)
-                    cov_ids.append(cov_id)
-                    record_stats.append("id=%s" % cov_id)
                 record.description += " " + " ".join(record_stats)
                 SeqIO.write(record, out_handle, "fasta-2line")
         close_handle(fasta_handle)
