@@ -381,31 +381,31 @@ def main(args=None):
         help='One or more FASTA files of sequences (else reads from stdin)'
     )
     subparser_strip.add_argument(
-        '--gap', dest='gap', default=True, metavar='<filename>', required=False,
-        help='Remove gaps from sequences (Default:True)'
+        '--gap', dest='gap', default=False, action='store_true', required=False,
+        help='Remove gaps from sequences (Default:False)'
     )
     subparser_strip.add_argument(
-        '--ambiguity', dest='ambiguity', default=True, metavar='<filename>', required=False,
-        help='Remove ambiguous sites from sequences ("N") (Default:True)'
+        '--ambiguity', dest='ambiguity', default=False, action='store_true', required=False,
+        help='Remove ambiguous sites from sequences ("N") (Default:False)'
     )
     subparser_strip.add_argument(
-        '--missing', dest='missing', default=True, metavar='<filename>', required=False,
-        help='Remove missing sites from sequences ("?") (Default:True)'
+        '--missing', dest='missing', default=False, action='store_true', required=False,
+        help='Remove missing sites from sequences ("?") (Default:False)'
     )
     subparser_strip.add_argument(
-        '--keep-alignment', dest='keep_alignment', default=True, metavar='<filename>', required=False,
-        help='Remove gaps shared by all sequences at the same site (Default:True)'
+        '--keep-alignment', dest='keep_alignment', default=False, action='store_true', required=False,
+        help='Remove gaps shared by all sequences at the same site (Default:False)'
     )
     subparser_strip.add_argument(
-        '--front', dest='front', default=False, metavar='<filename>', required=False,
+        '--front', dest='front', default=False, action='store_true', required=False,
         help='Remove only from the front of the sequence (Default:False)'
     )
     subparser_strip.add_argument(
-        '--back', dest='back', default=False, metavar='<filename>', required=False,
+        '--back', dest='back', default=False, action='store_true', required=False,
         help='Remove only from the back of the sequence (Default:False)'
     )
     subparser_strip.add_argument(
-        '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="",
+        '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="stripped.fasta",
         help='A FASTA file (else writes to stdout)'
     )
 

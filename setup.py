@@ -11,6 +11,7 @@ setup(
     tests_require=["nose >= 1.3"],
     install_requires=[
         "biopython>=1.70",
+        "numpy>=1.18",
     ],
     classifiers=[
         "Development Status :: 4 - Beta",
