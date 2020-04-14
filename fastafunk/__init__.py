@@ -11,6 +11,6 @@ except:
     __version__ = "local"
 
 __all__ = ["consensus", "extract", "merge", "remove", "split", "count", "subsample", "annotate",
-           "unwrap","strip"]
+           "unwrap","strip", "new"]
 
 from fastafunk import *

@@ -121,6 +121,30 @@ def load_metadata(list_metadata_files, filter_columns, where_columns):
             master = add_data(new_data, master)
     return master
 
+def get_newest_date(df, column):
+    df[column] = pd.to_datetime(df[column])
+    newest_date = df[column].max()
+    return newest_date
+
+def load_new_metadata(list_metadata_files, date_column, filter_columns=None, where_columns=None):
+    master = None
+    date = None
+
+    for metadata_file in list_metadata_files:
+        if master is None:
+            master = load_dataframe(metadata_file, filter_columns, where_columns)
+            date = get_newest_date(master, date_column)
+        else:
+            new_data = load_dataframe(metadata_file, filter_columns, where_columns)
+            new_date = get_newest_date(new_data, date_column)
+            if new_date > date:
+                master = new_data[pd.to_datetime(new_data[date_column]) > date]
+                date = new_date
+            elif new_date < date:
+                master = master[pd.to_datetime(master[date_column]) > new_date]
+
+    return master
+
 def grouped_to_csv(grouped, group_columns, log_handle):
     group_columns.append("count")
     log_handle.write("%s\n" %','.join(group_columns))
