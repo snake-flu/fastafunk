@@ -241,7 +241,9 @@ def get_index_column_values(df, index_columns, header_delimiter='|'):
     df.loc[:,"header"] = column_values
     #bad_headers = df[df["header"].duplicated()]["header"].index.values
     #df.drop(bad_headers, inplace=True)
-    assert not df["header"].duplicated().any()
+    #if df["header"].duplicated().any():
+    #    print(df.loc[df["header"].duplicated(),"header"])
+    #assert not df["header"].duplicated().any()
 
     return df, column_values
 
