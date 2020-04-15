@@ -18,7 +18,7 @@ import csv
 
 from fastafunk.utils import *
 
-def merge_fasta(in_fasta, in_metadata, out_fasta, log_file):
+def merge_fasta(in_fasta, in_metadata, index_column, out_fasta, log_file):
     """
     Merges two or more fasta files avoiding duplicates based on matches to metadata
 
@@ -27,16 +27,34 @@ def merge_fasta(in_fasta, in_metadata, out_fasta, log_file):
     :param in_metadata: Matching metadata file with same naming convention as fasta file. Those that does not match or
     have duplicates will be flagged within the log file for post-processing. Metadata file must be in csv format
     (Required)
+    :param index_column: The column with matching sequence IDs with fasta file (Default: header). (Optional)
     :param out_fasta: Output fasta file with merged sequences from multiple inputs (Default: merged.fasta). (Optional)
     :param log_file: Output log file (Default: stdout). (Optional)
     :return:
     """
     if not in_fasta:
         in_fasta = [""]
-    metadata_dictionary = metadata_to_dict(in_metadata)
-    sequence_dictionary = {}
+
     out_handle = get_out_handle(out_fasta)
     log_handle = get_log_handle(log_file, out_fasta)
+    sequence_dictionary = {}
+    metadata_dictionary = {}
+        
+    for metadata_file in in_metadata:
+        with open(metadata_file,"r",encoding='utf-8-sig') as f:
+            reader = csv.DictReader(f)
+            reader.fieldnames = [name.lower() for name in reader.fieldnames]
+            metadata = [r for r in reader]
+
+        if index_column.lower() not in reader.fieldnames:
+            print("Column name not in metadata file, please re-check metadata file and reinsert a column name.")
+            sys.exit()
+
+        for items in metadata:
+            if items[index_column] in metadata_dictionary.keys():
+                print("Duplicate sequences with name: " + items[index_column] + " in metadata file.", file=log_handle)
+            else:
+                metadata_dictionary[items[index_column]] = items
 
     for fasta_file in in_fasta:
         fasta_handle = get_in_handle(fasta_file)
