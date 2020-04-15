@@ -349,7 +349,6 @@ def main(args=None):
     )
 
     subparser_annotate.set_defaults(func=fastafunk.subcommands.annotate.run)
-    # ___________________________________________________________________________#
 
     # _______________________________  unwrap  __________________________________#
 
@@ -370,7 +369,6 @@ def main(args=None):
 
     subparser_unwrap.set_defaults(func=fastafunk.subcommands.unwrap.run)
 
-    # _______________________________  unwrap  __________________________________#
 
     # _______________________________  strip  __________________________________#
 
@@ -415,6 +413,7 @@ def main(args=None):
 
     subparser_strip.set_defaults(func=fastafunk.subcommands.strip.run)
 
+
     # __________________________________________________________________________#
     # _______________________________  add_columns  __________________________________#
 
@@ -456,7 +455,48 @@ def main(args=None):
 
     subparser_add_columns.set_defaults(func=fastafunk.subcommands.add_columns.run)
 
-    # __________________________________________________________________________#
+
+    # _______________________________  new  __________________________________#
+
+    subparser_new = subparsers.add_parser(
+        "new",
+        parents=[common],
+        help="Identifies new or updated entries in metadata file and associated fasta entries",
+    )
+
+    subparser_new.add_argument(
+        '--in-fasta', dest='in_fasta', nargs='+', metavar='<filename>', required=False,
+        help='One or more FASTA files of sequences (else reads from stdin)'
+    )
+    subparser_new.add_argument(
+        '--in-metadata', dest='in_metadata', nargs='+', metavar='<filename>', required=True,
+        help='One or more CSV or TSV tables of metadata'
+    )
+    subparser_new.add_argument(
+        '--index-column', dest='index_column', nargs='+', metavar='<column>', required=False,
+        help='Column(s) in the metadata file to use to match to the sequence'
+    )
+    subparser_new.add_argument(
+        '--date-column', dest='date_column', metavar='<column>', required=True,
+        help='Column in the metadata file containing date values to use for filtering'
+    )
+    subparser_new.add_argument(
+        '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="",
+        help='A FASTA file (else writes to stdout)'
+    )
+    subparser_new.add_argument(
+        '--out-metadata', dest='out_metadata', metavar='<filename>', required=False,
+        help='A metadata file'
+    )
+    subparser_new.add_argument(
+        '--header-delimiter', dest='header_delimiter', default='|', metavar='<symbol>', required=False,
+        help='Header delimiter'
+    )
+
+    subparser_new.set_defaults(func=fastafunk.subcommands.new.run)
+
+    # _________________________________________________________________________#
+
 
     args = parser.parse_args()
 
