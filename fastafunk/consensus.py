@@ -63,9 +63,12 @@ def create_consensus(in_fasta,in_metadata,index_field,index_column,lineage,out_f
         reader.fieldnames = [name.lower() for name in reader.fieldnames]
         metadata = [r for r in reader]
 
+    if index_field.lower() not in reader.fieldnames or index_column.lower() not in reader.fieldnames:
+        sys.exit("Column name not in metadata file, please re-check metadata file and reinsert a column name.")
+
     for items in metadata:
-        if index_field.lower() not in reader.fieldnames or index_column.lower() not in reader.fieldnames:
-            sys.exit("Column name not in metadata file, please re-check metadata file and reinsert a column name.")
+        if items[index_column] in metadata_dic.keys():
+            print("Duplicate sequences with name: " + items[index_column] + " in metadata file.", file=log_handle)
         else:
             metadata_dic[items[index_column]] = items[index_field.lower()]
 
@@ -75,7 +78,6 @@ def create_consensus(in_fasta,in_metadata,index_field,index_column,lineage,out_f
     if len(set(metadata_dic.keys())&set(seq_dic.keys())) == 0:
         sys.exit("No matching sequence name with metadata name. Program Exit")
 
-    print(lineage)
     if lineage != "":
         for clades in lineage:
             phylotype_dic[clades] = []
