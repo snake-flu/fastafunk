@@ -436,11 +436,16 @@ def main(args=None):
 
     subparser_add_columns.add_argument(
         '--index-column', dest='index_column', metavar='<column>', required=True,
-        help='Column common to the in the metadata files and the --in-data to use to match rows'
+        help='Column in the metadata files used to match rows'
     )
 
     subparser_add_columns.add_argument(
-        '--newcolumn', dest='new_columns', nargs='+', metavar='<column>', required=True,
+        '--join-on', dest='join_on', metavar='<column>', required=True,
+        help='Column in the data file used to match rows'
+    )
+
+    subparser_add_columns.add_argument(
+        '--new-columns', dest='new_columns', nargs='+', metavar='<column>', required=True,
         help='Column(s) in the in_data file to add to the metadata'
     )
 
