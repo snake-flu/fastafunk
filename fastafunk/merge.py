@@ -72,7 +72,7 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
             metadata_dictionary[taxon_name] = rows
         else:
             metadata_dictionary[taxon_name].update({k:v for k,v in rows.items() if v})
-            log_handle.write("Sequence " + taxon_name + " has a duplicate in metadata and old metadata value is kept\n")
+            log_handle.write("Sequence " + taxon_name + " has a duplicate in metadata and new metadata value is used\n")
 
     sequence_list = list(metadata_dictionary.keys())
     out_list = list(metadata_dictionary.values())
