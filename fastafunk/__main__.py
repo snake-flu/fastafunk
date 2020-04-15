@@ -413,6 +413,44 @@ def main(args=None):
 
     subparser_strip.set_defaults(func=fastafunk.subcommands.strip.run)
 
+
+    # __________________________________________________________________________#
+    # _______________________________  add_columns  __________________________________#
+
+    subparser_add_columns = subparsers.add_parser(
+        "add_columns",
+        parents=[common],
+        help="Add columns to a metadata file from row matches in another file"
+    )
+
+    subparser_add_columns.add_argument(
+        '--in-metadata', dest='in_metadata', nargs='+', metavar='<filename>', required=True,
+        help='One or more CSV or TSV tables of metadata'
+    )
+
+    subparser_add_columns.add_argument(
+        '--in-data', dest='in_data', metavar='<filename>', required=True,
+        help='One CSV table of additional data. Must have --index-column in common with metadata'
+    )
+
+    subparser_add_columns.add_argument(
+        '--index-column', dest='index_column', metavar='<column>', required=True,
+        help='Column common to the in the metadata files and the --in-data to use to match rows'
+    )
+
+    subparser_add_columns.add_argument(
+        '--newcolumn', dest='new_columns', nargs='+', metavar='<column>', required=True,
+        help='Column(s) in the in_data file to add to the metadata'
+    )
+
+    subparser_add_columns.add_argument(
+        '--out-metadata', dest='out_metadata', metavar='<filename>', required=True,
+        help='A metadata file to write'
+    )
+
+    subparser_add_columns.set_defaults(func=fastafunk.subcommands.add_columns.run)
+
+
     # _______________________________  new  __________________________________#
 
     subparser_new = subparsers.add_parser(
@@ -453,6 +491,7 @@ def main(args=None):
     subparser_new.set_defaults(func=fastafunk.subcommands.new.run)
 
     # _________________________________________________________________________#
+
 
     args = parser.parse_args()
 
