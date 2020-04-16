@@ -141,6 +141,26 @@ class TestUtils(unittest.TestCase):
         print(expect)
         self.assertEqual(result, expect)
 
+    def test_filter_by_omit_columns(self):
+        df = pd.DataFrame({'name': ['a','b','c','d','e','f','g'],
+                            "place": ['x','y','z','x1','x','y','z'],
+                            "date": ['2020-04-01', '2020-04-05', '2020-03-29','2020-04-02',
+                                     '2020-04-01', '2020-04-05', '2020-03-29'],
+                            "blah": [None, None, None, 4, 1, 2, 3],
+                            "omitted": [True,True,None,False,True,None,None],
+                            "edin_OMIT": [None,None,None,None,None,None,True]})
+        result = filter_by_omitted(df)
+        expect = pd.DataFrame({'name': ['c','d','f'],
+                            "place": ['z','x1','y'],
+                            "date": ['2020-03-29','2020-04-02',
+                                     '2020-04-05'],
+                            "blah": [None, 4, 2],
+                            "omitted": [None,False,None],
+                            "edin_OMIT": [None,None,None]})
+        print(result)
+        print(expect)
+        self.assertEqual(result, expect)
+
     def test_load_metadata(self):
         list_metadata_files = ["%s/metadata.csv" %data_dir, "%s/metadata.tsv" %data_dir]
         index_columns = None

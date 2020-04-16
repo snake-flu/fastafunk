@@ -24,6 +24,7 @@ def subsample_fasta(in_fasta,in_metadata,index_field,index_column,group_column,w
     log_handle = get_log_handle(log_file, out_fasta)
 
     metadata = load_metadata(in_metadata, None, None)
+    metadata = filter_by_omit_columns(metadata)
     subsampled_metadata = subsample_metadata(metadata, group_column, sample_size, target_file, select_by_max_column,
                                              select_by_min_column, exclude_uk)
     subsampled_metadata, index_column_values = get_index_column_values(subsampled_metadata, index_column,
