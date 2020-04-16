@@ -21,6 +21,7 @@ def count_groups(in_metadata,group_column,log_file):
     log_handle = get_log_handle(log_file, None)
 
     metadata = load_metadata(in_metadata, None, None)
+    metadata = filter_by_omit_columns(metadata)
     get_groups(metadata, group_column, log_handle)
 
     close_handle(log_handle)

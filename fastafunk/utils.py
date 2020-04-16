@@ -111,6 +111,18 @@ def add_data(new_dataframe, master_dataframe):
     master_dataframe = master_dataframe.merge(new_dataframe, how='outer', on=column_intersection)
     return master_dataframe
 
+def add_empty_columns(new_columns, master_dataframe):
+    column_difference = [s for s in new_columns if s not in master_dataframe.columns]
+    for column in column_difference:
+        master_dataframe[column] = ""
+    return master_dataframe
+
+def filter_by_omit_columns(df):
+    for column in df.columns.values:
+        if "omit" in column.lower():
+            df = df.loc[df[column] != True]
+    return df
+
 def load_metadata(list_metadata_files, filter_columns, where_columns):
     master = None
     for metadata_file in list_metadata_files:
