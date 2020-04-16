@@ -424,8 +424,8 @@ def main(args=None):
     )
 
     subparser_add_columns.add_argument(
-        '--in-metadata', dest='in_metadata', nargs='+', metavar='<filename>', required=True,
-        help='One or more CSV or TSV tables of metadata'
+        '--in-metadata', dest='in_metadata', metavar='<filename>', required=True,
+        help='ONE CSV table of metadata'
     )
 
     subparser_add_columns.add_argument(

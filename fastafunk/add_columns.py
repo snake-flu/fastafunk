@@ -8,11 +8,13 @@ This file is part of Fastafunk (https://github.com/cov-ert/fastafunk).
 Copyright 2020 Xiaoyu Yu (xiaoyu.yu@ed.ac.uk) & Rachel Colquhoun (rachel.colquhoun@ed.ac.uk).
 """
 
+import warnings
 import os
 import sys
 import re
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
+import pandas as pd
 
 from fastafunk.utils import *
 from fastafunk.stats import *
@@ -32,38 +34,68 @@ def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_me
     """
     # log_handle = get_log_handle(log_file, out_fasta = False)
 
-    metadata = load_metadata(in_metadata, None, None)
+    metadata = []
+    First = True
+    with open(in_metadata, 'r') as f:
+        for line in f:
+            l = line.strip().split(',')
+            if First:
+                metadata_fields = l
+                if not index_column in metadata_fields:
+                    sys.exit(index_column + ' does not match any header in ' +  in_metadata)
+                First = False
+                continue
+            d = {x:y for x,y in zip(metadata_fields, l)}
+            metadata.append(d)
 
-    other_data = load_dataframe(in_data, None, None)
+    other_data = {}
+    First = True
+    with open(in_data, 'r', encoding='utf-8-sig') as f:
+        for line in f:
+            l = line.strip().split(',')
+            if First:
+                header = l
+                if not join_on in header:
+                    sys.exit('--join-on does not match any header in the --in-data file')
+                if not all([x in header for x in new_columns]):
+                    sys.exit('a new column name does not match any header in the --in-data file')
+                First = False
+                continue
+            d = {x:y for x,y in zip(header, l)}
+            key = d[join_on]
+            if key in other_data:
+                warnings.warn(key + ' is a duplicate in ' + in_data + '[,' + join_on +'] and will be ignored')
+                continue
+            else:
+                other_data[key] = d
 
-    if not index_column in metadata.columns:
-        sys.exit('index column name does not match any header in the metadata file')
+    newfields = metadata_fields + new_columns
 
-    if not join_on in other_data.columns:
-        sys.exit('index column name does not match any header in the in_data file')
+    with open(out_metadata, 'w') as f:
+        f.write(','.join(newfields) + '\n')
 
-    if not all([x in other_data.columns for x in new_columns]):
-        sys.exit('a new column name does not match any header in the in_data file')
+        for dictionary in metadata:
+            # this is the value in that row for index_column
+            lookup = dictionary[index_column]
+            # might not be an entry
+            if len(lookup) == 0:
+                for key in new_columns:
+                    dictionary[key] = ''
 
-    for i in range(len(metadata)):
-        # for every row in metadata:
-        row = metadata.iloc[i,]
-        # this is the value in that row for index_column
-        lookup = row[index_column]
-        # then look it up in the join_on of other_data (e.g. lineages file)
-        matching_row = other_data.loc[other_data[join_on] == lookup]
-        if len(matching_row) > 1:
-            sys.exit('multiple entries with the same value in: ' + in_data)
-        new_values = matching_row[new_columns].squeeze()
+                f.write(','.join([dictionary[x] for x in newfields]) + '\n')
+                continue
 
-        if len(new_values) > 1:
-            # populate the metadata with new valus
-            for key in new_values.index:
-                value = new_values.at[key]
-                metadata.at[i, key] = value
-        else:
-            metadata.at[i, new_columns[0]] = new_values
+            elif lookup in other_data:
+                for key in new_columns:
+                    dictionary[key] = other_data[lookup][key]
 
-        metadata.to_csv(out_metadata, index = False, sep = ',')
+                f.write(','.join([dictionary[x] for x in newfields]) + '\n')
+                continue
+
+            else:
+                for key in new_columns:
+                    dictionary[key] = ''
+
+                f.write(','.join([dictionary[x] for x in newfields]) + '\n')
 
     pass
