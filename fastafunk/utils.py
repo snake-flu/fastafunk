@@ -118,9 +118,11 @@ def add_empty_columns(new_columns, master_dataframe):
     return master_dataframe
 
 def filter_by_omit_columns(df):
+    drop_indexes = []
     for column in df.columns.values:
         if "omit" in column.lower():
-            df = df.loc[df[column] != True]
+            drop_indexes.extend(df.index[df[column] == True].tolist())
+    df.drop(drop_indexes, inplace=True)
     return df
 
 def load_metadata(list_metadata_files, filter_columns, where_columns):
@@ -234,7 +236,8 @@ def subsample_metadata(df, group_columns, sample_size, target_file, select_by_ma
         else:
             subsampled_indexes.extend(group.index)
 
-    return df.iloc[subsampled_indexes]
+    subsampled_indexes.sort()
+    return df.loc[subsampled_indexes]
 
 def get_index_field_from_header(record, header_delimiter, index_field):
     if index_field is None or index_field == "":
