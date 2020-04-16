@@ -122,7 +122,7 @@ def filter_by_omit_columns(df):
     for column in df.columns.values:
         if "omit" in column.lower():
             drop_indexes.extend(df.index[df[column] == True].tolist())
-    df.drop(drop_indexes, inplace=True)
+    df = df.drop(drop_indexes)
     return df
 
 def load_metadata(list_metadata_files, filter_columns, where_columns):
@@ -238,6 +238,13 @@ def subsample_metadata(df, group_columns, sample_size, target_file, select_by_ma
 
     subsampled_indexes.sort()
     return df.loc[subsampled_indexes]
+
+def add_subsample_omit_column(df, subsampled_df):
+    if "subsample_omit" not in df.columns:
+        df["subsample_omit"] = True
+    for i in subsampled_df.index.values:
+        df.loc[i,"subsample_omit"] = False
+    return
 
 def get_index_field_from_header(record, header_delimiter, index_field):
     if index_field is None or index_field == "":
