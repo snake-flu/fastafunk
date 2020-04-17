@@ -26,7 +26,7 @@ def new_fasta(in_fasta,in_metadata,index_column,date_column,out_fasta,out_metada
     log_handle = get_log_handle(log_file, out_fasta)
 
     metadata = load_new_metadata(in_metadata, date_column)
-    metadata = filter_by_omit_columns(metadata)
+    #metadata = filter_by_omit_columns(metadata)
     metadata, index_column_values = get_index_column_values(metadata, index_column, header_delimiter)
 
     if not in_fasta:
