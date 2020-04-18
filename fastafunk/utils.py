@@ -13,6 +13,7 @@ import csv
 import pandas as pd
 import numpy as np
 import re
+import datetime
 
 def get_log_handle(log_file, out_fasta):
     if log_file:
@@ -142,9 +143,18 @@ def load_metadata(list_metadata_files, filter_columns, where_columns):
     return master
 
 def get_newest_date(df, column):
+    if column not in df.columns.values:
+        return None
     df[column] = pd.to_datetime(df[column])
     newest_date = df[column].max()
     return newest_date
+
+def fill_date_where_missing(df,column):
+    date = datetime.date.today()
+    if column not in df.columns.values:
+        df[column] = date
+    df[column].fillna(date, inplace=True)
+    return df
 
 def load_new_metadata(list_metadata_files, date_column, filter_columns=None, where_columns=None):
     master = None
@@ -157,7 +167,13 @@ def load_new_metadata(list_metadata_files, date_column, filter_columns=None, whe
         else:
             new_data = load_dataframe(metadata_file, filter_columns, where_columns)
             new_date = get_newest_date(new_data, date_column)
-            if new_date > date:
+            if new_date is None:
+                master = add_data(new_data, master)
+                master = fill_date_where_missing(master, column)
+            elif date is None:
+                master = add_data(master, new_data)
+                master = fill_date_where_missing(master, column)
+            elif new_date > date:
                 master = new_data.loc[pd.to_datetime(new_data[date_column]) > date]
                 date = new_date
             elif new_date < date:
