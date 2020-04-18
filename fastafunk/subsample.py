@@ -24,8 +24,8 @@ def subsample_fasta(in_fasta,in_metadata,index_field,index_column,group_column,w
     log_handle = get_log_handle(log_file, out_fasta)
 
     metadata = load_metadata(in_metadata, None, None)
-    metadata = filter_by_omit_columns(metadata)
-    subsampled_metadata = subsample_metadata(metadata, group_column, sample_size, target_file, select_by_max_column,
+    subsampled_metadata = filter_by_omit_columns(metadata)
+    subsampled_metadata = subsample_metadata(subsampled_metadata, group_column, sample_size, target_file, select_by_max_column,
                                              select_by_min_column, exclude_uk)
     subsampled_metadata, index_column_values = get_index_column_values(subsampled_metadata, index_column,
                                                                        header_delimiter)
@@ -41,7 +41,7 @@ def subsample_fasta(in_fasta,in_metadata,index_field,index_column,group_column,w
         fasta_handle = get_in_handle(fasta_file)
         for record in SeqIO.parse(fasta_handle, "fasta"):
             id_string = record.id
-            if id_string in to_keep:
+            if id_string != "" and id_string in to_keep:
                 SeqIO.write(record, out_handle, "fasta-2line")
                 to_keep.remove(id_string)
             else:
@@ -49,8 +49,9 @@ def subsample_fasta(in_fasta,in_metadata,index_field,index_column,group_column,w
         close_handle(fasta_handle)
 
     if out_metadata:
+        add_subsample_omit_column(metadata, subsampled_metadata)
         metadata_handle = get_out_handle(out_metadata)
-        subsampled_metadata.to_csv(out_metadata)
+        metadata.to_csv(out_metadata)
         close_handle(metadata_handle)
         
     close_handle(log_handle)

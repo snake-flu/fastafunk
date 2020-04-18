@@ -61,10 +61,11 @@ def annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_me
         close_handle(fasta_handle)
 
     if out_metadata:
-        stats["header"] = ids
+        stats["sequence_name"] = ids
         if add_cov_id:
             stats["cov_id"] = cov_ids
         stats_data = pd.DataFrame(stats)
+        stats_data.to_csv(log_handle, index=False)
         if in_metadata:
             metadata = add_data(stats_data, metadata)
         else:

@@ -118,9 +118,11 @@ def add_empty_columns(new_columns, master_dataframe):
     return master_dataframe
 
 def filter_by_omit_columns(df):
+    drop_indexes = []
     for column in df.columns.values:
         if "omit" in column.lower():
-            df = df.loc[df[column] != True]
+            drop_indexes.extend(df.index[df[column] == True].tolist())
+    df = df.drop(drop_indexes)
     return df
 
 def load_metadata(list_metadata_files, filter_columns, where_columns):
@@ -150,10 +152,10 @@ def load_new_metadata(list_metadata_files, date_column, filter_columns=None, whe
             new_data = load_dataframe(metadata_file, filter_columns, where_columns)
             new_date = get_newest_date(new_data, date_column)
             if new_date > date:
-                master = new_data[pd.to_datetime(new_data[date_column]) > date]
+                master = new_data.loc[pd.to_datetime(new_data[date_column]) > date]
                 date = new_date
             elif new_date < date:
-                master = master[pd.to_datetime(master[date_column]) > new_date]
+                master = master.loc[pd.to_datetime(master[date_column]) > new_date]
 
     return master
 
@@ -234,7 +236,15 @@ def subsample_metadata(df, group_columns, sample_size, target_file, select_by_ma
         else:
             subsampled_indexes.extend(group.index)
 
-    return df.iloc[subsampled_indexes]
+    subsampled_indexes.sort()
+    return df.loc[subsampled_indexes]
+
+def add_subsample_omit_column(df, subsampled_df):
+    if "subsample_omit" not in df.columns:
+        df["subsample_omit"] = True
+    for i in subsampled_df.index.values:
+        df.loc[i,"subsample_omit"] = False
+    return
 
 def get_index_field_from_header(record, header_delimiter, index_field):
     if index_field is None or index_field == "":
@@ -258,8 +268,8 @@ def get_index_field_from_header(record, header_delimiter, index_field):
 
 def get_index_column_values(df, index_columns, header_delimiter='|'):
     if not index_columns or len(index_columns) == 0:
-        if "header" in df.columns:
-            index_columns = ["header"]
+        if "sequence_name" in df.columns:
+            index_columns = ["sequence_name"]
         else:
             index_columns = [0]
 
@@ -274,12 +284,12 @@ def get_index_column_values(df, index_columns, header_delimiter='|'):
     column_values = []
     for i,row in df.iterrows():
         column_values.append(header_delimiter.join([str(row[c]) for c in str_index_columns]))
-    df.loc[:,"header"] = column_values
-    #bad_headers = df[df["header"].duplicated()]["header"].index.values
+    df.loc[:,"sequence_name"] = column_values
+    #bad_headers = df[df["sequence_name"].duplicated()]["sequence_name"].index.values
     #df.drop(bad_headers, inplace=True)
-    #if df["header"].duplicated().any():
-    #    print(df.loc[df["header"].duplicated(),"header"])
-    #assert not df["header"].duplicated().any()
+    #if df["sequence_name"].duplicated().any():
+    #    print(df.loc[df["sequence_name"].duplicated(),"sequence_name"])
+    #assert not df["sequence_name"].duplicated().any()
 
     return df, column_values
 
