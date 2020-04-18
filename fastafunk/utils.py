@@ -169,10 +169,10 @@ def load_new_metadata(list_metadata_files, date_column, filter_columns=None, whe
             new_date = get_newest_date(new_data, date_column)
             if new_date is None:
                 master = add_data(new_data, master)
-                master = fill_date_where_missing(master, column)
+                master = fill_date_where_missing(master, date_column)
             elif date is None:
                 master = add_data(master, new_data)
-                master = fill_date_where_missing(master, column)
+                master = fill_date_where_missing(master, date_column)
             elif new_date > date:
                 master = new_data.loc[pd.to_datetime(new_data[date_column]) > date]
                 date = new_date
