@@ -34,6 +34,8 @@ def fetch_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
     :param log_file: Output log file (Default: stdout). (Optional)
     :return:
     """
+    log_handle = get_log_handle(log_file, out_fasta)
+
     metadata = load_metadata(in_metadata, None, None)
     subsampled_metadata = filter_by_omit_columns(metadata)
     subsampled_metadata, index_column_values = get_index_column_values(subsampled_metadata, index_column,
