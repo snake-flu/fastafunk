@@ -21,7 +21,7 @@ import os
 import pandas as pd
 from fastafunk.utils import *
 
-def fetch_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, log_file, header_delimiter):
+def fetch_fasta(in_fasta, in_metadata, index_column, out_fasta, out_metadata, log_file, header_delimiter):
     """
     Fetches fasta entries with a corresponding entry in a metadata file
 

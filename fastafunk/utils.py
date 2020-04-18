@@ -92,7 +92,10 @@ def load_dataframe(metadata_file, filter_columns, where_columns):
     sep = ','
     if metadata_file.endswith('tsv'):
         sep = '\t'
-    df = pd.read_csv(metadata_file, sep=sep)
+    try:
+        df = pd.read_csv(metadata_file, sep=sep)
+    except:
+        df = pd.read_csv(metadata_file, sep=sep, encoding='utf-8')
 
     if where_columns:
         for pair in where_columns:
