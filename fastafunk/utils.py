@@ -104,6 +104,9 @@ def load_dataframe(metadata_file, filter_columns, where_columns):
     if filter_columns:
         filter_columns = [s.lower() for s in filter_columns]
         df = df.loc[:, df.columns.isin(filter_columns)]
+
+    if 'unnamed: 0' in df.columns:
+        df.drop(columns=['unnamed: 0'], inplace=True)
     return df
 
 def add_data(new_dataframe, master_dataframe):
