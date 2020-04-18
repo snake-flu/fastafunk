@@ -18,7 +18,6 @@ from Bio.SeqRecord import SeqRecord
 import csv
 import sys
 import os
-import pandas as pd
 from fastafunk.utils import *
 
 def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, log_file):
@@ -47,32 +46,28 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
     log_handle = get_log_handle(log_file, out_fasta)
     sequence_dictionary = {}
     metadata_dictionary = {}
-    df_list = []
+    index = index_column.lower()
 
     for metadata_file in in_metadata:
         if os.path.exists(metadata_file):
-            df = pd.read_csv(metadata_file)
-            df.columns = map(str.lower, df.columns)        
-            df_list.append(df)
+            with open(metadata_file,"r",encoding='utf-8-sig') as f:
+                reader = csv.DictReader(f)
+                reader.fieldnames = [name.lower() for name in reader.fieldnames]
+                metadata = [r for r in reader]
+            for sequence in metadata:
+                if index not in sequence.keys():
+                    print("Index column not in metadata. Please re-enter a new one. Program exiting.")
+                    sys.exit()
+                else:
+                    taxon_name = sequence[index]
+                if taxon_name not in metadata_dictionary.keys():
+                    metadata_dictionary[taxon_name] = sequence
+                else:
+                    metadata_dictionary[taxon_name] = {**metadata_dictionary[taxon_name], **sequence}
+                    log_handle.write("Sequence " + taxon_name + " has a duplicate in metadata and new metadata value is used\n")
         else:
             print("File does not exist, program exiting.")
-            sys.exit()
-
-    if len(df_list) > 1:
-        group_axis = df_list[0].columns.get_loc(index_column.lower())        
-        metadata_df = pd.concat(df_list, axis=group_axis, ignore_index=True, sort=False)
-        metadata_df.fillna('', inplace=True)
-    else:
-        metadata_df = df_list[0]
-
-    metadata_list = metadata_df.to_dict('record')
-    for rows in metadata_list:
-        taxon_name = rows[index_column.lower()]
-        if taxon_name not in metadata_dictionary.keys():
-            metadata_dictionary[taxon_name] = rows
-        else:
-            metadata_dictionary[taxon_name].update({k:v for k,v in rows.items() if v})
-            log_handle.write("Sequence " + taxon_name + " has a duplicate in metadata and new metadata value is used\n")
+            sys.exit()            
 
     sequence_list = list(metadata_dictionary.keys())
     out_list = list(metadata_dictionary.values())
@@ -80,6 +75,7 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
     f.writeheader()
     f.writerows(out_list)
     out_metadata_handle.close()
+    print(metadata_dictionary,sequence_list,out_list)
 
     for fasta_file in in_fasta:
         fasta_handle = get_in_handle(fasta_file)
@@ -91,6 +87,10 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
             elif record.id in sequence_dictionary.keys():
                 log_handle.write(record.id + " is a duplicate (in file " + fasta_file + ")\n")
         close_handle(fasta_handle)
+
+    if len(sequence_dictionary.keys()) == 0:
+        print("There is no matching sequences to metadata. Program exiting")
+        sys.exit()
 
     for key, value in sequence_dictionary.items():
         records = SeqRecord(value, key, description= '')

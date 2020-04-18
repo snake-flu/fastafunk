@@ -151,7 +151,7 @@ def main(args=None):
         help='One or more CSV or TSV tables of metadata'
     )
     subparser_merge.add_argument(
-        '--index-column', dest='index_column',default='taxon', metavar='<column>', required=False,
+        '--index-column', dest='index_column', metavar='<column>', required=True,
         help='Column in the metadata file to use to match to the sequence'
     )
     subparser_merge.add_argument(
