@@ -37,6 +37,7 @@ def fetch_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
     log_handle = get_log_handle(log_file, out_fasta)
 
     metadata = load_metadata(in_metadata, None, None)
+    metadata, full_index_column_values = get_index_column_values(metadata, index_column, header_delimiter)
     subsampled_metadata = filter_by_omit_columns(metadata)
     subsampled_metadata, index_column_values = get_index_column_values(subsampled_metadata, index_column,
                                                                        header_delimiter)
@@ -59,8 +60,10 @@ def fetch_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
                 if id_string in sequence_dict:
                     log_handle.write("%s is a duplicate record, keeping latest\n" % record.id)
                 sequence_dict[id_string] = record
+            elif id_string is not None and id_string in full_index_column_values:
+                log_handle.write("%s was marked to omit\n" %record.id)
             else:
-                log_handle.write("%s has no corresponding entry in metadata table, or was marked to omit\n" %record.id)
+                log_handle.write("%s has no corresponding entry in metadata table\n" %record.id)
         close_handle(fasta_handle)
 
     out_handle = get_out_handle(out_fasta)
