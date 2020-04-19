@@ -111,6 +111,7 @@ def load_dataframe(metadata_file, filter_columns, where_columns):
 
     if 'unnamed: 0' in df.columns:
         df.drop(columns=['unnamed: 0'], inplace=True)
+    df.dropna(how='all', axis='columns', inplace=True)
     return df
 
 def add_data(new_dataframe, master_dataframe):
