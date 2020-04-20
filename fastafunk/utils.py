@@ -89,7 +89,7 @@ def get_header_id(record, where_field):
         field, regex = where_field.split("=")
         return find_field_with_regex(record.description, regex)
 
-def load_dataframe(metadata_file, filter_columns, where_columns):
+def load_dataframe(metadata_file, filter_columns, where_columns, omit_columns=False):
     sep = ','
     if metadata_file.endswith('tsv'):
         sep = '\t'
@@ -105,13 +105,18 @@ def load_dataframe(metadata_file, filter_columns, where_columns):
 
     df.rename(str.lower, axis='columns', inplace=True)
 
-    if filter_columns:
-        filter_columns = [s.lower() for s in filter_columns]
-        df = df.loc[:, df.columns.isin(filter_columns)]
-
     if 'unnamed: 0' in df.columns:
         df.drop(columns=['unnamed: 0'], inplace=True)
-    df.dropna(how='all', axis='columns', inplace=True)
+
+    if filter_columns:
+        df = filter_by_omit_columns(df)
+        filter_columns = [s.lower() for s in filter_columns]
+        df = df.loc[:, df.columns.isin(filter_columns)]
+        for column in [c for c in filter_columns if c not in df.columns.values]:
+            df[column] = None
+    else:
+        df.dropna(how='all', axis='columns', inplace=True)
+
     return df
 
 def add_data(new_dataframe, master_dataframe):
@@ -130,6 +135,11 @@ def filter_by_omit_columns(df):
     for column in df.columns.values:
         if "omit" in column.lower():
             drop_indexes.extend(df.index[df[column] == True].tolist())
+        elif column == "edin_flag":
+            none_mask = pd.isna(df[column])
+            false_mask = df[column] == False
+            keep_mask = none_mask | false_mask
+            drop_indexes.extend(df.index[~keep_mask].tolist())
     df = df.drop(drop_indexes)
     return df
 
@@ -301,7 +311,7 @@ def get_index_column_values(df, index_columns, header_delimiter='|'):
         if isinstance(column, int):
             assert column < len(df.columns.values)
             column = df.columns[column]
-        assert column in df.columns.values
+        assert column in list(df.columns.values)
         str_index_columns.append(column)
 
     column_values = []
@@ -325,3 +335,10 @@ def get_cov_id(record):
     else:
         id_string = ""
     return id_string
+
+def restrict_dataframe(df, column_name, values):
+    mask = df[column_name].isin(values)
+    drop_indexes = df.index[~mask].tolist()
+    df.drop(drop_indexes, inplace=True)
+    return df
+
