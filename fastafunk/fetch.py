@@ -21,7 +21,7 @@ import os
 import pandas as pd
 from fastafunk.utils import *
 
-def fetch_fasta(in_fasta, in_metadata, index_column, out_fasta, out_metadata, log_file, header_delimiter):
+def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column, restrict, out_fasta, out_metadata, log_file, header_delimiter):
     """
     Fetches fasta entries with a corresponding entry in a metadata file
 
@@ -36,17 +36,11 @@ def fetch_fasta(in_fasta, in_metadata, index_column, out_fasta, out_metadata, lo
     """
     log_handle = get_log_handle(log_file, out_fasta)
 
-    metadata = load_metadata(in_metadata, None, None)
+    metadata = load_metadata(in_metadata, filter_column, where_column)
     metadata, full_index_column_values = get_index_column_values(metadata, index_column, header_delimiter)
     subsampled_metadata = filter_by_omit_columns(metadata)
     subsampled_metadata, index_column_values = get_index_column_values(subsampled_metadata, index_column,
                                                                        header_delimiter)
-
-    if out_metadata:
-        add_subsample_omit_column(metadata, subsampled_metadata)
-        metadata_handle = get_out_handle(out_metadata)
-        metadata.to_csv(out_metadata, index=False)
-        close_handle(metadata_handle)
 
     if not in_fasta:
         in_fasta = [""]
@@ -65,6 +59,16 @@ def fetch_fasta(in_fasta, in_metadata, index_column, out_fasta, out_metadata, lo
             else:
                 log_handle.write("%s has no corresponding entry in metadata table\n" %record.id)
         close_handle(fasta_handle)
+
+    if out_metadata:
+        if restrict:
+            metadata = restrict_dataframe(metadata, 'sequence_name', sequence_dict.keys())
+            subsampled_metadata = restrict_dataframe(subsampled_metadata, 'sequence_name', sequence_dict.keys())
+        if filter_column is None:
+            add_subsample_omit_column(metadata, subsampled_metadata)
+        metadata_handle = get_out_handle(out_metadata)
+        metadata.to_csv(out_metadata, index=False)
+        close_handle(metadata_handle)
 
     out_handle = get_out_handle(out_fasta)
     for record_id in sequence_dict:

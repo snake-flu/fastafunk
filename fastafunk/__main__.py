@@ -521,6 +521,18 @@ def main(args=None):
         help='Column(s) in the metadata file to use to match to the sequence'
     )
     subparser_fetch.add_argument(
+        '--filter-column', dest='filter_column', nargs='+', metavar='<column>', required=False,
+        help='Metadata column name(s) to keep'
+    )
+    subparser_fetch.add_argument(
+        '--where-column', dest='where_column', nargs='+', metavar='<column>=<regex>', required=False,
+        help='Additional matches to columns e.g. if want to rename'
+    )
+    subparser_fetch.add_argument(
+        '--restrict', dest='restrict', action='store_true', required=False,
+        help='Only outputs metadata rows with a corresponding fasta entry'
+    )
+    subparser_fetch.add_argument(
         '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="",
         help='A FASTA file (else writes to stdout)'
     )
