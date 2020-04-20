@@ -20,6 +20,17 @@ import sys
 import os
 from fastafunk.utils import *
 
+def clean_dict(d):
+    to_delete = []
+    for key in d.keys():
+        if key == '':
+            to_delete.append(key)
+        elif "unnamed" in key:
+            to_delete.append(key)
+    for key in to_delete:
+        del d[key]
+    return d
+
 def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, log_file):
     """
     Merges two or more fasta files avoiding duplicates based on matches to metadata
@@ -53,7 +64,7 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
             with open(metadata_file,"r",encoding='utf-8-sig') as f:
                 reader = csv.DictReader(f)
                 reader.fieldnames = [name.lower() for name in reader.fieldnames]
-                metadata = [r for r in reader]
+                metadata = [clean_dict(r) for r in reader]
             for sequence in metadata:
                 if index not in sequence.keys():
                     print("Index column not in metadata. Please re-enter a new one. Program exiting.")
@@ -71,11 +82,16 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
 
     sequence_list = list(metadata_dictionary.keys())
     out_list = list(metadata_dictionary.values())
-    f = csv.DictWriter(out_metadata_handle, fieldnames=out_list[0].keys())
+    all_keys = set()
+    for i in out_list:
+        all_keys.update(i.keys())
+    all_keys.discard('unnamed: 0')
+    all_keys.discard('')
+    f = csv.DictWriter(out_metadata_handle, fieldnames=all_keys)
     f.writeheader()
     f.writerows(out_list)
     out_metadata_handle.close()
-    print(metadata_dictionary,sequence_list,out_list)
+    #print(metadata_dictionary,sequence_list,out_list)
 
     for fasta_file in in_fasta:
         fasta_handle = get_in_handle(fasta_file)
