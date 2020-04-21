@@ -2,20 +2,20 @@
 Name: consensus.py
 Author: Xiaoyu Yu
 Date: 13 April 2020
-Description: Collapses fasta sequences into consensus sequences based on criteria set by user. 
+Description: Collapses fasta sequences into consensus sequences based on criteria set by user.
 
-For example, if the metadata file contains field lineage, the user can split the main fasta file 
-into individual fasta files with all sequences of that lineage. The program will then create an 
-alignment of that group of which a consensus will be built upon. The output file will consist of 
-a single consensus file with all consensus sequences for each group divided by the trait. The Log 
-file will flag all sequences with no trait value and sequences that does not have a match between 
+For example, if the metadata file contains field lineage, the user can split the main fasta file
+into individual fasta files with all sequences of that lineage. The program will then create an
+alignment of that group of which a consensus will be built upon. The output file will consist of
+a single consensus file with all consensus sequences for each group divided by the trait. The Log
+file will flag all sequences with no trait value and sequences that does not have a match between
 fasta and metadata files.
 
 Options:
-    --lineage: Allow user to specify specific lineages to split by. The lineage list does not need 
-    to consist of all the lineage present. All sub-lineages will collapse to the closes lineage. 
+    --lineage: Allow user to specify specific lineages to split by. The lineage list does not need
+    to consist of all the lineage present. All sub-lineages will collapse to the closes lineage.
     For example --lineage A, B, B.1 will collapse all B.1* to B.1 and others to B while
-    all A* will be grouped into A 
+    all A* will be grouped into A
 
 This file is part of Fastafunk (https://github.com/cov-ert/fastafunk).
 Copyright 2020 Xiaoyu Yu (xiaoyu.yu@ed.ac.uk) & Rachel Colquhoun (rachel.colquhoun@ed.ac.uk).
@@ -58,7 +58,7 @@ def create_consensus(in_fasta,in_metadata,index_field,index_column,lineage,out_f
     log_handle = get_log_handle(log_file, out_fasta)
     log_handle.write("Output folder: %s" %output_folder)
 
-    with open(in_metadata,"r",encoding='utf-8-sig') as f:
+    with open(in_metadata,"r") as f:
         reader = csv.DictReader(f)
         reader.fieldnames = [name.lower() for name in reader.fieldnames]
         metadata = [r for r in reader]

@@ -10,10 +10,10 @@ sequences with no trait value and sequences that does not have a match between f
 metadata files.
 
 Options:
-    --lineage: Allow user to specify specific lineages to split by. The lineage list does not 
-    need to consist of all the lineage present. All sub-lineages will collapse to the closes 
+    --lineage: Allow user to specify specific lineages to split by. The lineage list does not
+    need to consist of all the lineage present. All sub-lineages will collapse to the closes
     lineage. For example --lineage A, B, B.1 will collapse all B.1* to B.1 and others to B while
-    all A* will be grouped into A 
+    all A* will be grouped into A
 
 This file is part of Fastafunk (https://github.com/cov-ert/fastafunk).
 Copyright 2020 Xiaoyu Yu (xiaoyu.yu@ed.ac.uk) & Rachel Colquhoun (rachel.colquhoun@ed.ac.uk).
@@ -50,7 +50,7 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,lineage,out_folder
     seq_dic = {}
     log_handle = get_log_handle(log_file, out_folder)
 
-    with open(in_metadata,"r",encoding='utf-8-sig') as f:
+    with open(in_metadata,"r") as f:
         reader = csv.DictReader(f)
         reader.fieldnames = [name.lower() for name in reader.fieldnames]
         metadata = [r for r in reader]
