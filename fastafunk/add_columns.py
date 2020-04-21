@@ -50,7 +50,7 @@ def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_me
 
     other_data = {}
     First = True
-    with open(in_data, 'r', encoding='utf-8-sig') as f:
+    with open(in_data, 'r') as f:
         for line in f:
             l = line.strip().split(',')
             if First:

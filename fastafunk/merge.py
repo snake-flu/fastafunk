@@ -37,8 +37,8 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
 
     :param in_fasta: List of fasta files with spaces in between. At least two fasta files must be inserted here. Only
     fasta files are taken as input. (Required)
-    :param in_metadata: list of matching metadata file with same naming convention as fasta file (index-column). Those 
-    that does not match or have duplicates will be flagged within the log file for post-processing. Metadata file must 
+    :param in_metadata: list of matching metadata file with same naming convention as fasta file (index-column). Those
+    that does not match or have duplicates will be flagged within the log file for post-processing. Metadata file must
     be in csv format (Required)
     :param index_column: The column with matching sequence IDs with fasta file (Default: header). (Optional)
     :param out_metadata: Output metadata file with merged columns from multiple inputs (Default: stdout). (Optional)
@@ -53,7 +53,7 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
         in_metadata = [""]
 
     out_handle = get_out_handle(out_fasta)
-    out_metadata_handle = open(out_metadata,"w",newline='', encoding='utf-8-sig')
+    out_metadata_handle = open(out_metadata,"w",newline='')
     log_handle = get_log_handle(log_file, out_fasta)
     sequence_dictionary = {}
     metadata_dictionary = {}
@@ -61,7 +61,7 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
 
     for metadata_file in in_metadata:
         if os.path.exists(metadata_file):
-            with open(metadata_file,"r",encoding='utf-8-sig') as f:
+            with open(metadata_file,"r") as f:
                 reader = csv.DictReader(f)
                 reader.fieldnames = [name.lower() for name in reader.fieldnames]
                 metadata = [clean_dict(r) for r in reader]
@@ -78,7 +78,7 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
                     log_handle.write("Sequence " + taxon_name + " has a duplicate in metadata and new metadata value is used\n")
         else:
             print("File does not exist, program exiting.")
-            sys.exit()            
+            sys.exit()
 
     sequence_list = list(metadata_dictionary.keys())
     out_list = list(metadata_dictionary.values())
