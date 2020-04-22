@@ -57,6 +57,7 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
     log_handle = get_log_handle(log_file, out_fasta)
     sequence_dictionary = {}
     metadata_dictionary = {}
+    additional_rows = []
     index = index_column.lower()
 
     for metadata_file in in_metadata:
@@ -74,8 +75,8 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
                 if taxon_name not in metadata_dictionary.keys():
                     metadata_dictionary[taxon_name] = sequence
                 else:
-                    metadata_dictionary[taxon_name] = {**metadata_dictionary[taxon_name], **sequence}
-                    log_handle.write("Sequence " + taxon_name + " has a duplicate in metadata and new metadata value is used\n")
+                    additional_rows.append(sequence)
+                    log_handle.write("Sequence " + taxon_name + " had a duplicate in metadata both kept\n")
         else:
             print("File does not exist, program exiting.")
             sys.exit()
@@ -90,6 +91,7 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
     f = csv.DictWriter(out_metadata_handle, fieldnames=all_keys)
     f.writeheader()
     f.writerows(out_list)
+    f.writerows(additional_rows)
     out_metadata_handle.close()
     #print(metadata_dictionary,sequence_list,out_list)
 
