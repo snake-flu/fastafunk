@@ -135,11 +135,6 @@ def filter_by_omit_columns(df):
     for column in df.columns.values:
         if "omit" in column.lower():
             drop_indexes.extend(df.index[df[column] == True].tolist())
-        elif column == "edin_flag":
-            none_mask = pd.isna(df[column])
-            false_mask = df[column] == False
-            keep_mask = none_mask | false_mask
-            drop_indexes.extend(df.index[~keep_mask].tolist())
     df = df.drop(drop_indexes)
     return df
 
