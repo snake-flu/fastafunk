@@ -51,7 +51,7 @@ def subsample_fasta(in_fasta,in_metadata,index_field,index_column,group_column,w
     if out_metadata:
         add_subsample_omit_column(metadata, subsampled_metadata)
         metadata_handle = get_out_handle(out_metadata)
-        metadata.to_csv(out_metadata)
+        metadata.to_csv(out_metadata, index=False)
         close_handle(metadata_handle)
         
     close_handle(log_handle)
