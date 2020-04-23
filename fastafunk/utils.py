@@ -121,6 +121,7 @@ def load_dataframe(metadata_file, filter_columns, where_columns, omit_columns=Fa
 
 def add_data(new_dataframe, master_dataframe):
     column_intersection = [s for s in new_dataframe.columns if s in master_dataframe.columns]
+    print(column_intersection)
     master_dataframe = master_dataframe.merge(new_dataframe, how='outer', on=column_intersection)
     return master_dataframe
 
@@ -336,4 +337,17 @@ def restrict_dataframe(df, column_name, values):
     drop_indexes = df.index[~mask].tolist()
     df.drop(drop_indexes, inplace=True)
     return df
+
+def clean_dict(d, column_names=None):
+    to_delete = []
+    for key in d.keys():
+        if key == '':
+            to_delete.append(key)
+        elif "unnamed" in key:
+            to_delete.append(key)
+        elif column_names is not None and key not in column_names:
+            to_delete.append(key)
+    for key in to_delete:
+        del d[key]
+    return d
 

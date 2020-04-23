@@ -20,17 +20,6 @@ import sys
 import os
 from fastafunk.utils import *
 
-def clean_dict(d):
-    to_delete = []
-    for key in d.keys():
-        if key == '':
-            to_delete.append(key)
-        elif "unnamed" in key:
-            to_delete.append(key)
-    for key in to_delete:
-        del d[key]
-    return d
-
 def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, log_file):
     """
     Merges two or more fasta files avoiding duplicates based on matches to metadata

@@ -33,69 +33,61 @@ def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_me
                   on a match between index_column
     """
     # log_handle = get_log_handle(log_file, out_fasta = False)
+    join_on = join_on.lower()
+    index_column = index_column.lower()
+    new_columns = [c.lower() for c in new_columns]
+    all_column_names = []
 
-    metadata = []
-    First = True
-    with open(in_metadata, 'r') as f:
-        for line in f:
-            l = line.strip().split(',')
-            if First:
-                metadata_fields = l
-                if not index_column in metadata_fields:
-                    sys.exit(index_column + ' does not match any header in ' +  in_metadata)
-                First = False
-                continue
-            d = {x:y for x,y in zip(metadata_fields, l)}
-            metadata.append(d)
+    new_column_dict = {}
+    with open(in_data, "r") as f:
+        reader = csv.DictReader(f)
+        reader.fieldnames = [name.lower() for name in reader.fieldnames]
+        data = [r for r in reader]
+    for sequence in data:
+        if join_on not in sequence.keys():
+            print("Join on column not in in-data. Please re-enter a new one. Program exiting.")
+            sys.exit()
+        else:
+            taxon_name = sequence[join_on]
+        if taxon_name not in new_column_dict.keys():
+            new_column_dict[taxon_name] = clean_dict(sequence, new_columns)
+        else:
+            log_handle.write("Sequence " + taxon_name + " had a duplicate in in-data and only first kept\n")
 
-    other_data = {}
-    First = True
-    with open(in_data, 'r') as f:
-        for line in f:
-            l = line.strip().split(',')
-            if First:
-                header = l
-                if not join_on in header:
-                    sys.exit('--join-on does not match any header in the --in-data file')
-                if not all([x in header for x in new_columns]):
-                    sys.exit('a new column name does not match any header in the --in-data file')
-                First = False
-                continue
-            d = {x:y for x,y in zip(header, l)}
-            key = d[join_on]
-            if key in other_data:
-                warnings.warn(key + ' is a duplicate in ' + in_data + '[,' + join_on +'] and will be ignored')
-                continue
-            else:
-                other_data[key] = d
+    rows = []
+    null_dict = {}
+    for c in new_columns:
+        null_dict[c] = ''
+    with open(in_metadata, "r") as f:
+        reader = csv.DictReader(f)
+        reader.fieldnames = [name.lower() for name in reader.fieldnames]
+        all_column_names = reader.fieldnames
+        metadata = [clean_dict(r) for r in reader]
+    for sequence in metadata:
+        if index_column not in sequence.keys():
+            print("Index column not in metadata. Please re-enter a new one. Program exiting.")
+            sys.exit()
+        else:
+            taxon_name = sequence[index_column]
+        if taxon_name in new_column_dict.keys():
+            print(sequence)
+            print(new_column_dict[taxon_name])
+            sequence.update(new_column_dict[taxon_name])
+            print(sequence)
+        else:
+            sequence.update(null_dict)
+        rows.append(sequence)
+    print(all_column_names)
+    out_metadata_handle = open(out_metadata,"w",newline='')
 
-    newfields = metadata_fields + new_columns
-
-    with open(out_metadata, 'w') as f:
-        f.write(','.join(newfields) + '\n')
-
-        for dictionary in metadata:
-            # this is the value in that row for index_column
-            lookup = dictionary[index_column]
-            # might not be an entry
-            if len(lookup) == 0:
-                for key in new_columns:
-                    dictionary[key] = ''
-
-                f.write(','.join([dictionary[x] for x in newfields]) + '\n')
-                continue
-
-            elif lookup in other_data:
-                for key in new_columns:
-                    dictionary[key] = other_data[lookup][key]
-
-                f.write(','.join([dictionary[x] for x in newfields]) + '\n')
-                continue
-
-            else:
-                for key in new_columns:
-                    dictionary[key] = ''
-
-                f.write(','.join([dictionary[x] for x in newfields]) + '\n')
-
-    pass
+    if 'unnamed: 0' in all_column_names:
+        all_column_names.remove('unnamed: 0')
+    if '' in all_column_names:
+        all_column_names.remove('')
+    print(all_column_names)
+    all_column_names.extend(new_columns)
+    print(all_column_names)
+    f = csv.DictWriter(out_metadata_handle, fieldnames=all_column_names)
+    f.writeheader()
+    f.writerows(rows)
+    out_metadata_handle.close()
