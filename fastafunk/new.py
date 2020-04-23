@@ -45,7 +45,7 @@ def new_fasta(in_fasta,in_metadata,index_column,date_column,out_fasta,out_metada
 
     if out_metadata:
         metadata_handle = get_out_handle(out_metadata)
-        metadata.to_csv(out_metadata)
+        metadata.to_csv(out_metadata, index = False)
         close_handle(metadata_handle)
         
     close_handle(log_handle)
