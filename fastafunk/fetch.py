@@ -64,8 +64,6 @@ def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column
         if restrict:
             metadata = restrict_dataframe(metadata, 'sequence_name', sequence_dict.keys())
             subsampled_metadata = restrict_dataframe(subsampled_metadata, 'sequence_name', sequence_dict.keys())
-        if filter_column is None:
-            add_subsample_omit_column(metadata, subsampled_metadata)
         metadata_handle = get_out_handle(out_metadata)
         metadata.to_csv(out_metadata, index=False)
         close_handle(metadata_handle)
