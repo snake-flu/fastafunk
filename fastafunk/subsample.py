@@ -24,8 +24,8 @@ def subsample_fasta(in_fasta,in_metadata,index_field,index_column,group_column,w
     log_handle = get_log_handle(log_file, out_fasta)
 
     metadata = load_metadata(in_metadata, None, None)
-    subsampled_metadata = filter_by_omit_columns(metadata)
-    subsampled_metadata = subsample_metadata(subsampled_metadata, group_column, sample_size, target_file, select_by_max_column,
+    non_omitted_df = filter_by_omit_columns(metadata)
+    subsampled_metadata = subsample_metadata(non_omitted_df, group_column, sample_size, target_file, select_by_max_column,
                                              select_by_min_column, exclude_uk)
     subsampled_metadata, index_column_values = get_index_column_values(subsampled_metadata, index_column,
                                                                        header_delimiter)
@@ -49,7 +49,7 @@ def subsample_fasta(in_fasta,in_metadata,index_field,index_column,group_column,w
         close_handle(fasta_handle)
 
     if out_metadata:
-        add_subsample_omit_column(metadata, subsampled_metadata)
+        add_subsample_omit_column(metadata, non_omitted_df, subsampled_metadata)
         metadata_handle = get_out_handle(out_metadata)
         metadata.to_csv(out_metadata, index=False)
         close_handle(metadata_handle)

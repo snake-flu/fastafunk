@@ -268,11 +268,14 @@ def subsample_metadata(df, group_columns, sample_size, target_file, select_by_ma
     subsampled_indexes.sort()
     return df.loc[subsampled_indexes]
 
-def add_subsample_omit_column(df, subsampled_df):
+def add_subsample_omit_column(df, non_omitted_df, subsampled_df):
     if "subsample_omit" not in df.columns:
-        df["subsample_omit"] = True
-    for i in subsampled_df.index.values:
-        df.loc[i,"subsample_omit"] = False
+        df["subsample_omit"] = False
+    non_omitted_df_index_values = non_omitted_df.index.values
+    subsampled_df_index_values = subsampled_df.index.values
+    for i in non_omitted_index_values.index.values:
+        if i not in subsampled_df.index.values:
+            df.loc[i,"subsample_omit"] = True
     return
 
 def get_index_field_from_header(record, header_delimiter, index_field):
