@@ -273,8 +273,8 @@ def add_subsample_omit_column(df, non_omitted_df, subsampled_df):
         df["subsample_omit"] = False
     non_omitted_df_index_values = non_omitted_df.index.values
     subsampled_df_index_values = subsampled_df.index.values
-    for i in non_omitted_index_values.index.values:
-        if i not in subsampled_df.index.values:
+    for i in non_omitted_df_index_values:
+        if i not in subsampled_df_index_values:
             df.loc[i,"subsample_omit"] = True
     return
 
