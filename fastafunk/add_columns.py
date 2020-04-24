@@ -20,7 +20,7 @@ from fastafunk.utils import *
 from fastafunk.stats import *
 
 
-def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_metadata, out_logfile):
+def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_metadata, log_file):
     """
     in_metadata - a list of metadata files to update
     in_data - a file with info used to populate new metadata columns
