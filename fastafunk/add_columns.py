@@ -32,7 +32,8 @@ def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_me
                   and whose values will populate the rows in new metadata, based
                   on a match between index_column
     """
-    # log_handle = get_log_handle(log_file, out_fasta = False)
+    log_handle = get_log_handle(log_file, out_fasta=False)
+
     join_on = join_on.lower()
     index_column = index_column.lower()
     new_columns = [c.lower() for c in new_columns]
@@ -91,3 +92,4 @@ def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_me
     f.writeheader()
     f.writerows(rows)
     out_metadata_handle.close()
+    log_handle.close()
