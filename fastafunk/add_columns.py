@@ -57,12 +57,14 @@ def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_me
 
     rows = []
     null_dict = {}
-    for c in new_columns:
-        null_dict[c] = ''
     with open(in_metadata, "r") as f:
         reader = csv.DictReader(f)
         reader.fieldnames = [name.lower() for name in reader.fieldnames]
         all_column_names = reader.fieldnames
+        new_columns = [c for c in new_columns if c not in all_column_names]
+        for c in new_columns:
+            null_dict[c] = ''
+        print(null_dict)
         metadata = [clean_dict(r) for r in reader]
     for sequence in metadata:
         if index_column not in sequence.keys():
