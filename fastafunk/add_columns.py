@@ -46,7 +46,7 @@ def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_me
         data = [r for r in reader]
     for sequence in data:
         if join_on not in sequence.keys():
-            print("Join on column not in in-data. Please re-enter a new one. Program exiting.")
+            log_handle.write("Join on column not in in-data. Please re-enter a new one. Program exiting.\n")
             sys.exit()
         else:
             taxon_name = sequence[join_on]
@@ -66,28 +66,22 @@ def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_me
         metadata = [clean_dict(r) for r in reader]
     for sequence in metadata:
         if index_column not in sequence.keys():
-            print("Index column not in metadata. Please re-enter a new one. Program exiting.")
+            log_handle.write("Index column not in metadata. Please re-enter a new one. Program exiting.\n")
             sys.exit()
         else:
             taxon_name = sequence[index_column]
         if taxon_name in new_column_dict.keys():
-            print(sequence)
-            print(new_column_dict[taxon_name])
             sequence.update(new_column_dict[taxon_name])
-            print(sequence)
         else:
             sequence.update(null_dict)
         rows.append(sequence)
-    print(all_column_names)
     out_metadata_handle = open(out_metadata,"w",newline='')
 
     if 'unnamed: 0' in all_column_names:
         all_column_names.remove('unnamed: 0')
     if '' in all_column_names:
         all_column_names.remove('')
-    print(all_column_names)
     all_column_names.extend(new_columns)
-    print(all_column_names)
     f = csv.DictWriter(out_metadata_handle, fieldnames=all_column_names)
     f.writeheader()
     f.writerows(rows)
