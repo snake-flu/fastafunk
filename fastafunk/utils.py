@@ -64,14 +64,14 @@ def metadata_to_dict(list_metadata_files):
     return metadata_dictionary
 
 def find_column_with_regex(df, column, regex):
-    if column in df.columns:
-        return df
     regex = re.compile(regex)
     for original_column in df.columns:
         match = re.search(regex, original_column)
-        if match:
-            df[column] = df[original_column]
+        if match and column in df.columns:
+            df[column].update(df[original_column])
             return df
+        elif match:
+            df[column] = df[original_column]
     return df
 
 def find_field_with_regex(header, regex):
@@ -171,21 +171,23 @@ def load_new_metadata(list_metadata_files, date_column, filter_columns=None, whe
         if master is None:
             master = load_dataframe(metadata_file, filter_columns, where_columns)
             date = get_newest_date(master, date_column)
+            if date is None:
+                master = fill_date_where_missing(master, date_column)
+                date = get_newest_date(master, date_column)
         else:
             new_data = load_dataframe(metadata_file, filter_columns, where_columns)
             new_date = get_newest_date(new_data, date_column)
             if new_date is None:
-                master = add_data(new_data, master)
-                master = fill_date_where_missing(master, date_column)
-            elif date is None:
                 master = add_data(master, new_data)
                 master = fill_date_where_missing(master, date_column)
+                master = master.loc[pd.to_datetime(master[date_column]) > date]
             elif new_date > date:
                 master = new_data.loc[pd.to_datetime(new_data[date_column]) > date]
                 date = new_date
             elif new_date < date:
                 master = master.loc[pd.to_datetime(master[date_column]) > new_date]
-
+    if len(master.index) == 0:
+        sys.exit("Check date column %s exists in at least one file")
     return master
 
 def grouped_to_csv(grouped, group_columns, log_handle):
