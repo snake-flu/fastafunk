@@ -456,6 +456,10 @@ def main(args=None):
         '--out-metadata', dest='out_metadata', metavar='<filename>', required=True,
         help='A metadata file to write'
     )
+    subparser_add_columns.add_argument(
+        '--where-column', dest='where_column', nargs='+', metavar='<column>=<regex>', required=False,
+        help='Additional matches to columns e.g. if want to rename'
+    )
 
     subparser_add_columns.set_defaults(func=fastafunk.subcommands.add_columns.run)
 

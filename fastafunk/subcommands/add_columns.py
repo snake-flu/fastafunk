@@ -9,5 +9,6 @@ def run(options):
                 options.join_on,
                 options.new_columns,
                 options.out_metadata,
+                options.where_column,
                 options.log_file
                             )

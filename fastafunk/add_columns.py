@@ -19,8 +19,23 @@ import pandas as pd
 from fastafunk.utils import *
 from fastafunk.stats import *
 
+def replace_with_where_columns(existing_columns, where_columns, log_handle):
+    if where_columns:
+        for pair in where_columns:
+            column,regex = pair.split("=")
+            if column in existing_columns:
+                log_handle.write("Column %s already exists in in-data, ignoring %s\n" %(column, pair))
+                continue
+            regex = re.compile(regex)
+            for existing_column in existing_columns:
+                match = re.search(regex, existing_column)
+                if match:
+                    existing_columns[existing_columns.index(existing_column)] = column
+                    log_handle.write("Renamed column %s as column %s in in-data\n" % (existing_column, column))
+                    break
+    return existing_columns
 
-def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_metadata, log_file):
+def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_metadata, where_column, log_file):
     """
     in_metadata - a list of metadata files to update
     in_data - a file with info used to populate new metadata columns
@@ -42,6 +57,7 @@ def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_me
     new_column_dict = {}
     with open(in_data, "r") as f:
         reader = csv.DictReader(f)
+        reader.fieldnames = replace_with_where_columns(reader.fieldnames, where_column, log_handle)
         reader.fieldnames = [name.lower() for name in reader.fieldnames]
         data = [r for r in reader]
     for sequence in data:
@@ -64,7 +80,6 @@ def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_me
         new_columns = [c for c in new_columns if c not in all_column_names]
         for c in new_columns:
             null_dict[c] = ''
-        print(null_dict)
         metadata = [clean_dict(r) for r in reader]
     for sequence in metadata:
         if index_column not in sequence.keys():
