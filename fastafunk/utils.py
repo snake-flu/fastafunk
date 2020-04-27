@@ -147,6 +147,8 @@ def load_metadata(list_metadata_files, filter_columns, where_columns):
         else:
             new_data = load_dataframe(metadata_file, filter_columns, where_columns)
             master = add_data(new_data, master)
+    if filter_columns:
+        master = master[filter_columns]
     return master
 
 def get_newest_date(df, column):
