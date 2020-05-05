@@ -68,9 +68,11 @@ def find_column_with_regex(df, column, regex):
     for original_column in df.columns:
         match = re.search(regex, original_column)
         if match and column in df.columns:
+            print("Update column", column, "with non-na values from column", original_column)
             df[column].update(df[original_column])
             return df
         elif match:
+            print("New column", column, "with non-na values from column", original_column)
             df[column] = df[original_column]
     return df
 
@@ -91,12 +93,13 @@ def get_header_id(record, where_field):
 
 def load_dataframe(metadata_file, filter_columns, where_columns, omit_columns=False):
     sep = ','
+    na_values = ["None"]
     if metadata_file.endswith('tsv'):
         sep = '\t'
     try:
-        df = pd.read_csv(metadata_file, sep=sep)
+        df = pd.read_csv(metadata_file, sep=sep, na_values=na_values)
     except:
-        df = pd.read_csv(metadata_file, sep=sep, encoding='utf-8')
+        df = pd.read_csv(metadata_file, sep=sep, na_values=na_values, encoding='utf-8')
 
     if where_columns:
         for pair in where_columns:
