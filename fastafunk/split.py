@@ -28,7 +28,20 @@ from Bio.SeqRecord import SeqRecord
 
 from fastafunk.utils import *
 
-def split_fasta(in_fasta,in_metadata,index_field,index_column,lineage,out_folder,log_file):
+def seq_is_outgroup(seq_id, lineage_dic):
+    if seq_id in lineage_dic.keys():
+        return True
+    return False
+
+def get_parent(phylotype, lineage):
+    parent = phylotype
+    while parent != "":
+        parent = ".".join(parent.split('.')[:-1])
+        if parent in lineage:
+            return parent
+    return None
+
+def split_fasta(in_fasta,in_metadata,index_field,index_column,lineage,lineage_csv,out_folder,log_file):
     """
     Split the fasta file into multiple fasta files based on criteria set by user
 
@@ -38,8 +51,11 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,lineage,out_folder
     that the user wants to split the fasta file by. Metadata file must be in .csv format (Required)
     :param index_field: The matching criteria the fasta file needs to be splitted by. (Required)
     :param index_column: The column with matching sequence IDs with fasta file (Default: header). (Optional)
-    :param lineage: Only apply to lineage specific fields. The file will consist of all the specific lineages the user wants to split by. All sub-lineages will be collapsed to the closest
-    lineage (e.g. 1.1.2 to 1.1). (Optional)
+    :param lineage: Only apply to lineage specific fields. The file will consist of all the specific lineages the user
+    wants to split by. All sub-lineages will be collapsed to the closest lineage (e.g. 1.1.2 to 1.1). (Optional)
+    :param lineage_csv: Only apply to lineage specific fields. The file contains two columns, named 'lineage' and
+    'outgroup'. Sub-lineages are collapsed as when lineages are provided, and additionally the child outgroups are
+    included in the parent file. (Optional)
     :param out_folder: Output folder for all fasta files splitted based on matching criteria (Default: ./). (Optional)
     :param log_file: Output log file (Default: stdout). (Optional)
 
@@ -48,6 +64,7 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,lineage,out_folder
     metadata_dic = {}
     phylotype_dic = {}
     seq_dic = {}
+    lineage_dic = {}
     log_handle = get_log_handle(log_file, out_folder)
 
     with open(in_metadata,"r") as f:
@@ -70,6 +87,14 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,lineage,out_folder
     if len(set(metadata_dic.keys())&set(seq_dic.keys())) == 0:
         sys.exit("No matching sequence name with metadata name. Program Exit")
 
+    if lineage_csv:
+        with open(lineage_csv) as csv_handle:
+            csv_reader = csv.DictReader(csv_handle)
+            for row in csv_reader:
+                lineage_dic[row['outgroup']] = row['lineage']
+        lineage = [lineage_dic[outgroup] for outgroup in lineage_dic.keys()]
+        print("Found lineages", lineage)
+
     if lineage != "":
         for clades in lineage:
             phylotype_dic[clades] = []
@@ -87,6 +112,11 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,lineage,out_folder
                 if phylo_type[:cluster_length] == cluster_type:
                     if seq_id in seq_dic.keys():
                         phylotype_dic[cluster].append([seq_id,seq_dic[seq_id],phylotype])
+                        if seq_is_outgroup(seq_id, lineage_dic):
+                            parent = get_parent(phylotype, lineage)
+                            print("Seq", seq_id, "is outgroup with lineage" , phylotype, "and parent lineage", str(parent))
+                            if parent is not None:
+                                phylotype_dic[parent].append([seq_id, seq_dic[seq_id], phylotype])
                         del seq_dic[seq_id]
     else:
         for seq,trait in metadata_dic.items():

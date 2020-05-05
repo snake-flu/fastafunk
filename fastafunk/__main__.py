@@ -218,6 +218,10 @@ def main(args=None):
         help="Specific list of lineages to split by with others collpasing to nearest lineage."
     )
     subparser_split.add_argument(
+        "--lineage-csv", dest='lineage_csv', required=False, default="",
+        help="CSV with lineage and outgroup columns defining the lineages to split by."
+    )
+    subparser_split.add_argument(
         '--out-folder', dest='out_folder', metavar='<filename>', default="./", required=False,
         help='A directory for output FASTA files'
     )
