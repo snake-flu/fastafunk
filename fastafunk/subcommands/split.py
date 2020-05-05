@@ -13,6 +13,7 @@ def run(options):
         options.index_field,
         options.index_column,
         options.lineage,
+        options.lineage_csv,
         options.out_folder,
         options.log_file
     )
