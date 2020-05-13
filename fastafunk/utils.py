@@ -124,7 +124,7 @@ def load_dataframe(metadata_file, filter_columns, where_columns, omit_columns=Fa
 
 def add_data(new_dataframe, master_dataframe):
     column_intersection = [s for s in new_dataframe.columns if s in master_dataframe.columns]
-    print(column_intersection)
+    #print(column_intersection)
     master_dataframe = master_dataframe.merge(new_dataframe, how='outer', on=column_intersection)
     return master_dataframe
 
@@ -287,7 +287,7 @@ def add_subsample_omit_column(df, non_omitted_df, subsampled_df):
 
 def get_index_field_from_header(record, header_delimiter, index_field):
     if index_field is None or index_field == "":
-        return record.id
+        return record.description
 
     if header_delimiter == " ":
         fields = record.description.split()

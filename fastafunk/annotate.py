@@ -44,6 +44,7 @@ def annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_me
         for record in SeqIO.parse(fasta_handle, "fasta"):
             id = get_index_field_from_header(record, header_delimiter, index_field)
             if metadata_keys is not None and id not in metadata_keys:
+                log_handle.write("Could not find sequence header id %s in index column %s" %(id, index_column))
                 continue
             record_stats = []
             for stat in stats:
@@ -61,13 +62,19 @@ def annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_me
         close_handle(fasta_handle)
 
     if out_metadata:
-        stats["sequence_name"] = ids
+        stats[index_column[0]] = ids
         if add_cov_id:
             stats["cov_id"] = cov_ids
         stats_data = pd.DataFrame(stats)
         stats_data.to_csv(log_handle, index=False)
         if in_metadata:
+            prev_length = len(metadata.index.values)
             metadata = add_data(stats_data, metadata)
+            new_length = len(metadata.index.values)
+            if new_length != prev_length:
+                log_handle.write("Warning: input metadata table had length %i and now has length %i with stats"
+                                 %(prev_length, new_length))
+                sys.exit()
         else:
             metadata = stats_data
         metadata_handle = get_out_handle(out_metadata)
