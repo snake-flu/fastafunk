@@ -40,12 +40,12 @@ def subsample_fasta(in_fasta,in_metadata,index_field,index_column,group_column,w
     for fasta_file in in_fasta:
         fasta_handle = get_in_handle(fasta_file)
         for record in SeqIO.parse(fasta_handle, "fasta"):
-            id_string = record.id
+            id_string = record.description
             if id_string != "" and id_string in to_keep:
                 SeqIO.write(record, out_handle, "fasta-2line")
                 to_keep.remove(id_string)
             else:
-                log_handle.write("%s\n" %record.id)
+                log_handle.write("%s\n" %id_string)
         close_handle(fasta_handle)
 
     if out_metadata:
