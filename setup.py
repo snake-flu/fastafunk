@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="fastafunk",
-    version="0.0.3",
+    version="0.0.4",
     packages=find_packages(),
     url="https://github.com/cov-ert/fastafunk",
     license="MIT",
