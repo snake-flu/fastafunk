@@ -25,6 +25,7 @@ class TestMerge(unittest.TestCase):
         merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, log_file)
         self.assertTrue(filecmp.cmp(out_fasta, expected, shallow=False))
         os.unlink(out_fasta)
+        os.unlink(out_metadata)
         os.unlink(log_file)
 
     def test_run_merge_no_log(self):
@@ -38,6 +39,7 @@ class TestMerge(unittest.TestCase):
         merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, log_file)
         self.assertTrue(filecmp.cmp(out_fasta, expected, shallow=False))
         os.unlink(out_fasta)
+        os.unlink(out_metadata)
 
     # def test_run_merge_no_log_no_out_fasta(self):
     #     in_fasta = glob.glob("%s/*.f*a" % data_dir)
