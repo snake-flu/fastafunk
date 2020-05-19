@@ -45,7 +45,7 @@ class TestAnnotate(unittest.TestCase):
     def test_annotate_simple_index_column_index_field(self):
         in_fasta = ["%s/annotate.fasta" %data_dir]
         in_metadata = ["%s/simple_metadata.csv" % data_dir]
-        index_column = ""
+        index_column = None
         index_field = None
         out_fasta = "%s/tmp.annotated.fasta" %data_dir
         out_metadata = None
@@ -62,7 +62,7 @@ class TestAnnotate(unittest.TestCase):
     def test_annotate_metadata_simple(self):
         in_fasta = ["%s/annotate.fasta" %data_dir]
         in_metadata = ["%s/simple_metadata.csv" % data_dir]
-        index_column = ""
+        index_column = None
         index_field = None
         out_fasta = "%s/tmp.annotated.fasta" %data_dir
         out_metadata = "%s/tmp.annotated.csv" %data_dir
@@ -83,7 +83,7 @@ class TestAnnotate(unittest.TestCase):
     def test_annotate_metadata_superset(self):
         in_fasta = ["%s/annotate.fasta" %data_dir]
         in_metadata = ["%s/superset_metadata.csv" % data_dir]
-        index_column = ""
+        index_column = None
         index_field = None
         out_fasta = "%s/tmp.annotated.fasta" %data_dir
         out_metadata = "%s/tmp.annotated.csv" %data_dir
@@ -104,7 +104,7 @@ class TestAnnotate(unittest.TestCase):
     def test_annotate_metadata_subset(self):
         in_fasta = ["%s/annotate.fasta" %data_dir]
         in_metadata = ["%s/subset_metadata.csv" % data_dir]
-        index_column = ""
+        index_column = None
         index_field = None
         out_fasta = "%s/tmp.annotated.fasta" %data_dir
         out_metadata = "%s/tmp.annotated.csv" %data_dir

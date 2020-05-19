@@ -149,7 +149,7 @@ class TestUtils(unittest.TestCase):
                             "blah": [None, None, None, 4, 1, 2, 3],
                             "omitted": [True,True,None,False,True,None,None],
                             "edin_OMIT": [None,None,None,None,None,None,True]})
-        result = filter_by_omitted(df)
+        result = filter_by_omit_columns(df)
         expect = pd.DataFrame({'name': ['c','d','f'],
                             "place": ['z','x1','y'],
                             "date": ['2020-03-29','2020-04-02',
@@ -157,6 +157,7 @@ class TestUtils(unittest.TestCase):
                             "blah": [None, 4, 2],
                             "omitted": [None,False,None],
                             "edin_OMIT": [None,None,None]})
+        expect.set_index([pd.Index([2,3,5])], inplace=True)
         print(result)
         print(expect)
         self.assertEqual(result, expect)
@@ -324,7 +325,7 @@ class TestUtils(unittest.TestCase):
         index_field = None
         header_delimiter = '|'
         result = get_index_field_from_header(record, header_delimiter, index_field)
-        expect = "COUNTRY/CODE/YEAR|ID||DATE|BLAH=XXX|CLOWN:YYY"
+        expect = "COUNTRY/CODE/YEAR|ID||DATE|BLAH=XXX|CLOWN:YYY foo=bar parrot:clown"
         self.assertEqual(result, expect)
 
     def test_get_index_field_from_header_int_index_field(self):
@@ -383,12 +384,20 @@ class TestUtils(unittest.TestCase):
         expect = "clown"
         self.assertEqual(result, expect)
 
-    def test_get_index_column_values_default(self):
-        df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "header": ['x', 'y', 'z', 'x1'],
+    def test_get_index_column_values_default_sequence_name(self):
+        df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "sequence_name": ['x', 'y', 'z', 'x1'],
                            "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
         index_column = None
         df, result = get_index_column_values(df, index_column)
         expect = ['x', 'y', 'z', 'x1']
+        self.assertEqual(result, expect)
+
+    def test_get_index_column_values_default_0(self):
+        df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "header": ['x', 'y', 'z', 'x1'],
+                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
+        index_column = None
+        df, result = get_index_column_values(df, index_column)
+        expect = ['a', 'b', 'c', 'd']
         self.assertEqual(result, expect)
 
     def test_get_index_column_values_default_no_header(self):
@@ -425,14 +434,6 @@ class TestUtils(unittest.TestCase):
         df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "place": ['x', 'y', 'z', 'x1'],
                            "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
         index_column = ["id"]
-        self.assertRaises(AssertionError, get_index_column_values, df, index_column)
-
-    def test_get_index_column_values_column_has_duplicates(self):
-        df = pd.DataFrame({'name': ['a', 'b', 'b', 'd'], "place": ['x', 'y', 'z', 'x1'],
-                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
-        index_column = ["name"]
-        #df, result = get_index_column_values(df, index_column)
-        #self.assertEqual(len(df.index.values),2)
         self.assertRaises(AssertionError, get_index_column_values, df, index_column)
 
     def test_get_index_column_values_strings(self):

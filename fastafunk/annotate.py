@@ -42,7 +42,7 @@ def annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_me
     for fasta_file in in_fasta:
         fasta_handle = get_in_handle(fasta_file)
         for record in SeqIO.parse(fasta_handle, "fasta"):
-            id = get_index_field_from_header(record, header_delimiter, index_field)
+            id = get_index_field_from_header(record, header_delimiter, index_field).split()[0]
             if metadata_keys is not None and id not in metadata_keys:
                 log_handle.write("Could not find sequence header id %s in index column %s" %(id, index_column))
                 continue
@@ -62,6 +62,8 @@ def annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_me
         close_handle(fasta_handle)
 
     if out_metadata:
+        if index_column is None or len(index_column) == 0 or index_column == "":
+            index_column = ["sequence_name"]
         stats[index_column[0]] = ids
         if add_cov_id:
             stats["cov_id"] = cov_ids
