@@ -38,9 +38,6 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
     if not in_fasta:
         in_fasta = [""]
 
-    if not in_metadata:
-        in_metadata = [""]
-
     out_handle = get_out_handle(out_fasta)
     out_metadata_handle = open(out_metadata,"w",newline='')
     log_handle = get_log_handle(log_file, out_fasta)
@@ -57,7 +54,8 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
                 metadata = [clean_dict(r) for r in reader]
             for sequence in metadata:
                 if index not in sequence.keys():
-                    print("Index column not in metadata. Please re-enter a new one. Program exiting.")
+                    print("Index column '%s' not in metadata %s. Please re-enter a new one. Program exiting."
+                          %(index, metadata_file))
                     sys.exit()
                 else:
                     taxon_name = sequence[index]

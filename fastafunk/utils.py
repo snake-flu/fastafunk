@@ -148,7 +148,6 @@ def load_dataframe(metadata_file, filter_columns, where_columns, omit_columns=Fa
 
 def add_data(new_dataframe, master_dataframe):
     column_intersection = [s for s in new_dataframe.columns if s in master_dataframe.columns]
-    #print(column_intersection)
     master_dataframe = master_dataframe.merge(new_dataframe, how='outer', on=column_intersection)
     return master_dataframe
 
@@ -310,7 +309,7 @@ def add_subsample_omit_column(df, non_omitted_df, subsampled_df):
     return
 
 def get_index_field_from_header(record, header_delimiter, index_field):
-    if index_field is None or index_field == "":
+    if index_field is None or index_field == "" or index_field == []:
         return record.description
 
     if header_delimiter == " ":
@@ -330,7 +329,7 @@ def get_index_field_from_header(record, header_delimiter, index_field):
     return record.id
 
 def get_index_column_values(df, index_columns, header_delimiter='|'):
-    if not index_columns or len(index_columns) == 0:
+    if not index_columns or len(index_columns) == 0 or index_columns == "":
         if "sequence_name" in df.columns:
             index_columns = ["sequence_name"]
         else:
@@ -347,7 +346,8 @@ def get_index_column_values(df, index_columns, header_delimiter='|'):
     column_values = []
     for i,row in df.iterrows():
         column_values.append(header_delimiter.join([str(row[c]) for c in str_index_columns]))
-    # df.loc[:,"fastafunk_util_sequence_name"] = column_values
+    index_column_name = "|".join(str_index_columns)
+    df.loc[:,index_column_name] = column_values
     #bad_headers = df[df["sequence_name"].duplicated()]["sequence_name"].index.values
     #df.drop(bad_headers, inplace=True)
     #if df["sequence_name"].duplicated().any():

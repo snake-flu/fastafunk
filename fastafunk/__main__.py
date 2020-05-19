@@ -159,7 +159,7 @@ def main(args=None):
         help='Column in the metadata file to use to match to the sequence'
     )
     subparser_merge.add_argument(
-        '--out-metadata', dest='out_metadata', metavar='<filename>', required=False, default="",
+        '--out-metadata', dest='out_metadata', metavar='<filename>', required=True,
         help='A CSV file (else writes to stdout)'
     )
     subparser_merge.add_argument(
