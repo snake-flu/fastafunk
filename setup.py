@@ -13,6 +13,7 @@ setup(
         "biopython>=1.70",
         "numpy>=1.18",
         "pandas>=0.24.2",
+        "dendropy"
     ],
     classifiers=[
         "Development Status :: 4 - Beta",

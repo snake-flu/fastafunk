@@ -115,7 +115,7 @@ def main(args=None):
     subparser_extract = subparsers.add_parser(
         "extract",
         parents=[common],
-        help="Extracts sequences based on matches to the metadata",
+        help="Extracts sequences based on matches to the metadata/tree",
     )
 
     subparser_extract.add_argument(
@@ -123,8 +123,12 @@ def main(args=None):
         help='One or more FASTA files of sequences (else reads from stdin)'
     )
     subparser_extract.add_argument(
-        '--in-metadata', dest='in_metadata', nargs='+', metavar='<filename>', required=True,
+        '--in-metadata', dest='in_metadata', nargs='+', metavar='<filename>', required=False,
         help='One or more CSV or TSV tables of metadata'
+    )
+    subparser_extract.add_argument(
+        '--in-tree', dest='in_tree', nargs='+', metavar='<filename>', required=False,
+        help='One or more tree files in either nexus or newick format'
     )
     subparser_extract.add_argument(
         '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="",

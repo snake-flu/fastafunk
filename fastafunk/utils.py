@@ -14,6 +14,7 @@ import pandas as pd
 import numpy as np
 import re
 import datetime
+import dendropy
 
 def get_log_handle(log_file, out_fasta):
     if log_file:
@@ -62,6 +63,27 @@ def metadata_to_dict(list_metadata_files):
                 metadata_dictionary[row[0]] = row[1:]
 
     return metadata_dictionary
+
+def trees_to_taxa(list_tree_files):
+    """
+    extract all taxa labels in newick or nexus format trees
+    labels is a list of taxon labels
+    """
+    labels = []
+    for treefile in list_tree_files:
+        try:
+            tree = dendropy.Tree.get(path = treefile,
+                                     schema = 'newick')
+        except:
+            try:
+                tree = dendropy.Tree.get(path = treefile,
+                                         schema = 'nexus')
+            except:
+                sys.exit('tree does not seem to be in Newick or Nexus format')
+
+        labels = labels + tree.taxon_namespace.labels()
+
+    return(labels)
 
 def find_column_with_regex(df, column, regex):
     regex = re.compile(regex)
@@ -360,4 +382,3 @@ def clean_dict(d, column_names=None):
     for key in to_delete:
         del d[key]
     return d
-

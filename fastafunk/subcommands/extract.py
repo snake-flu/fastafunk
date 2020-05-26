@@ -10,6 +10,7 @@ def run(options):
     extract_fasta(
         options.in_fasta,
         options.in_metadata,
+        options.in_tree,
         options.out_fasta,
         options.log_file
     )
