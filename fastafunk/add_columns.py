@@ -99,7 +99,7 @@ def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_me
     if '' in all_column_names:
         all_column_names.remove('')
     all_column_names.extend(new_columns)
-    f = csv.DictWriter(out_metadata_handle, fieldnames=all_column_names)
+    f = csv.DictWriter(out_metadata_handle, fieldnames=all_column_names,lineterminator='\n')
     f.writeheader()
     f.writerows(rows)
     out_metadata_handle.close()
