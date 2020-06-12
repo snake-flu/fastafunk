@@ -96,19 +96,35 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,lineage,lineage_cs
         print("Found lineages", lineage)
 
     if lineage != "":
+        # clades are the lineage rows in lineage_splits
         for clades in lineage:
             phylotype_dic[clades] = []
-
+        # print(phylotype_dic)
         trait_order = list(phylotype_dic.keys())
+        # trait order is a list of the parent lineages in lineage_splits
+        # print(trait_order)
+
         trait_order.sort(key=lambda x: re.sub("[^A-Z0-9]", "",x),reverse=True)
+        # print(trait_order)
 
         for cluster in trait_order:
+            # cluster is parent lineage in lineage_splits
+            # phylotype is A, B.1, B.1.X, etc. - pangolin assigned lineage
             for seq_id,phylotype in metadata_dic.items():
+                # print(seq_id,phylotype)
                 cluster_type = cluster.split(".")
+                # print(cluster_type)
                 cluster_length = len(cluster_type)
+                # print(cluster_length)
                 phylo_type = phylotype.split(".")
+                # print(phylo_type)
+                # if the length of the phylotype is shorter than the parent, it
+                # can't possibly be a match, so move on to next sequence
                 if len(phylo_type) < cluster_length:
                     continue
+                # print(phylo_type[:cluster_length])
+
+                # if there's a match, then do the correct stuff:
                 if phylo_type[:cluster_length] == cluster_type:
                     if seq_id in seq_dic.keys():
                         phylotype_dic[cluster].append([seq_id,seq_dic[seq_id],phylotype])
@@ -118,6 +134,21 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,lineage,lineage_cs
                             if parent is not None:
                                 phylotype_dic[parent].append([seq_id, seq_dic[seq_id], phylotype])
                         del seq_dic[seq_id]
+
+                # Ben's addition which is a bit of a hack - if A is the only lineage defined
+                # in trait_orders, then assign all Bs to A:
+                else:
+                    if len(trait_order) == 1 and trait_order == ['A']:
+                        if phylo_type[:1] == ['B']:
+                            if seq_id in seq_dic.keys():
+                                phylotype_dic[cluster].append([seq_id,seq_dic[seq_id],phylotype])
+                                if seq_is_outgroup(seq_id, lineage_dic):
+                                    parent = get_parent(phylotype, lineage)
+                                    print("Seq", seq_id, "is outgroup with lineage" , phylotype, "and parent lineage", str(parent))
+                                    if parent is not None:
+                                        phylotype_dic[parent].append([seq_id, seq_dic[seq_id], phylotype])
+                                del seq_dic[seq_id]
+
     else:
         for seq,trait in metadata_dic.items():
             if trait == "":
