@@ -329,8 +329,8 @@ def get_index_field_from_header(record, header_delimiter, index_field):
 
 def get_index_column_values(df, index_columns, header_delimiter='|'):
     if not index_columns or len(index_columns) == 0:
-        if "fastafunk_util_sequence_name" in df.columns:
-            index_columns = ["fastafunk_util_sequence_name"]
+        if "sequence_name" in df.columns:
+            index_columns = ["sequence_name"]
         else:
             index_columns = [0]
 
@@ -345,7 +345,7 @@ def get_index_column_values(df, index_columns, header_delimiter='|'):
     column_values = []
     for i,row in df.iterrows():
         column_values.append(header_delimiter.join([str(row[c]) for c in str_index_columns]))
-    df.loc[:,"fastafunk_util_sequence_name"] = column_values
+    # df.loc[:,"fastafunk_util_sequence_name"] = column_values
     #bad_headers = df[df["sequence_name"].duplicated()]["sequence_name"].index.values
     #df.drop(bad_headers, inplace=True)
     #if df["sequence_name"].duplicated().any():
@@ -364,9 +364,9 @@ def get_cov_id(record):
         id_string = ""
     return id_string
 
-def restrict_dataframe(df, column_name, values):
-    mask = df[column_name].isin(values)
-    drop_indexes = df.index[~mask].tolist()
+def restrict_dataframe(df, column_name, values_to_keep):
+    mask = [not x[0] for x in df[column_name].isin(values_to_keep).values.tolist()]
+    drop_indexes = df.index[mask].tolist()
     df.drop(drop_indexes, inplace=True)
     return df
 
