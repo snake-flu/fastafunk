@@ -111,6 +111,21 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,lineage,lineage_cs
             # cluster is parent lineage in lineage_splits
             # phylotype is A, B.1, B.1.X, etc. - pangolin assigned lineage
             for seq_id,phylotype in metadata_dic.items():
+
+                # Another hack by Ben
+                #   - if phylotype is C.X/D.X, then set phylotype to B.1.1.1.X/B.1.1.25.X
+                if phylotype[0] == "C":
+                    if len(phylotype) > 1:
+                        phylotype = "B.1.1.1" + phylotype[1:]
+                    else:
+                        phylotype = "B.1.1.1"
+
+                if phylotype[0] == "D":
+                    if len(phylotype) > 1:
+                        phylotype = "B.1.1.25" + phylotype[1:]
+                    else:
+                        phylotype = "B.1.1.25"
+
                 # print(seq_id,phylotype)
                 cluster_type = cluster.split(".")
                 # print(cluster_type)
@@ -139,7 +154,7 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,lineage,lineage_cs
                 # in trait_orders, then assign all Bs to A:
                 else:
                     if len(trait_order) == 1 and trait_order == ['A']:
-                        if phylo_type[:1] == ['B']:
+                        if phylo_type[:1] != ['A']:
                             if seq_id in seq_dic.keys():
                                 phylotype_dic[cluster].append([seq_id,seq_dic[seq_id],phylotype])
                                 if seq_is_outgroup(seq_id, lineage_dic):
