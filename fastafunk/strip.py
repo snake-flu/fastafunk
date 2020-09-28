@@ -2,7 +2,7 @@
 Name: strip.py
 Author: Xiaoyu Yu
 Date: 13 April 2020
-Description: Strip sites within sequences based on various options set by user. 
+Description: Strip sites within sequences based on various options set by user.
 
 Options include:
     --gap (Remove "-")
@@ -24,7 +24,7 @@ import numpy as np
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
-from Bio.Alphabet import generic_dna
+# from Bio.Alphabet import generic_dna
 from fastafunk.utils import *
 
 
@@ -97,7 +97,7 @@ def strip_missing(sequence,seq_id,orientation,log_file):
 
 def strip_fasta(in_fasta,gap,ambiguity,missing,keep_alignment,front,back,out_fasta,log_file):
     """
-    Strip sites within sequences based on various options set by user. 
+    Strip sites within sequences based on various options set by user.
 
     :param in_fasta: Fasta file with sequences that needs to be splitted according to criteria to create a consensus
     :param gap: Remove all gaps within sequence ("-")
@@ -135,7 +135,7 @@ def strip_fasta(in_fasta,gap,ambiguity,missing,keep_alignment,front,back,out_fas
                 if function[1] == True:
                     sequence = strip_ambiguity(sequence,record.id,orientation,log_handle)
                 if function[2] == True:
-                    sequence = strip_missing(sequence,record.id,orientation,log_handle)                        
+                    sequence = strip_missing(sequence,record.id,orientation,log_handle)
                 sequence_dictionary[record.id] = sequence
             close_handle(fasta_handle)
 
