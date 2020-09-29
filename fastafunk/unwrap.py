@@ -11,7 +11,7 @@ Copyright 2020 Xiaoyu Yu (xiaoyu.yu@ed.ac.uk) & Rachel Colquhoun (rachel.colquho
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
-from Bio.Alphabet import generic_dna
+# from Bio.Alphabet import generic_dna
 from fastafunk.utils import *
 
 def unwrap_fasta(in_fasta, out_fasta, log_file):
@@ -19,7 +19,7 @@ def unwrap_fasta(in_fasta, out_fasta, log_file):
     Remove whitespace from the sequences (Undo line wrapping).
 
     :param in_fasta: Fasta file with sequences that needs to be filtered for white spacea or in line wrapping state. (Required)
-    :param out_fasta: Output fasta file for filtered sequences with removed wrapping format 
+    :param out_fasta: Output fasta file for filtered sequences with removed wrapping format
     (Default: unwrap.fasta). (Optional)
     :param log_file: Output log file (Default: stdout). (Optional)
 
