@@ -73,11 +73,13 @@ def trees_to_taxa(list_tree_files):
     for treefile in list_tree_files:
         try:
             tree = dendropy.Tree.get(path = treefile,
-                                     schema = 'newick')
+                                     schema = 'newick',
+                                     preserve_underscores=True)
         except:
             try:
                 tree = dendropy.Tree.get(path = treefile,
-                                         schema = 'nexus')
+                                         schema = 'nexus',
+                                         preserve_underscores=True)
             except:
                 sys.exit('tree does not seem to be in Newick or Nexus format')
 
