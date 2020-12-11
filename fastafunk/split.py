@@ -113,7 +113,7 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,lineage,lineage_cs
             for seq_id,phylotype in metadata_dic.items():
 
                 # Another hack by Ben
-                #   - if phylotype is C.X/D.X, then set phylotype to B.1.1.1.X/B.1.1.25.X
+                #   - if phylotype is C.X/D.X, ...etc. then set phylotype to B.1.1.1.X/B.1.1.25.X,...etc.
                 if phylotype[0] == "C":
                     if len(phylotype) > 1:
                         phylotype = "B.1.1.1" + phylotype[1:]
@@ -125,6 +125,66 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,lineage,lineage_cs
                         phylotype = "B.1.1.25" + phylotype[1:]
                     else:
                         phylotype = "B.1.1.25"
+
+                if phylotype[0] == "E":
+                    if len(phylotype) > 1:
+                        phylotype = "B.1.5.12" + phylotype[1:]
+                    else:
+                        phylotype = "B.1.5.12"
+
+                if phylotype[0] == "F":
+                    if len(phylotype) > 1:
+                        phylotype = "B.1.36.17" + phylotype[1:]
+                    else:
+                        phylotype = "B.1.36.17"
+
+                if phylotype[0] == "G":
+                    if len(phylotype) > 1:
+                        phylotype = "B.1.258.2" + phylotype[1:]
+                    else:
+                        phylotype = "B.1.258.2"
+
+                if phylotype[0] == "H":
+                    if len(phylotype) > 1:
+                        phylotype = "B.1.1.67" + phylotype[1:]
+                    else:
+                        phylotype = "B.1.1.67"
+
+                if phylotype[0] == "I":
+                    if len(phylotype) > 1:
+                        phylotype = "B.1.1.217" + phylotype[1:]
+                    else:
+                        phylotype = "B.1.1.217"
+
+                if phylotype[0] == "J":
+                    if len(phylotype) > 1:
+                        phylotype = "B.1.1.250" + phylotype[1:]
+                    else:
+                        phylotype = "B.1.1.250"
+
+                if phylotype[0] == "K":
+                    if len(phylotype) > 1:
+                        phylotype = "B.1.1.277" + phylotype[1:]
+                    else:
+                        phylotype = "B.1.1.277"
+
+                if phylotype[0] == "L":
+                    if len(phylotype) > 1:
+                        phylotype = "B.1.1.10" + phylotype[1:]
+                    else:
+                        phylotype = "B.1.1.10"
+
+                if phylotype[0] == "M":
+                    if len(phylotype) > 1:
+                        phylotype = "B.1.1.294" + phylotype[1:]
+                    else:
+                        phylotype = "B.1.1.294"
+
+                if phylotype[0] == "N":
+                    if len(phylotype) > 1:
+                        phylotype = "B.1.1.33" + phylotype[1:]
+                    else:
+                        phylotype = "B.1.1.33"
 
                 # print(seq_id,phylotype)
                 cluster_type = cluster.split(".")
