@@ -186,6 +186,9 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,lineage,lineage_cs
                     else:
                         phylotype = "B.1.1.33"
 
+                if phylotype[0:7] == "B.1.374":
+                    phylotype = "B.1.1"
+
                 # print(seq_id,phylotype)
                 cluster_type = cluster.split(".")
                 # print(cluster_type)
