@@ -226,6 +226,10 @@ def main(args=None):
         help="CSV with lineage and outgroup columns defining the lineages to split by."
     )
     subparser_split.add_argument(
+        "--aliases", dest='aliases', required=False, default="",
+        help="JSON with aliases for lettered lineages."
+    )
+    subparser_split.add_argument(
         '--out-folder', dest='out_folder', metavar='<filename>', default="./", required=False,
         help='A directory for output FASTA files'
     )
