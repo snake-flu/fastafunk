@@ -49,8 +49,7 @@ def expand_alias(phylotype, alias_dict, log_handle):
         else:
             phylotype = alias_dict[phylotype[0]]
     if phylotype[0] not in ["A","B"]:
-        print("Phylotype %s has no alias provided. Please update --aliases JSON" %phylotype[0], file=log_handle)
-        exit()
+        sys.exit("Phylotype %s has no alias provided. Please update --aliases JSON" %phylotype[0])
     return phylotype
 
 def split_fasta(in_fasta,in_metadata,index_field,index_column,lineage,lineage_csv,aliases,out_folder,log_file):
@@ -109,7 +108,10 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,lineage,lineage_cs
         print("Found lineages", lineage)
 
     if aliases:
-        alias_dict = json.load(aliases)
+        print("Found alias file", aliases)
+        with open(aliases, "r") as read_file:
+            alias_dict = json.load(read_file)
+        print("Found aliases for", alias_dict.keys())
 
     if lineage != "":
         # clades are the lineage rows in lineage_splits
