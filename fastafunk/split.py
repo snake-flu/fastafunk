@@ -51,6 +51,7 @@ def expand_alias(phylotype, alias_dict, log_handle):
     if phylotype[0] not in ["A","B"]:
         print("Phylotype %s has no alias provided. Please update --aliases JSON" %phylotype[0], file=log_handle)
         exit()
+    return phylotype
 
 def split_fasta(in_fasta,in_metadata,index_field,index_column,lineage,lineage_csv,aliases,out_folder,log_file):
     """
