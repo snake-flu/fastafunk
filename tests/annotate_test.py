@@ -34,7 +34,7 @@ class TestAnnotate(unittest.TestCase):
         out_metadata = None
         header_delimiter = "|"
         add_cov_id = False
-        log_file = None
+        log_file = "%s/annotate.log" %data_dir
         annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_metadata, header_delimiter,
                  add_cov_id, log_file)
 
@@ -51,7 +51,7 @@ class TestAnnotate(unittest.TestCase):
         out_metadata = None
         header_delimiter = "|"
         add_cov_id = False
-        log_file = None
+        log_file = "%s/annotate.log" %data_dir
         annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_metadata, header_delimiter,
                  add_cov_id, log_file)
 
@@ -68,7 +68,7 @@ class TestAnnotate(unittest.TestCase):
         out_metadata = "%s/tmp.annotated.csv" %data_dir
         header_delimiter = "|"
         add_cov_id = False
-        log_file = None
+        log_file = "%s/annotate.log" %data_dir
         annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_metadata, header_delimiter,
                  add_cov_id, log_file)
 
@@ -89,7 +89,7 @@ class TestAnnotate(unittest.TestCase):
         out_metadata = "%s/tmp.annotated.csv" %data_dir
         header_delimiter = "|"
         add_cov_id = False
-        log_file = None
+        log_file = "%s/annotate.log" %data_dir
         annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_metadata, header_delimiter,
                  add_cov_id, log_file)
 
@@ -110,7 +110,7 @@ class TestAnnotate(unittest.TestCase):
         out_metadata = "%s/tmp.annotated.csv" %data_dir
         header_delimiter = "|"
         add_cov_id = False
-        log_file = None
+        log_file = "%s/annotate.log" %data_dir
         annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_metadata, header_delimiter,
                  add_cov_id, log_file)
 

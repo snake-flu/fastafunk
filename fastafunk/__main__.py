@@ -460,8 +460,8 @@ def main(args=None):
     )
 
     subparser_add_columns.add_argument(
-        '--new-columns', dest='new_columns', nargs='+', metavar='<column>', required=True,
-        help='Column(s) in the in_data file to add to the metadata'
+        '--new-columns', dest='new_columns', nargs='+', metavar='<column>', required=False,
+        help='Column(s) in the in_data file to add to the metadata, if not provided, all columns added'
     )
 
     subparser_add_columns.add_argument(

@@ -14,7 +14,6 @@ import sys
 import re
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
-import pandas as pd
 
 from fastafunk.utils import *
 from fastafunk.stats import *
@@ -45,13 +44,12 @@ def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_me
                    values between the metadata and data
     new_columns - column in in_data that will be added to new metadata files
                   and whose values will populate the rows in new metadata, based
-                  on a match between index_column
+                  on a match between index_column, if not provided all columns added
     """
     log_handle = get_log_handle(log_file, out_fasta=False)
 
     join_on = join_on.lower()
     index_column = index_column.lower()
-    new_columns = [c.lower() for c in new_columns]
     all_column_names = []
 
     new_column_dict = {}
@@ -59,7 +57,10 @@ def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_me
         reader = csv.DictReader(f)
         reader.fieldnames = replace_with_where_columns(reader.fieldnames, where_column, log_handle)
         reader.fieldnames = [name.lower() for name in reader.fieldnames]
+        if not new_columns or len(new_columns) == 0:
+            new_columns = [r for r in reader.fieldnames if r!=join_on]
         data = [r for r in reader]
+        new_columns = [c.lower() for c in new_columns]
     for sequence in data:
         if join_on not in sequence.keys():
             log_handle.write("Join on column not in in-data. Please re-enter a new one. Program exiting.\n")
