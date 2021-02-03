@@ -43,6 +43,9 @@ def get_parent(phylotype, lineage):
     return None
 
 def expand_alias(phylotype, alias_dict, log_handle):
+    if not phylotype or phylotype == "":
+        return phylotype
+
     if phylotype[0] in alias_dict.keys():
         if len(phylotype) > 1:
             phylotype = alias_dict[phylotype[0]] + phylotype[1:]
