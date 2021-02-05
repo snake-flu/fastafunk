@@ -110,9 +110,9 @@ class TestUtils(unittest.TestCase):
         index_columns = None
         where_columns = None
         result = load_dataframe(metadata_file, index_columns, where_columns)
-        expect = pd.DataFrame({'name': ['e','f','g','d'], "place": ['x','y','z','x1'],
-                               "date": ['2020-04-01', '2020-04-05', '2020-03-29','2020-04-02'],
-                               "blah": [1, 2, 3, 4]})
+        expect = pd.DataFrame({'Name': ['e','f','g','d'], "Place": ['x','y','z','x1'],
+                               "Date": ['2020-04-01', '2020-04-05', '2020-03-29','2020-04-02'],
+                               "Blah": [1, 2, 3, 4]})
         print(result)
         print(expect)
         self.assertEqual(result, expect)
@@ -122,21 +122,21 @@ class TestUtils(unittest.TestCase):
         index_columns = None
         where_columns = ["Foo=[Bb]l.h"]
         result = load_dataframe(metadata_file, index_columns, where_columns)
-        expect = pd.DataFrame({'name': ['e','f','g','d'], "place": ['x','y','z','x1'],
-                               "date": ['2020-04-01', '2020-04-05', '2020-03-29','2020-04-02'],
-                               "blah": [1, 2, 3, 4], "foo": [1, 2, 3, 4]})
+        expect = pd.DataFrame({'Name': ['e','f','g','d'], "Place": ['x','y','z','x1'],
+                               "Date": ['2020-04-01', '2020-04-05', '2020-03-29','2020-04-02'],
+                               "Blah": [1, 2, 3, 4], "Foo": [1, 2, 3, 4]})
         print(result)
         print(expect)
         self.assertEqual(result, expect)
 
     def test_load_dataframe_tsv_where_index(self):
         metadata_file = "%s/metadata.tsv" %data_dir
-        index_columns = ["name", "date", "Foo"]
+        index_columns = ["Name", "Date", "Foo"]
         where_columns = ["Foo=[Bb]l.h"]
         result = load_dataframe(metadata_file, index_columns, where_columns)
-        expect = pd.DataFrame({'name': ['e','f','g','d'],
-                               "date": ['2020-04-01', '2020-04-05', '2020-03-29','2020-04-02'],
-                               "foo": [1, 2, 3, 4]})
+        expect = pd.DataFrame({'Name': ['e','f','g','d'],
+                               "Date": ['2020-04-01', '2020-04-05', '2020-03-29','2020-04-02'],
+                               "Foo": [1, 2, 3, 4]})
         print(result)
         print(expect)
         self.assertEqual(result, expect)
@@ -165,7 +165,7 @@ class TestUtils(unittest.TestCase):
     def test_load_metadata(self):
         list_metadata_files = ["%s/metadata.csv" %data_dir, "%s/metadata.tsv" %data_dir]
         index_columns = None
-        where_columns = None
+        where_columns = ["name=Name","place=Place", "date=Date", "blah=Blah"]
         result = load_metadata(list_metadata_files, index_columns, where_columns)
         expect = pd.DataFrame({'name': ['a','b','c','d','e','f','g'],
                                "place": ['x','y','z','x1','x','y','z'],

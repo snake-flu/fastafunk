@@ -44,13 +44,12 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
     sequence_dictionary = {}
     metadata_dictionary = {}
     additional_rows = []
-    index = index_column.lower()
+    index = index_column
 
     for metadata_file in in_metadata:
         if os.path.exists(metadata_file):
             with open(metadata_file,"r") as f:
                 reader = csv.DictReader(f)
-                reader.fieldnames = [name.lower() for name in reader.fieldnames]
                 metadata = [clean_dict(r) for r in reader]
             for sequence in metadata:
                 if index not in sequence.keys():

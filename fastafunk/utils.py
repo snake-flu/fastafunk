@@ -130,14 +130,11 @@ def load_dataframe(metadata_file, filter_columns, where_columns, omit_columns=Fa
             column,regex = pair.split("=")
             df = find_column_with_regex(df, column, regex)
 
-    df.rename(str.lower, axis='columns', inplace=True)
-
     if 'unnamed: 0' in df.columns:
         df.drop(columns=['unnamed: 0'], inplace=True)
 
     if filter_columns:
         df = filter_by_omit_columns(df)
-        filter_columns = [s.lower() for s in filter_columns]
         df = df.loc[:, df.columns.isin(filter_columns)]
         for column in [c for c in filter_columns if c not in df.columns.values]:
             df[column] = None
