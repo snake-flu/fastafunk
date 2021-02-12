@@ -171,6 +171,11 @@ class TestUtils(unittest.TestCase):
                                "place": ['x','y','z','x1','x','y','z'],
                                "date": ['2020-04-01', '2020-04-05', '2020-03-29','2020-04-02',
                                         '2020-04-01', '2020-04-05', '2020-03-29'],
+                               'Name': [None, None, None,'d','e','f','g'],
+                               "Place": [None, None, None,'x1','x','y','z'],
+                               "Date": [None, None, None,'2020-04-02',
+                                        '2020-04-01', '2020-04-05', '2020-03-29'],
+                               "Blah": [None, None, None, 4, 1, 2, 3],
                                "blah": [None, None, None, 4, 1, 2, 3]})
         print(result)
         print(expect)
