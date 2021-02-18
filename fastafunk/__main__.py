@@ -549,6 +549,10 @@ def main(args=None):
         help='Only outputs metadata rows with a corresponding fasta entry'
     )
     subparser_fetch.add_argument(
+        '--low-memory', dest='low_memory', action='store_true', required=False,
+        help='Assumes no duplicate sequences within a  FASTA so can use SeqIO index'
+    )
+    subparser_fetch.add_argument(
         '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="",
         help='A FASTA file (else writes to stdout)'
     )

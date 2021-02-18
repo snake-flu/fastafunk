@@ -21,7 +21,7 @@ import os
 import pandas as pd
 from fastafunk.utils import *
 
-def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column, restrict, out_fasta, out_metadata, log_file, header_delimiter):
+def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column, restrict, out_fasta, out_metadata, log_file, header_delimiter, low_memory):
     """
     Fetches fasta entries with a corresponding entry in a metadata file
 
@@ -45,20 +45,33 @@ def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column
     if not in_fasta:
         in_fasta = [""]
 
-    sequence_dict = {}
+    out_handle = get_out_handle(out_fasta)
+    sequence_list = []
     for fasta_file in in_fasta:
         fasta_handle = get_in_handle(fasta_file)
-        for record in SeqIO.parse(fasta_handle, "fasta"):
-            id_string = record.id
-            if id_string is not None and id_string in index_column_values:
-                if id_string in sequence_dict:
-                    log_handle.write("%s is a duplicate record, keeping latest\n" % record.id)
-                sequence_dict[id_string] = record
-            elif id_string is not None and id_string in full_index_column_values:
-                log_handle.write("%s was marked to omit\n" %record.id)
+        if low_memory:
+            record_dict = SeqIO.index(fasta_handle, "fasta")
+        else:
+            record_dict = SeqIO.parse(fasta_handle, "fasta")
+        for record in record_dict:
+            print(type(record))
+            if type(record) == SeqRecord:
+                id_string = record.id
             else:
-                log_handle.write("%s has no corresponding entry in metadata table\n" %record.id)
+                id_string = record
+            if id_string is not None and id_string in index_column_values:
+                if id_string in sequence_list:
+                    log_handle.write("%s is a duplicate record, keeping earliest\n" % id_string)
+                elif type(record) == SeqRecord:
+                    SeqIO.write(record, out_handle, "fasta-2line")
+                else:
+                    SeqIO.write(record_dict[id_string], out_handle, "fasta-2line")
+            elif id_string is not None and id_string in full_index_column_values:
+                log_handle.write("%s was marked to omit\n" %id_string)
+            else:
+                log_handle.write("%s has no corresponding entry in metadata table\n" %id_string)
         close_handle(fasta_handle)
+        close_handle(out_handle)
 
     if out_metadata:
         if restrict:
@@ -67,10 +80,5 @@ def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column
         metadata_handle = get_out_handle(out_metadata)
         metadata.to_csv(out_metadata, index=False)
         close_handle(metadata_handle)
-
-    out_handle = get_out_handle(out_fasta)
-    for record_id in sequence_dict:
-        SeqIO.write(sequence_dict[record_id], out_handle, "fasta-2line")
-    close_handle(out_handle)
 
     close_handle(log_handle)
