@@ -62,8 +62,10 @@ def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column
                     log_handle.write("%s is a duplicate record, keeping earliest\n" % id_string)
                 elif type(record) == SeqRecord:
                     SeqIO.write(record, out_handle, "fasta-2line")
+                    sequence_list.append(id_string)
                 else:
                     SeqIO.write(record_dict[id_string], out_handle, "fasta-2line")
+                    sequence_list.append(id_string)
             else:
                 log_handle.write("%s has no corresponding entry in metadata table\n" %id_string)
         close_handle(fasta_handle)
