@@ -19,7 +19,7 @@ from fastafunk.stats import *
 
 
 def annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_metadata, header_delimiter,
-             add_cov_id, log_file):
+             add_cov_id, log_file, low_memory=False):
     log_handle = get_log_handle(log_file, out_fasta)
 
 
@@ -41,7 +41,15 @@ def annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_me
 
     for fasta_file in in_fasta:
         fasta_handle = get_in_handle(fasta_file)
-        for record in SeqIO.parse(fasta_handle, "fasta"):
+        if low_memory:
+            record_dict = SeqIO.index(fasta_handle, "fasta")
+        else:
+            record_dict = SeqIO.parse(fasta_handle, "fasta")
+        for item in record_dict:
+            if type(item) == SeqRecord:
+                record = item
+            else:
+                record = record_dict[item]
             id = get_index_field_from_header(record, header_delimiter, index_field).split()[0]
             if metadata_keys is not None and id not in metadata_keys:
                 log_handle.write("Could not find sequence header id %s in index column %s" %(id, index_column))

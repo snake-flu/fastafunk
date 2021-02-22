@@ -17,4 +17,5 @@ def run(options):
         options.header_delimiter,
         options.add_cov_id,
         options.log_file,
+        options.low_memory
     )
