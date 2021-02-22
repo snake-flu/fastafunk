@@ -51,7 +51,6 @@ def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column
         else:
             record_dict = SeqIO.parse(fasta_handle, "fasta")
         for record in record_dict:
-            print(type(record))
             if type(record) == SeqRecord:
                 id_string = record.id
             else:
