@@ -22,24 +22,23 @@ from Bio.SeqRecord import SeqRecord
 
 from fastafunk.utils import *
 
-def new_fasta(in_fasta,in_metadata,index_column,date_column,out_fasta,out_metadata,log_file,header_delimiter):
+def new_fasta(in_fasta,in_metadata,index_column,date_column,out_fasta,out_metadata,log_file):
     log_handle = get_log_handle(log_file, out_fasta)
 
-    metadata = load_new_metadata(in_metadata, date_column)
-    metadata = filter_by_omit_columns(metadata)
-    metadata, index_column_values = get_index_column_values(metadata, index_column, header_delimiter)
+    metadata = load_new_metadata(in_metadata, date_column, index=index_column)
+    metadata.filter_by_omit_columns()
+    index_column_values = metadata.get_index_column_values()
 
     if not in_fasta:
         in_fasta = [""]
 
     out_handle = get_out_handle(out_fasta)
 
-    to_keep = index_column_values
     for fasta_file in in_fasta:
         fasta_handle = get_in_handle(fasta_file)
         for record in SeqIO.parse(fasta_handle, "fasta"):
             id_string = record.id
-            if id_string in to_keep:
+            if id_string in index_column_values:
                 SeqIO.write(record, out_handle, "fasta-2line")
         close_handle(fasta_handle)
 

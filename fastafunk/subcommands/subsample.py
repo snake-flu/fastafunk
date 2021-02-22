@@ -21,6 +21,5 @@ def run(options):
         options.target_file,
         options.select_by_max_column,
         options.select_by_min_column,
-        options.exclude_uk,
-        options.header_delimiter
+        options.exclude_uk
     )

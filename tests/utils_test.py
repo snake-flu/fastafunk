@@ -16,48 +16,56 @@ this_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 data_dir = os.path.join(this_dir, 'tests', 'data', 'utils')
 
 class TestUtils(unittest.TestCase):
-    def assertDataframeEqual(self, a, b, msg):
+    def assertDataFrameEqual(self, a, b, msg):
         try:
             pd_testing.assert_frame_equal(a, b)
         except AssertionError as e:
             raise self.failureException(msg) from e
 
     def setUp(self):
-        self.addTypeEqualityFunc(pd.DataFrame, self.assertDataframeEqual)
+        self.addTypeEqualityFunc(pd.DataFrame, self.assertDataFrameEqual)
 
     def test_find_column_with_regex_column_exists_already(self):
-        df = pd.DataFrame({'name': ['a','b','c','d'], "place": ['x','y','z','x1'],
-                           "date": ['2020-04-01', '2020-04-05', '2020-03-29','2020-04-02']})
+        metadata_file = "%s/metadata.csv" %data_dir
+        metadata = Metadata(metadata_file)
         column = 'name'
         regex =  '.lace'
-        result = find_column_with_regex(df, column, regex)
-        expect = df
-        print(result)
-        print(expect)
-        self.assertEqual(result, expect)
+        metadata.find_column_with_regex(column, regex)
+        result = "%s/tmp.find_column_with_regex_column_exists_already.csv" %data_dir
+        result_handle = open(result,'w')
+        metadata.to_csv(result_handle)
+        result_handle.close()
+        expect = "%s/metadata_overwritten_name.csv" %data_dir
+        self.assertTrue(filecmp.cmp(result, expect, shallow=False))
+        os.unlink(result)
 
     def test_find_column_with_regex_is_match(self):
-        df = pd.DataFrame({'name': ['a','b','c','d'], "place": ['x','y','z','x1'],
-                           "date": ['2020-04-01', '2020-04-05', '2020-03-29','2020-04-02']})
+        metadata_file = "%s/metadata.csv" %data_dir
+        metadata = Metadata(metadata_file)
         column = 'Place'
         regex =  '.lace'
-        result = find_column_with_regex(df, column, regex)
-        expect = df
-        expect['Place'] = expect['place']
-        print(result)
-        print(expect)
-        self.assertEqual(result, expect)
+        metadata.find_column_with_regex(column, regex)
+        result = "%s/tmp.find_column_with_regex_is_match.csv" %data_dir
+        result_handle = open(result,'w')
+        metadata.to_csv(result_handle)
+        result_handle.close()
+        expect = "%s/metadata_with_Place.csv" %data_dir
+        self.assertTrue(filecmp.cmp(result, expect, shallow=False))
+        os.unlink(result)
 
     def test_find_column_with_regex_no_match(self):
-        df = pd.DataFrame({'name': ['a','b','c','d'], "place": ['x','y','z','x1'],
-                           "date": ['2020-04-01', '2020-04-05', '2020-03-29','2020-04-02']})
+        metadata_file = "%s/metadata.csv" %data_dir
+        metadata = Metadata(metadata_file)
         column = 'Place'
         regex =  '.lant'
-        result = find_column_with_regex(df, column, regex)
-        expect = df
-        print(result)
-        print(expect)
-        self.assertEqual(result, expect)
+        metadata.find_column_with_regex(column, regex)
+        result = "%s/tmp.find_column_with_regex_no_match.csv" %data_dir
+        result_handle = open(result,'w')
+        metadata.to_csv(result_handle)
+        result_handle.close()
+        expect = "%s/metadata.csv" %data_dir
+        self.assertTrue(filecmp.cmp(result, expect, shallow=False))
+        os.unlink(result)
 
     def test_find_field_with_regex_no_match(self):
         header = ">hCoV-19/place/code/2020||country|date"
@@ -94,79 +102,77 @@ class TestUtils(unittest.TestCase):
         expect = "hCoV-19/place/code/2020"
         self.assertEqual(result, expect)
 
-    def test_load_dataframe_csv(self):
+    def test_load_metadata_csv(self):
         metadata_file = "%s/metadata.csv" %data_dir
         index_columns = None
         where_columns = None
-        result = load_dataframe(metadata_file, index_columns, where_columns)
+        result = load_metadata([metadata_file], index_columns, where_columns)
+        result = pd.DataFrame(result.rows)
         expect = pd.DataFrame({'name': ['a','b','c','d'], "place": ['x','y','z','x1'],
                                "date": ['2020-04-01', '2020-04-05', '2020-03-29','2020-04-02']})
         print(result)
         print(expect)
         self.assertEqual(result, expect)
 
-    def test_load_dataframe_tsv(self):
+    def test_load_metadata_tsv(self):
         metadata_file = "%s/metadata.tsv" %data_dir
         index_columns = None
         where_columns = None
-        result = load_dataframe(metadata_file, index_columns, where_columns)
+        result = load_metadata([metadata_file], index_columns, where_columns)
+        result = pd.DataFrame(result.rows)
         expect = pd.DataFrame({'Name': ['e','f','g','d'], "Place": ['x','y','z','x1'],
                                "Date": ['2020-04-01', '2020-04-05', '2020-03-29','2020-04-02'],
-                               "Blah": [1, 2, 3, 4]})
+                               "Blah": ['1', '2', '3', '4']})
         print(result)
         print(expect)
         self.assertEqual(result, expect)
 
-    def test_load_dataframe_tsv_where(self):
+    def test_load_metadata_tsv_where(self):
         metadata_file = "%s/metadata.tsv" %data_dir
         index_columns = None
         where_columns = ["Foo=[Bb]l.h"]
-        result = load_dataframe(metadata_file, index_columns, where_columns)
+        result = load_metadata([metadata_file], index_columns, where_columns)
+        result = pd.DataFrame(result.rows)
         expect = pd.DataFrame({'Name': ['e','f','g','d'], "Place": ['x','y','z','x1'],
                                "Date": ['2020-04-01', '2020-04-05', '2020-03-29','2020-04-02'],
-                               "Blah": [1, 2, 3, 4], "Foo": [1, 2, 3, 4]})
+                               "Blah": ['1', '2', '3', '4'], "Foo": ['1', '2', '3', '4']})
         print(result)
         print(expect)
         self.assertEqual(result, expect)
 
-    def test_load_dataframe_tsv_where_index(self):
+    def test_load_metadata_tsv_where_index(self):
         metadata_file = "%s/metadata.tsv" %data_dir
         index_columns = ["Name", "Date", "Foo"]
         where_columns = ["Foo=[Bb]l.h"]
-        result = load_dataframe(metadata_file, index_columns, where_columns)
+        result = load_metadata([metadata_file], index_columns, where_columns)
+        result = pd.DataFrame(result.rows)
         expect = pd.DataFrame({'Name': ['e','f','g','d'],
                                "Date": ['2020-04-01', '2020-04-05', '2020-03-29','2020-04-02'],
-                               "Foo": [1, 2, 3, 4]})
+                               "Foo": ['1', '2', '3', '4']})
         print(result)
         print(expect)
         self.assertEqual(result, expect)
 
     def test_filter_by_omit_columns(self):
-        df = pd.DataFrame({'name': ['a','b','c','d','e','f','g'],
-                            "place": ['x','y','z','x1','x','y','z'],
-                            "date": ['2020-04-01', '2020-04-05', '2020-03-29','2020-04-02',
-                                     '2020-04-01', '2020-04-05', '2020-03-29'],
-                            "blah": [None, None, None, 4, 1, 2, 3],
-                            "omitted": [True,True,None,False,True,None,None],
-                            "edin_OMIT": [None,None,None,None,None,None,True]})
-        result = filter_by_omit_columns(df)
-        expect = pd.DataFrame({'name': ['c','d','f'],
-                            "place": ['z','x1','y'],
-                            "date": ['2020-03-29','2020-04-02',
-                                     '2020-04-05'],
-                            "blah": [None, 4, 2],
-                            "omitted": [None,False,None],
-                            "edin_OMIT": [None,None,None]})
-        expect.set_index([pd.Index([2,3,5])], inplace=True)
-        print(result)
-        print(expect)
-        self.assertEqual(result, expect)
+        metadata_file = "%s/metadata_with_omit.csv" %data_dir
+        metadata = Metadata(metadata_file)
+        metadata.filter_by_omit_columns()
+        result = "%s/tmp.filter_by_omit_columns.csv" %data_dir
+        result_handle = open(result,'w')
+        metadata.to_csv(result_handle)
+        result_handle.close()
+        expect = "%s/metadata_filtered_by_omit.csv" %data_dir
+        self.assertTrue(filecmp.cmp(result, expect, shallow=False))
+        os.unlink(result)
 
     def test_load_metadata(self):
         list_metadata_files = ["%s/metadata.csv" %data_dir, "%s/metadata.tsv" %data_dir]
         index_columns = None
         where_columns = ["name=Name","place=Place", "date=Date", "blah=Blah"]
         result = load_metadata(list_metadata_files, index_columns, where_columns)
+        result = pd.DataFrame(result.rows)
+        result.Blah = result.Blah.astype(float)
+        result.blah = result.blah.astype(float)
         expect = pd.DataFrame({'name': ['a','b','c','d','e','f','g'],
                                "place": ['x','y','z','x1','x','y','z'],
                                "date": ['2020-04-01', '2020-04-05', '2020-03-29','2020-04-02',
@@ -192,6 +198,7 @@ class TestUtils(unittest.TestCase):
         result_handle.close()
         expect = "%s/group_counts.csv" %data_dir
         self.assertTrue(filecmp.cmp(result, expect, shallow=False))
+        os.unlink(result)
 
     def test_load_target_sample_sizes(self):
         target_file = "%s/group_counts.csv" %data_dir
@@ -260,70 +267,79 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(result, expect)
 
     def test_subsample_metadata_sample_size(self):
-        df = pd.DataFrame({'name': ['a', 'b', 'b', 'd'], "place": ['x', 'y', 'y', 'x1'],
-                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
-        index_columns = ["name", "place"]
+        index_column = "name"
         target_file = None
         sample_size = 1
         select_by_max_column = None
         select_by_min_column = None
         exclude_uk = False
         log_handle = None
-        result = subsample_metadata(df, index_columns, sample_size, target_file, select_by_max_column,
-                                    select_by_min_column, exclude_uk, log_handle)
-        result.reset_index(drop=True, inplace=True)
-        expect1 = pd.DataFrame({'name': ['a', 'b', 'd'], "place": ['x', 'y', 'x1'],
-                           "date": ['2020-04-01', '2020-03-29', '2020-04-02']})
-        expect2 = pd.DataFrame({'name': ['a', 'b', 'd'], "place": ['x', 'y', 'x1'],
-                                "date": ['2020-04-01', '2020-04-05', '2020-04-02']})
-        if expect1.equals(result):
-            self.assertEqual(result, expect1)
+
+        metadata_file = "%s/metadata_to_subsample.csv" %data_dir
+        metadata = Metadata(metadata_file, index=index_column)
+        subsample_metadata(metadata, index_column, sample_size, target_file, select_by_max_column,
+                           select_by_min_column, exclude_uk, log_handle)
+        result = "%s/tmp.subsample_metadata_sample_size.csv" %data_dir
+        result_handle = open(result,'w')
+        metadata.to_csv(result_handle)
+        result_handle.close()
+        expect1 = "%s/metadata_subsampled1.csv" %data_dir
+        expect2 = "%s/metadata_subsampled2.csv" %data_dir
+        if filecmp.cmp(result, expect1, shallow=False):
+            self.assertTrue(filecmp.cmp(result, expect1, shallow=False))
         else:
-            self.assertEqual(result, expect2)
+            self.assertTrue(filecmp.cmp(result, expect2, shallow=False))
+        os.unlink(result)
 
     def test_subsample_metadata_target_file(self):
-        df = pd.DataFrame({'name': ['a', 'b', 'b', 'd'], "place": ['x', 'y', 'y', 'x1'],
-                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
-        index_columns = ["name", "place"]
+        index_column = "place"
         target_file = "%s/target_counts.csv" %data_dir
         sample_size = 0
         select_by_max_column = None
         select_by_min_column = None
         exclude_uk = False
         log_handle = None
-        result = subsample_metadata(df, index_columns, sample_size, target_file, select_by_max_column,
-                                    select_by_min_column, exclude_uk, log_handle)
-        result.reset_index(drop=True, inplace=True)
-        expect1 = pd.DataFrame({'name': ['a', 'b', 'd'], "place": ['x', 'y', 'x1'],
-                           "date": ['2020-04-01', '2020-03-29', '2020-04-02']})
-        expect2 = pd.DataFrame({'name': ['a', 'b', 'd'], "place": ['x', 'y', 'x1'],
-                                "date": ['2020-04-01', '2020-04-05', '2020-04-02']})
-        if expect1.equals(result):
-            self.assertEqual(result, expect1)
+
+        metadata_file = "%s/metadata_to_subsample.csv" %data_dir
+        metadata = Metadata(metadata_file, index=index_column)
+        subsample_metadata(metadata, index_column, sample_size, target_file, select_by_max_column,
+                           select_by_min_column, exclude_uk, log_handle)
+        result = "%s/tmp.subsample_metadata_target_file.csv" %data_dir
+        result_handle = open(result,'w')
+        metadata.to_csv(result_handle)
+        result_handle.close()
+        expect1 = "%s/metadata_subsampled1.csv" %data_dir
+        expect2 = "%s/metadata_subsampled2.csv" %data_dir
+        if filecmp.cmp(result, expect1, shallow=False):
+            self.assertTrue(filecmp.cmp(result, expect1, shallow=False))
         else:
-            self.assertEqual(result, expect2)
+            self.assertTrue(filecmp.cmp(result, expect2, shallow=False))
+        os.unlink(result)
 
     def test_subsample_metadata_target_file_overrides_sample_size(self):
-        df = pd.DataFrame({'name': ['a', 'b', 'b', 'd'], "place": ['x', 'y', 'y', 'x1'],
-                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
-        index_columns = ["name", "place"]
+        index_column = "place"
         target_file = "%s/target_counts.csv" %data_dir
         sample_size = 4
         select_by_max_column = None
         select_by_min_column = None
         exclude_uk = False
         log_handle = None
-        result = subsample_metadata(df, index_columns, sample_size, target_file, select_by_max_column,
-                                    select_by_min_column, exclude_uk, log_handle)
-        result.reset_index(drop=True, inplace=True)
-        expect1 = pd.DataFrame({'name': ['a', 'b', 'd'], "place": ['x', 'y', 'x1'],
-                           "date": ['2020-04-01', '2020-03-29', '2020-04-02']})
-        expect2 = pd.DataFrame({'name': ['a', 'b', 'd'], "place": ['x', 'y', 'x1'],
-                                "date": ['2020-04-01', '2020-04-05', '2020-04-02']})
-        if expect1.equals(result):
-            self.assertEqual(result, expect1)
+
+        metadata_file = "%s/metadata_to_subsample.csv" %data_dir
+        metadata = Metadata(metadata_file, index=index_column)
+        subsample_metadata(metadata, index_column, sample_size, target_file, select_by_max_column,
+                           select_by_min_column, exclude_uk, log_handle)
+        result = "%s/tmp.subsample_metadata_target_file_overrides_sample_size.csv" %data_dir
+        result_handle = open(result,'w')
+        metadata.to_csv(result_handle)
+        result_handle.close()
+        expect1 = "%s/metadata_subsampled1.csv" %data_dir
+        expect2 = "%s/metadata_subsampled2.csv" %data_dir
+        if filecmp.cmp(result, expect1, shallow=False):
+            self.assertTrue(filecmp.cmp(result, expect1, shallow=False))
         else:
-            self.assertEqual(result, expect2)
+            self.assertTrue(filecmp.cmp(result, expect2, shallow=False))
+        os.unlink(result)
 
     def test_get_index_field_from_header_no_index_field(self):
         record = SeqIO.read("%s/single.fasta" %data_dir, "fasta")
@@ -390,61 +406,38 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(result, expect)
 
     def test_get_index_column_values_default_sequence_name(self):
-        df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "sequence_name": ['x', 'y', 'z', 'x1'],
-                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
-        index_column = None
-        df, result = get_index_column_values(df, index_column)
+        metadata_file = "%s/metadata_with_sequence_name.csv" %data_dir
+        metadata = Metadata(metadata_file)
+        result = metadata.get_index_column_values()
         expect = ['x', 'y', 'z', 'x1']
         self.assertEqual(result, expect)
 
     def test_get_index_column_values_default_0(self):
-        df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "header": ['x', 'y', 'z', 'x1'],
-                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
-        index_column = None
-        df, result = get_index_column_values(df, index_column)
-        expect = ['a', 'b', 'c', 'd']
-        self.assertEqual(result, expect)
-
-    def test_get_index_column_values_default_no_header(self):
-        df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "place": ['x', 'y', 'z', 'x1'],
-                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
-        index_column = None
-        df, result = get_index_column_values(df, index_column)
+        metadata_file = "%s/metadata.csv" %data_dir
+        metadata = Metadata(metadata_file)
+        result = metadata.get_index_column_values()
         expect = ['a', 'b', 'c', 'd']
         self.assertEqual(result, expect)
 
     def test_get_index_column_values_int(self):
-        df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "place": ['x', 'y', 'z', 'x1'],
-                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
-        index_column = [2]
-        df, result = get_index_column_values(df, index_column)
+        metadata_file = "%s/metadata.csv" %data_dir
+        metadata = Metadata(metadata_file,index=2)
+        result = metadata.get_index_column_values()
         expect = ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']
         self.assertEqual(result, expect)
 
     def test_get_index_column_values_string(self):
-        df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "place": ['x', 'y', 'z', 'x1'],
-                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
-        index_column = ["date"]
-        df, result = get_index_column_values(df, index_column)
+        metadata_file = "%s/metadata.csv" %data_dir
+        metadata = Metadata(metadata_file,index="date")
+        result = metadata.get_index_column_values()
         expect = ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']
         self.assertEqual(result, expect)
 
-    def test_get_index_column_values_int_too_big(self):
-        df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "place": ['x', 'y', 'z', 'x1'],
-                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
-        index_column = [3]
-        self.assertRaises(AssertionError, get_index_column_values, df, index_column)
+    def test_set_index_column_int_too_big(self):
+        metadata_file = "%s/metadata.csv" %data_dir
+        self.assertRaises(IndexError, Metadata, metadata_file,index=3)
 
-    def test_get_index_column_values_string_not_column(self):
-        df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "place": ['x', 'y', 'z', 'x1'],
-                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
-        index_column = ["id"]
-        self.assertRaises(AssertionError, get_index_column_values, df, index_column)
+    def test_set_index_column_string_not_column(self):
+        metadata_file = "%s/metadata.csv" %data_dir
+        self.assertRaises(SystemExit, Metadata, metadata_file,index="id")
 
-    def test_get_index_column_values_strings(self):
-        df = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], "place": ['x', 'y', 'z', 'x1'],
-                           "date": ['2020-04-01', '2020-04-05', '2020-03-29', '2020-04-02']})
-        index_column = ["name","date"]
-        df, result = get_index_column_values(df, index_column)
-        expect = ['a|2020-04-01', 'b|2020-04-05', 'c|2020-03-29', 'd|2020-04-02']
-        self.assertEqual(result, expect)
