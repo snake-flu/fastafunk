@@ -14,6 +14,7 @@ import re
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 
+from fastafunk.metadata import *
 from fastafunk.utils import *
 from fastafunk.stats import *
 

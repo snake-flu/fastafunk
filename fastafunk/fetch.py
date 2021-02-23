@@ -18,6 +18,7 @@ from Bio.SeqRecord import SeqRecord
 import csv
 import sys
 import os
+from fastafunk.utils import *
 from fastafunk.metadata import *
 
 def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column, restrict, out_fasta, out_metadata, log_file, low_memory):

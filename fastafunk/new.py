@@ -20,6 +20,7 @@ import re
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 
+from fastafunk.metadata import *
 from fastafunk.utils import *
 
 def new_fasta(in_fasta,in_metadata,index_column,date_column,out_fasta,out_metadata,log_file):

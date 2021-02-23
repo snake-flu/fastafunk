@@ -16,6 +16,7 @@ import re
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 
+from fastafunk.metadata import *
 from fastafunk.utils import *
 
 def subsample_fasta(in_fasta,in_metadata,index_field,index_column,group_column,where_field, out_fasta,out_metadata,
