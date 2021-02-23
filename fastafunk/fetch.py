@@ -18,8 +18,7 @@ from Bio.SeqRecord import SeqRecord
 import csv
 import sys
 import os
-from fastafunk.utils import *
-from fastafunk.metadata import *
+from fastafunk.metadata_reader import *
 
 def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column, restrict, out_fasta, out_metadata, log_file, low_memory):
     """
@@ -36,9 +35,8 @@ def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column
     """
     log_handle = get_log_handle(log_file, out_fasta)
 
-    metadata = load_metadata(in_metadata, filter_column, where_column, index_column)
-    index_column_values = metadata.get_index_column_values()
-    omit_rows = metadata.get_omit_rows()
+    metadata = MetadataReader(in_metadata, filter_column, where_column, index_column)
+    index_column_values = metadata.rows
 
     if not in_fasta:
         in_fasta = [""]
@@ -74,9 +72,9 @@ def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column
 
     if out_metadata:
         if restrict:
-            metadata.restrict(index_column, sequence_list)
+            metadata.restrict(sequence_list)
         metadata_handle = get_out_handle(out_metadata)
-        metadata.to_csv(out_metadata)
+        metadata.to_csv(metadata_handle)
         close_handle(metadata_handle)
-
+    metadata.close()
     close_handle(log_handle)
