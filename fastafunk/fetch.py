@@ -74,7 +74,7 @@ def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column
 
     if out_metadata:
         if restrict:
-            metadata.restrict(index_column, sequence_dict.keys())
+            metadata.restrict(index_column, sequence_list)
         metadata_handle = get_out_handle(out_metadata)
         metadata.to_csv(out_metadata)
         close_handle(metadata_handle)
