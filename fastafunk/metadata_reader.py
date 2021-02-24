@@ -57,7 +57,7 @@ class MetadataReader:
                 if column not in self.columns:
                     self.columns.append(column)
         if filter_columns:
-            self.columns = [c for c in self.columns if c in filter_columns]
+            self.columns = filter_columns
 
     def get_rows(self):
         omit_columns = [ c for c in self.reader.fieldnames if "omit" in c.lower() or c in ["duplicate", "why_excluded"]]
@@ -84,7 +84,10 @@ class MetadataReader:
         self.handle = open(self.file, "r")
         self.get_reader()
 
-    def clean_row(self, row_dict):
+    def add_columns(self, new_columns):
+        self.columns.extend([c for c in new_columns if c not in self.columns])
+
+    def clean_row(self, row_dict, new_data_dict=None):
         clean_values = {}
         for column in self.columns:
             value = None
@@ -92,21 +95,27 @@ class MetadataReader:
                 for where_column in self.where_column_dict[column]:
                     if row_dict[where_column] not in [None, "None", ""]:
                         value = row_dict[where_column]
-            else:
+            elif column in row_dict:
                 value = row_dict[column]
+            if new_data_dict is not None and column in new_data_dict:
+                value = new_data_dict[column]
             clean_values[column] = value
         return clean_values
 
     def restrict(self, sequence_list):
         self.rows = [r for r in self.rows if r in sequence_list]
 
-    def to_csv(self, out_handle, include_omitted=False):
+    def to_csv(self, out_handle, header=True, include_omitted=False, new_data_dict=None):
         self.get_reader()
         writer = csv.DictWriter(out_handle, fieldnames = self.columns, delimiter=",", quotechar='\"', quoting=csv.QUOTE_MINIMAL, dialect = "unix")
-        writer.writeheader()
+        if header:
+            writer.writeheader()
         for row in self.reader:
             if row[self.index] in self.rows or include_omitted:
-                writer.writerow(self.clean_row(row))
+                if new_data_dict is not None and row[self.index] in new_data_dict:
+                    writer.writerow(self.clean_row(row, new_data_dict[row[self.index]]))
+                else:
+                    writer.writerow(self.clean_row(row, None))
 
     def close(self):
         self.handle.close()

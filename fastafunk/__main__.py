@@ -163,6 +163,10 @@ def main(args=None):
         '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="",
         help='A FASTA file (else writes to stdout)'
     )
+    subparser_merge.add_argument(
+        '--low-memory', dest='low_memory', action='store_true', required=False,
+        help='Assumes no duplicate sequences within a  FASTA so can use SeqIO index'
+    )
 
     subparser_merge.set_defaults(func=fastafunk.subcommands.merge.run)
 
