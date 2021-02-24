@@ -19,6 +19,7 @@ import csv
 import sys
 import os
 from fastafunk.metadata_reader import *
+from fastafunk.utils import *
 
 def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column, restrict, out_fasta, out_metadata, log_file, low_memory):
     """
@@ -35,8 +36,9 @@ def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column
     """
     log_handle = get_log_handle(log_file, out_fasta)
 
-    metadata = MetadataReader(in_metadata, filter_column, where_column, index_column)
+    metadata = MetadataReader(in_metadata, where_column, filter_column, index_column)
     index_column_values = metadata.rows
+    print("Found %i metadata rows" %len(index_column_values))
 
     if not in_fasta:
         in_fasta = [""]
@@ -54,9 +56,7 @@ def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column
                 id_string = record.id
             else:
                 id_string = record
-            if id_string is not None and id_string in omit_rows:
-                log_handle.write("%s was marked to omit\n" %id_string)
-            elif id_string is not None and id_string in index_column_values:
+            if id_string is not None and id_string in index_column_values:
                 if id_string in sequence_list:
                     log_handle.write("%s is a duplicate record, keeping earliest\n" % id_string)
                 elif type(record) == SeqRecord:
@@ -69,6 +69,7 @@ def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column
                 log_handle.write("%s has no corresponding entry in metadata table\n" %id_string)
         close_handle(fasta_handle)
         close_handle(out_handle)
+    print("Found %i fasta rows" %len(sequence_list))
 
     if out_metadata:
         if restrict:
@@ -76,5 +77,6 @@ def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column
         metadata_handle = get_out_handle(out_metadata)
         metadata.to_csv(metadata_handle)
         close_handle(metadata_handle)
+
     metadata.close()
     close_handle(log_handle)

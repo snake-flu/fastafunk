@@ -23,6 +23,7 @@ class MetadataReader:
         self.index = None
         self.reader = None
         self.sep = ","
+        self.file = metadata_file
         self.handle = open(metadata_file, "r")
 
         self.load_from_file(metadata_file, where_columns, filter_columns, index)
@@ -41,8 +42,8 @@ class MetadataReader:
         else:
             sys.exit("Error, index %s is not a column" %index)
 
-    def get_columns(self,reader,where_columns,filter_columns):
-        self.columns = [c for c in reader.fieldnames if c != '' and "unnamed" not in c]
+    def get_columns(self,where_columns,filter_columns):
+        self.columns = [c for c in self.reader.fieldnames if c != '' and "unnamed" not in c]
         if where_columns:
             for pair in where_columns:
                 column,regex = pair.split("=")
@@ -53,14 +54,14 @@ class MetadataReader:
                     match = re.search(regex, original_column)
                     if match:
                         self.where_column_dict[column].append(original_column)
-                        if column not in self.columns:
-                            self.columns.append(column)
+                if column not in self.columns:
+                    self.columns.append(column)
         if filter_columns:
-            self.columns = [c for c in columns if c in filter_columns]
+            self.columns = [c for c in self.columns if c in filter_columns]
 
-    def get_rows(self, reader):
-        omit_columns = [column for column in self.columns if "omit" in column.lower()]
-        for row in reader:
+    def get_rows(self):
+        omit_columns = [ c for c in self.reader.fieldnames if "omit" in c.lower() or c in ["duplicate", "why_excluded"]]
+        for row in self.reader:
             omit = False
             for column in omit_columns:
                 if row[column] in ["True", True]:
@@ -70,15 +71,17 @@ class MetadataReader:
                 self.rows.append(row[self.index])
 
     def get_reader(self):
-            self.reader = csv.DictReader(self.handle, delimiter=self.sep)
+        self.reader = csv.DictReader(self.handle, delimiter=self.sep)
 
     def load_from_file(self, metadata_file, where_columns=None, filter_columns=None, index=None):
         if metadata_file.endswith('tsv'):
             self.sep = '\t'
         self.get_reader()
-        self.get_columns(reader, where_columns, filter_columns)
+        self.get_columns(where_columns, filter_columns)
         self.get_index(index)
-        self.get_rows(reader)
+        self.get_rows()
+        self.close()
+        self.handle = open(self.file, "r")
         self.get_reader()
 
     def clean_row(self, row_dict):
@@ -87,23 +90,23 @@ class MetadataReader:
             value = None
             if column in self.where_column_dict:
                 for where_column in self.where_column_dict[column]:
-                    if row[where_column] not in [None, "None", ""]:
-                        value = row[where_column]
+                    if row_dict[where_column] not in [None, "None", ""]:
+                        value = row_dict[where_column]
             else:
-                value = row[column]
+                value = row_dict[column]
             clean_values[column] = value
         return clean_values
 
     def restrict(self, sequence_list):
         self.rows = [r for r in self.rows if r in sequence_list]
 
-    def to_csv(self, out_handle):
+    def to_csv(self, out_handle, include_omitted=False):
+        self.get_reader()
         writer = csv.DictWriter(out_handle, fieldnames = self.columns, delimiter=",", quotechar='\"', quoting=csv.QUOTE_MINIMAL, dialect = "unix")
         writer.writeheader()
-        self.get_reader()
         for row in self.reader:
-            if row[self.index] in self.rows:
-                writer.writerow(clean_row(row))
+            if row[self.index] in self.rows or include_omitted:
+                writer.writerow(self.clean_row(row))
 
     def close(self):
         self.handle.close()

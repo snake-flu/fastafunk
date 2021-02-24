@@ -522,8 +522,8 @@ def main(args=None):
         help='One or more FASTA files of sequences (else reads from stdin)'
     )
     subparser_fetch.add_argument(
-        '--in-metadata', dest='in_metadata', nargs='+', metavar='<filename>', required=True,
-        help='One or more CSV or TSV tables of metadata, later entries will override where duplicates'
+        '--in-metadata', dest='in_metadata', metavar='<filename>', required=True,
+        help='CSV or TSV of metadata with same naming convention as fasta file'
     )
     subparser_fetch.add_argument(
         '--index-column', dest='index_column', metavar='<column>', required=True,
