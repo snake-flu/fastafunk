@@ -1,8 +1,4 @@
 name,place,date,omitted,edin_Omit
-a,x,2020-04-01,True,
-b,y,2020-04-05,True,
 c,z,2020-03-29,,
 d,x1,2020-04-02,False,
-e,x,2020-04-01,True,
 f,y,2020-04-05,,
-g,z,2020-03-29,,True

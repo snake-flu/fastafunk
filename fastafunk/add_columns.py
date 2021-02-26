@@ -15,24 +15,8 @@ import re
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 
+from fastafunk.metadata_reader import *
 from fastafunk.utils import *
-from fastafunk.stats import *
-
-def replace_with_where_columns(existing_columns, where_columns, log_handle):
-    if where_columns:
-        for pair in where_columns:
-            column,regex = pair.split("=")
-            if column in existing_columns:
-                log_handle.write("Column %s already exists in in-data, ignoring %s\n" %(column, pair))
-                continue
-            regex = re.compile(regex)
-            for existing_column in existing_columns:
-                match = re.search(regex, existing_column)
-                if match:
-                    existing_columns[existing_columns.index(existing_column)] = column
-                    log_handle.write("Renamed column %s as column %s in in-data\n" % (existing_column, column))
-                    break
-    return existing_columns
 
 def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_metadata, where_column, log_file):
     """
@@ -51,52 +35,27 @@ def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_me
     all_column_names = []
 
     new_column_dict = {}
-    with open(in_data, "r") as f:
-        reader = csv.DictReader(f)
-        reader.fieldnames = replace_with_where_columns(reader.fieldnames, where_column, log_handle)
-        if not new_columns or len(new_columns) == 0:
-            new_columns = [r for r in reader.fieldnames if r!=join_on]
-        data = [r for r in reader]
-    for sequence in data:
-        if join_on not in sequence.keys():
-            log_handle.write("Join on column not in in-data. Please re-enter a new one. Program exiting.\n")
-            sys.exit()
-        else:
-            taxon_name = sequence[join_on]
-        if taxon_name not in new_column_dict.keys():
-            new_column_dict[taxon_name] = clean_dict(sequence, new_columns)
-        else:
-            log_handle.write("Sequence " + taxon_name + " had a duplicate in in-data and only first kept\n")
 
-    rows = []
-    null_dict = {}
-    with open(in_metadata, "r") as f:
-        reader = csv.DictReader(f)
-        all_column_names = reader.fieldnames
-        new_columns = [c for c in new_columns if c not in all_column_names]
-        for c in new_columns:
-            null_dict[c] = ''
-        metadata = [clean_dict(r) for r in reader]
-    for sequence in metadata:
-        if index_column not in sequence.keys():
-            log_handle.write("Index column not in metadata. Please re-enter a new one. Program exiting.\n")
-            sys.exit()
+    new_data = MetadataReader(in_data, index=join_on)
+    if new_columns is not None and len(new_columns) > 0:
+        new_data.columns = new_columns.copy()
+        new_data.columns.append(join_on)
+    else:
+        new_columns = new_data.columns
+        new_columns.remove(join_on)
+
+    for row in new_data.reader:
+        if row[join_on] in new_column_dict.keys():
+            log_handle.write("Sequence " + row[join_on] + " had a duplicate in in-data and only first kept\n")
         else:
-            taxon_name = sequence[index_column]
-        if taxon_name in new_column_dict.keys():
-            sequence.update(new_column_dict[taxon_name])
-        else:
-            sequence.update(null_dict)
-        rows.append(sequence)
+            new_column_dict[row[join_on]] = row
+    new_data.close()
+
+    metadata = MetadataReader(in_metadata, index=index_column)
+    metadata.add_columns(new_columns)
     out_metadata_handle = open(out_metadata,"w",newline='')
-
-    if 'unnamed: 0' in all_column_names:
-        all_column_names.remove('unnamed: 0')
-    if '' in all_column_names:
-        all_column_names.remove('')
-    all_column_names.extend(new_columns)
-    f = csv.DictWriter(out_metadata_handle, fieldnames=all_column_names,lineterminator='\n')
-    f.writeheader()
-    f.writerows(rows)
+    metadata.to_csv(out_metadata_handle, new_data_dict=new_column_dict)
     out_metadata_handle.close()
+    metadata.close()
+
     log_handle.close()

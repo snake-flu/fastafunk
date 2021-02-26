@@ -14,6 +14,5 @@ def run(options):
         options.date_column,
         options.out_fasta,
         options.out_metadata,
-        options.log_file,
-        options.header_delimiter
+        options.log_file
     )

@@ -64,11 +64,11 @@ class TestAnnotate(unittest.TestCase):
         in_metadata = ["%s/simple_metadata.csv" % data_dir]
         index_column = None
         index_field = None
-        out_fasta = "%s/tmp.annotated.fasta" %data_dir
-        out_metadata = "%s/tmp.annotated.csv" %data_dir
+        out_fasta = "%s/tmp.annotated_simple.fasta" %data_dir
+        out_metadata = "%s/tmp.annotated_simple.csv" %data_dir
         header_delimiter = "|"
         add_cov_id = False
-        log_file = "%s/annotate.log" %data_dir
+        log_file = "%s/annotate_simple.log" %data_dir
         annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_metadata, header_delimiter,
                  add_cov_id, log_file)
 
@@ -85,11 +85,11 @@ class TestAnnotate(unittest.TestCase):
         in_metadata = ["%s/superset_metadata.csv" % data_dir]
         index_column = None
         index_field = None
-        out_fasta = "%s/tmp.annotated.fasta" %data_dir
-        out_metadata = "%s/tmp.annotated.csv" %data_dir
+        out_fasta = "%s/tmp.annotated_superset.fasta" %data_dir
+        out_metadata = "%s/tmp.annotated_superset.csv" %data_dir
         header_delimiter = "|"
         add_cov_id = False
-        log_file = "%s/annotate.log" %data_dir
+        log_file = "%s/annotate_superset.log" %data_dir
         annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_metadata, header_delimiter,
                  add_cov_id, log_file)
 
@@ -106,11 +106,11 @@ class TestAnnotate(unittest.TestCase):
         in_metadata = ["%s/subset_metadata.csv" % data_dir]
         index_column = None
         index_field = None
-        out_fasta = "%s/tmp.annotated.fasta" %data_dir
-        out_metadata = "%s/tmp.annotated.csv" %data_dir
+        out_fasta = "%s/tmp.annotated_subset.fasta" %data_dir
+        out_metadata = "%s/tmp.annotated_subset.csv" %data_dir
         header_delimiter = "|"
         add_cov_id = False
-        log_file = "%s/annotate.log" %data_dir
+        log_file = "%s/annotate_subset.log" %data_dir
         annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_metadata, header_delimiter,
                  add_cov_id, log_file)
 

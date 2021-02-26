@@ -13,5 +13,6 @@ def run(options):
         options.index_column,
         options.out_metadata,
         options.out_fasta,
-        options.log_file
+        options.log_file,
+        options.low_memory
     )

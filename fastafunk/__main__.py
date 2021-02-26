@@ -62,10 +62,7 @@ def main(args=None):
     #     '--header-replace', dest='header_replace', nargs='*', metavar='<field>', required=False,
     #     help='Fields in the metadata table to construct the header'
     # )
-    # common.add_argument(
-    #     '--header-delimiter', dest='header_delimiter', default='|', metavar='<symbol>', required=False,
-    #     help='Header delimiter'
-    # )
+
     common.add_argument(
         "-v", "--verbose", dest="verbose", action="store_true",
         help="Run with high verbosity " "(debug level logging)",
@@ -165,6 +162,10 @@ def main(args=None):
     subparser_merge.add_argument(
         '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="",
         help='A FASTA file (else writes to stdout)'
+    )
+    subparser_merge.add_argument(
+        '--low-memory', dest='low_memory', action='store_true', required=False,
+        help='Assumes no duplicate sequences within a  FASTA so can use SeqIO index'
     )
 
     subparser_merge.set_defaults(func=fastafunk.subcommands.merge.run)
@@ -276,8 +277,8 @@ def main(args=None):
         help='Field(s) in the fasta header to match the metadata (else matches column names)'
     )
     subparser_subsample.add_argument(
-        '--index-column', dest='index_column', nargs='+', metavar='<column>', required=True,
-        help='Column(s) in the metadata file to use to match to the sequence'
+        '--index-column', dest='index_column', metavar='<column>', required=True,
+        help='Column in the metadata file to use to match to the sequence'
     )
     subparser_subsample.add_argument(
         '--group-column', dest='group_column', nargs='+', metavar='<column>', required=True,
@@ -316,10 +317,6 @@ def main(args=None):
         help="Includes all UK samples in subsample, and additionally keeps the target number of "
              "non-UK samples per group"
     )
-    subparser_subsample.add_argument(
-        '--header-delimiter', dest='header_delimiter', default='|', metavar='<symbol>', required=False,
-        help='Header delimiter'
-    )
 
     subparser_subsample.set_defaults(func=fastafunk.subcommands.subsample.run)
 
@@ -344,8 +341,8 @@ def main(args=None):
         help='Field(s) in the fasta header to match the metadata (else matches column names)'
     )
     subparser_annotate.add_argument(
-        '--index-column', dest='index_column', nargs='+', metavar='<column>', required=False,
-        help='Column(s) in the metadata file to use to match to the sequence'
+        '--index-column', dest='index_column', metavar='<column>', required=True,
+        help='Column in the metadata file to use to match to the sequence'
     )
     subparser_annotate.add_argument(
         '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="",
@@ -362,6 +359,10 @@ def main(args=None):
     subparser_annotate.add_argument(
         '--add-cov-id', dest='add_cov_id', action="store_true", required=False,
         help='Parses header for COG or GISAID unique id and stores'
+    )
+    subparser_annotate.add_argument(
+        '--low-memory', dest='low_memory', action='store_true', required=False,
+        help='Assumes no duplicate sequences within a  FASTA so can use SeqIO index'
     )
 
     subparser_annotate.set_defaults(func=fastafunk.subcommands.annotate.run)
@@ -493,8 +494,8 @@ def main(args=None):
         help='One or more CSV or TSV tables of metadata'
     )
     subparser_new.add_argument(
-        '--index-column', dest='index_column', nargs='+', metavar='<column>', required=False,
-        help='Column(s) in the metadata file to use to match to the sequence'
+        '--index-column', dest='index_column', metavar='<column>', required=True,
+        help='Column in the metadata file to use to match to the sequence'
     )
     subparser_new.add_argument(
         '--date-column', dest='date_column', metavar='<column>', required=True,
@@ -507,10 +508,6 @@ def main(args=None):
     subparser_new.add_argument(
         '--out-metadata', dest='out_metadata', metavar='<filename>', required=False,
         help='A metadata file'
-    )
-    subparser_new.add_argument(
-        '--header-delimiter', dest='header_delimiter', default='|', metavar='<symbol>', required=False,
-        help='Header delimiter'
     )
 
     subparser_new.set_defaults(func=fastafunk.subcommands.new.run)
@@ -529,12 +526,12 @@ def main(args=None):
         help='One or more FASTA files of sequences (else reads from stdin)'
     )
     subparser_fetch.add_argument(
-        '--in-metadata', dest='in_metadata', nargs='+', metavar='<filename>', required=True,
-        help='One or more CSV or TSV tables of metadata, later entries will override where duplicates'
+        '--in-metadata', dest='in_metadata', metavar='<filename>', required=True,
+        help='CSV or TSV of metadata with same naming convention as fasta file'
     )
     subparser_fetch.add_argument(
-        '--index-column', dest='index_column', nargs='+', metavar='<column>', required=True,
-        help='Column(s) in the metadata file to use to match to the sequence'
+        '--index-column', dest='index_column', metavar='<column>', required=True,
+        help='Column in the metadata file to use to match to the sequence'
     )
     subparser_fetch.add_argument(
         '--filter-column', dest='filter_column', nargs='+', metavar='<column>', required=False,
@@ -559,10 +556,6 @@ def main(args=None):
     subparser_fetch.add_argument(
         '--out-metadata', dest='out_metadata', metavar='<filename>', required=False,
         help='A metadata file'
-    )
-    subparser_fetch.add_argument(
-        '--header-delimiter', dest='header_delimiter', default='|', metavar='<symbol>', required=False,
-        help='Header delimiter'
     )
 
     subparser_fetch.set_defaults(func=fastafunk.subcommands.fetch.run)
