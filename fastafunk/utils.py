@@ -196,12 +196,12 @@ def subsample_metadata(metadata, group_columns, sample_size, target_file, select
                        exclude_uk, log_handle=None):
     non_omit_rows = metadata.get_omit_rows(inverse=True)
     df = pd.DataFrame(metadata.rows)
-    if select_by_max_column:
-        df[select_by_max_column].dropna(inplace=True)
+    if select_by_max_column is not None:
+        df[select_by_max_column].fillna(0,inplace=True)
         data_types_dict = {select_by_max_column: float}
         df = df.astype(data_types_dict)
-    if select_by_min_column:
-        df[select_by_min_column].dropna(inplace=True)
+    if select_by_min_column is not None:
+        df[select_by_min_column].fillna(40000,inplace=True)
         data_types_dict = {select_by_min_column: float}
         df = df.astype(data_types_dict)
     df.iloc[non_omit_rows, :]
