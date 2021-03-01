@@ -34,14 +34,14 @@ def subsample_fasta(in_fasta,in_metadata,index_field,index_column,group_column,w
 
     log_handle.write("\n#Pruned ids:\n")
     for fasta_file in in_fasta:
-        fasta_handle = get_in_handle(fasta_file)
-        records = SeqIO.index(fasta_handle, "fasta")
+        #fasta_handle = get_in_handle(fasta_file)
+        records = SeqIO.index(fasta_file, "fasta")
         for id_string in records:
             if id_string != "" and id_string in subsampled_index_column_values:
                 SeqIO.write(records[id_string], out_handle, "fasta-2line")
             else:
                 log_handle.write("%s\n" %id_string)
-        close_handle(fasta_handle)
+        #close_handle(fasta_handle)
 
     if out_metadata:
         metadata_handle = get_out_handle(out_metadata)

@@ -198,11 +198,11 @@ def subsample_metadata(metadata, group_columns, sample_size, target_file, select
     df = pd.DataFrame(metadata.rows)
     if select_by_max_column:
         df[select_by_max_column].dropna(inplace=True)
-        data_types_dict = {select_by_max_column: int}
+        data_types_dict = {select_by_max_column: float}
         df = df.astype(data_types_dict)
     if select_by_min_column:
         df[select_by_min_column].dropna(inplace=True)
-        data_types_dict = {select_by_min_column: int}
+        data_types_dict = {select_by_min_column: float}
         df = df.astype(data_types_dict)
     df.iloc[non_omit_rows, :]
     grouped = get_groups(df, group_columns, log_handle)
