@@ -1,5 +1,5 @@
 name,place,date,subsample_omit
-a,x,2020-04-01,
-b,y,2020-04-05,
+a,x,2020-04-01,False
+b,y,2020-04-05,False
 b,y,2020-03-29,True
-d,x1,2020-04-02,
+d,x1,2020-04-02,False

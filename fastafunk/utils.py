@@ -89,6 +89,19 @@ def trees_to_taxa(list_tree_files):
 
     return(labels)
 
+def find_column_with_regex(df, column, regex):
+    regex = re.compile(regex)
+    for original_column in df.columns:
+        match = re.search(regex, original_column)
+        if match and column in df.columns:
+            print("Update column", column, "with non-na values from column", original_column)
+            df[column].update(df[original_column])
+            return df
+        elif match:
+            print("New column", column, "with non-na values from column", original_column)
+            df[column] = df[original_column]
+    return df
+
 def find_field_with_regex(header, regex):
     regex = re.compile(regex)
     match = re.search(regex, header)
@@ -97,12 +110,53 @@ def find_field_with_regex(header, regex):
     else:
         return ""
 
+def load_dataframe(metadata_file, filter_columns, where_columns, omit_columns=False):
+    sep = ','
+    na_values = ["None"]
+    if metadata_file.endswith('tsv'):
+        sep = '\t'
+    try:
+        df = pd.read_csv(metadata_file, sep=sep, na_values=na_values)
+    except:
+        df = pd.read_csv(metadata_file, sep=sep, na_values=na_values, encoding='utf-8')
+
+    if where_columns:
+        for pair in where_columns:
+            column,regex = pair.split("=")
+            df = find_column_with_regex(df, column, regex)
+
+    if 'unnamed: 0' in df.columns:
+        df.drop(columns=['unnamed: 0'], inplace=True)
+
+    if filter_columns:
+        df = filter_by_omit_columns(df)
+        df = df.loc[:, df.columns.isin(filter_columns)]
+        for column in [c for c in filter_columns if c not in df.columns.values]:
+            df[column] = None
+    else:
+        df.dropna(how='all', axis='columns', inplace=True)
+
+    return df
+
+def add_data(new_dataframe, master_dataframe):
+    column_intersection = [s for s in new_dataframe.columns if s in master_dataframe.columns]
+    master_dataframe = master_dataframe.merge(new_dataframe, how='outer', on=column_intersection)
+    return master_dataframe
+
 def get_header_id(record, where_field):
     if where_field is None:
         return record.id
     else:
         field, regex = where_field.split("=")
         return find_field_with_regex(record.description, regex)
+
+def filter_by_omit_columns(df):
+    drop_indexes = []
+    for column in df.columns.values:
+        if "omit" in column.lower():
+            drop_indexes.extend(df.index[df[column] == True].tolist())
+    df = df.drop(drop_indexes)
+    return df
 
 def load_metadata(list_metadata_files, filter_columns=None, where_columns=None, index_column=None):
     master = None
@@ -112,6 +166,18 @@ def load_metadata(list_metadata_files, filter_columns=None, where_columns=None, 
         else:
             new_data = Metadata(metadata_file, where_columns, filter_columns, index_column)
             master.add_data(new_data)
+    return master
+
+def load_metadata_df(list_metadata_files, filter_columns=None, where_columns=None, index_column=None):
+    master = None
+    for metadata_file in list_metadata_files:
+        if master is None:
+            master = load_dataframe(metadata_file, filter_columns, where_columns)
+        else:
+            new_data = load_dataframe(metadata_file, filter_columns, where_columns)
+            master = add_data(new_data, master)
+    if filter_columns:
+        master = master[filter_columns]
     return master
 
 def load_new_metadata(list_metadata_files, date_column, filter_columns=None, where_columns=None, index_column=None):
@@ -192,19 +258,8 @@ def get_subsample_indexes(group, target_size, select_by_max_column, select_by_mi
     else:
         return sorted(list(group.sample(n=target_size, random_state=1).index))
 
-def subsample_metadata(metadata, group_columns, sample_size, target_file, select_by_max_column, select_by_min_column,
+def subsample_metadata(df, group_columns, sample_size, target_file, select_by_max_column, select_by_min_column,
                        exclude_uk, log_handle=None):
-    non_omit_rows = metadata.get_omit_rows(inverse=True)
-    df = pd.DataFrame(metadata.rows)
-    if select_by_max_column is not None:
-        df[select_by_max_column].fillna(0,inplace=True)
-        data_types_dict = {select_by_max_column: float}
-        df = df.astype(data_types_dict)
-    if select_by_min_column is not None:
-        df[select_by_min_column].fillna(40000,inplace=True)
-        data_types_dict = {select_by_min_column: float}
-        df = df.astype(data_types_dict)
-    df.iloc[non_omit_rows, :]
     grouped = get_groups(df, group_columns, log_handle)
     targets = {}
     if target_file:
@@ -229,9 +284,18 @@ def subsample_metadata(metadata, group_columns, sample_size, target_file, select
         else:
             subsampled_indexes.extend(group.index)
 
-    metadata.add_subsample_column(subsampled_indexes)
-    subsampled = df.loc[subsampled_indexes]
-    return subsampled[metadata.index].values
+    subsampled_indexes.sort()
+    return df.loc[subsampled_indexes]
+
+def add_subsample_omit_column(df, non_omitted_df, subsampled_df):
+    if "subsample_omit" not in df.columns:
+        df["subsample_omit"] = False
+    non_omitted_df_index_values = non_omitted_df.index.values
+    subsampled_df_index_values = subsampled_df.index.values
+    for i in non_omitted_df_index_values:
+        if i not in subsampled_df_index_values:
+            df.loc[i,"subsample_omit"] = True
+    return
 
 def get_index_field_from_header(record, header_delimiter, index_field):
     if index_field is None or index_field == "" or index_field == []:
@@ -252,6 +316,34 @@ def get_index_field_from_header(record, header_delimiter, index_field):
             return field[len(index_field)+1:]
 
     return record.id
+
+def get_index_column_values(df, index_columns, header_delimiter='|'):
+    if not index_columns or len(index_columns) == 0 or index_columns == "":
+        if "sequence_name" in df.columns:
+            index_columns = ["sequence_name"]
+        else:
+            index_columns = [0]
+
+    str_index_columns = []
+    for column in index_columns:
+        if isinstance(column, int):
+            assert column < len(df.columns.values)
+            column = df.columns[column]
+        assert column in list(df.columns.values)
+        str_index_columns.append(column)
+
+    column_values = []
+    for i,row in df.iterrows():
+        column_values.append(header_delimiter.join([str(row[c]) for c in str_index_columns]))
+    index_column_name = "|".join(str_index_columns)
+    df.loc[:,index_column_name] = column_values
+    #bad_headers = df[df["sequence_name"].duplicated()]["sequence_name"].index.values
+    #df.drop(bad_headers, inplace=True)
+    #if df["sequence_name"].duplicated().any():
+    #    print(df.loc[df["sequence_name"].duplicated(),"sequence_name"])
+    #assert not df["sequence_name"].duplicated().any()
+
+    return df, column_values
 
 def get_cov_id(record):
     id_strings = record.id.split('|')[0].split('/')

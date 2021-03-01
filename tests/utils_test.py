@@ -276,12 +276,13 @@ class TestUtils(unittest.TestCase):
         log_handle = None
 
         metadata_file = "%s/metadata_to_subsample.csv" %data_dir
-        metadata = Metadata(metadata_file, index=index_column)
-        subsample_metadata(metadata, index_column, sample_size, target_file, select_by_max_column,
+        metadata = load_metadata_df([metadata_file])
+        subsampled_metadata = subsample_metadata(metadata, index_column, sample_size, target_file, select_by_max_column,
                            select_by_min_column, exclude_uk, log_handle)
+        add_subsample_omit_column(metadata, metadata, subsampled_metadata)
         result = "%s/tmp.subsample_metadata_sample_size.csv" %data_dir
         result_handle = open(result,'w')
-        metadata.to_csv(result_handle)
+        metadata.to_csv(result_handle, index=False)
         result_handle.close()
         expect1 = "%s/metadata_subsampled1.csv" %data_dir
         expect2 = "%s/metadata_subsampled2.csv" %data_dir
@@ -301,12 +302,13 @@ class TestUtils(unittest.TestCase):
         log_handle = None
 
         metadata_file = "%s/metadata_to_subsample.csv" %data_dir
-        metadata = Metadata(metadata_file, index=index_column)
-        subsample_metadata(metadata, index_column, sample_size, target_file, select_by_max_column,
-                           select_by_min_column, exclude_uk, log_handle)
+        metadata = load_metadata_df([metadata_file])
+        subsampled_metadata = subsample_metadata(metadata, index_column, sample_size, target_file, select_by_max_column,
+                                                 select_by_min_column, exclude_uk, log_handle)
+        add_subsample_omit_column(metadata, metadata, subsampled_metadata)
         result = "%s/tmp.subsample_metadata_target_file.csv" %data_dir
         result_handle = open(result,'w')
-        metadata.to_csv(result_handle)
+        metadata.to_csv(result_handle, index=False)
         result_handle.close()
         expect1 = "%s/metadata_subsampled1.csv" %data_dir
         expect2 = "%s/metadata_subsampled2.csv" %data_dir
@@ -326,12 +328,13 @@ class TestUtils(unittest.TestCase):
         log_handle = None
 
         metadata_file = "%s/metadata_to_subsample.csv" %data_dir
-        metadata = Metadata(metadata_file, index=index_column)
-        subsample_metadata(metadata, index_column, sample_size, target_file, select_by_max_column,
-                           select_by_min_column, exclude_uk, log_handle)
+        metadata = load_metadata_df([metadata_file])
+        subsampled_metadata = subsample_metadata(metadata, index_column, sample_size, target_file, select_by_max_column,
+                                                 select_by_min_column, exclude_uk, log_handle)
+        add_subsample_omit_column(metadata, metadata, subsampled_metadata)
         result = "%s/tmp.subsample_metadata_target_file_overrides_sample_size.csv" %data_dir
         result_handle = open(result,'w')
-        metadata.to_csv(result_handle)
+        metadata.to_csv(result_handle, index=False)
         result_handle.close()
         expect1 = "%s/metadata_subsampled1.csv" %data_dir
         expect2 = "%s/metadata_subsampled2.csv" %data_dir
