@@ -318,6 +318,9 @@ def get_index_field_from_header(record, header_delimiter, index_field):
     return record.id
 
 def get_index_column_values(df, index_columns, header_delimiter='|'):
+    print(index_columns, type(index_columns))
+    if isinstance(index_columns, str):
+    	index_columns = [index_columns]
     if not index_columns or len(index_columns) == 0 or index_columns == "":
         if "sequence_name" in df.columns:
             index_columns = ["sequence_name"]
@@ -329,6 +332,7 @@ def get_index_column_values(df, index_columns, header_delimiter='|'):
         if isinstance(column, int):
             assert column < len(df.columns.values)
             column = df.columns[column]
+        print(column, df.columns.values)
         assert column in list(df.columns.values)
         str_index_columns.append(column)
 

@@ -27,8 +27,7 @@ def subsample_fasta(in_fasta,in_metadata,index_field,index_column,group_column,w
     non_omitted_df = filter_by_omit_columns(metadata)
     subsampled_metadata = subsample_metadata(non_omitted_df, group_column, sample_size, target_file, select_by_max_column,
                                                  select_by_min_column, exclude_uk)
-    subsampled_metadata, index_column_values = get_index_column_values(subsampled_metadata, index_column,
-                                                                       header_delimiter)
+    subsampled_metadata, index_column_values = get_index_column_values(subsampled_metadata, index_column)
 
     if not in_fasta:
         in_fasta = [""]
@@ -40,7 +39,7 @@ def subsample_fasta(in_fasta,in_metadata,index_field,index_column,group_column,w
         #fasta_handle = get_in_handle(fasta_file)
         records = SeqIO.index(fasta_file, "fasta")
         for id_string in records:
-            if id_string != "" and id_string in subsampled_index_column_values:
+            if id_string != "" and id_string in index_column_values:
                 SeqIO.write(records[id_string], out_handle, "fasta-2line")
             else:
                 log_handle.write("%s\n" %id_string)
