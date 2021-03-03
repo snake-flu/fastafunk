@@ -48,7 +48,7 @@ def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_me
         if row[join_on] in new_column_dict.keys():
             log_handle.write("Sequence " + row[join_on] + " had a duplicate in in-data and only first kept\n")
         else:
-            new_column_dict[row[join_on]] = row
+            new_column_dict[row[join_on]] = new_data.clean_row(row)
     new_data.close()
 
     metadata = MetadataReader(in_metadata, index=index_column)

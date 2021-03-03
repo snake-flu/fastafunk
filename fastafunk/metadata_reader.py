@@ -64,7 +64,7 @@ class MetadataReader:
         for row in self.reader:
             omit = False
             for column in omit_columns:
-                if row[column] in ["True", True]:
+                if row[column] not in ["False", False, None, "None", ""]:
                     omit = True
                     continue
             if not omit:
