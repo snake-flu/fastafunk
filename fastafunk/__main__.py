@@ -317,6 +317,10 @@ def main(args=None):
         help="Includes all UK samples in subsample, and additionally keeps the target number of "
              "non-UK samples per group"
     )
+    subparser_subsample.add_argument(
+        '--low-memory', dest='low_memory', action='store_true', required=False,
+        help='Assumes no duplicate sequences within a  FASTA so can use SeqIO index'
+    )
 
     subparser_subsample.set_defaults(func=fastafunk.subcommands.subsample.run)
 

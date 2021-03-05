@@ -20,7 +20,7 @@ from fastafunk.metadata import *
 from fastafunk.utils import *
 
 def subsample_fasta(in_fasta,in_metadata,index_field,index_column,group_column,where_field, out_fasta,out_metadata,
-                    log_file,sample_size,target_file,select_by_max_column,select_by_min_column,exclude_uk):
+                    log_file,sample_size,target_file,select_by_max_column,select_by_min_column,exclude_uk, low_memory):
     log_handle = get_log_handle(log_file, out_fasta)
 
     metadata = load_metadata_df(in_metadata, None, None)
@@ -36,14 +36,20 @@ def subsample_fasta(in_fasta,in_metadata,index_field,index_column,group_column,w
 
     log_handle.write("\n#Pruned ids:\n")
     for fasta_file in in_fasta:
-        #fasta_handle = get_in_handle(fasta_file)
-        records = SeqIO.index(fasta_file, "fasta")
-        for id_string in records:
+        if low_memory:
+            record_dict = SeqIO.index(fasta_file, "fasta")
+        else:
+            record_dict = SeqIO.parse(fasta_file, "fasta")
+        for record in record_dict:
+            if type(record) == SeqRecord:
+                id_string = record.id
+            else:
+                id_string = record
+
             if id_string != "" and id_string in index_column_values:
                 SeqIO.write(records[id_string], out_handle, "fasta-2line")
             else:
                 log_handle.write("%s\n" %id_string)
-        #close_handle(fasta_handle)
 
     if out_metadata:
         add_subsample_omit_column(metadata, non_omitted_df, subsampled_metadata)
