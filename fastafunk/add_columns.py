@@ -54,7 +54,7 @@ def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_me
     metadata = MetadataReader(in_metadata, index=index_column)
     metadata.add_columns(new_columns)
     out_metadata_handle = open(out_metadata,"w",newline='')
-    metadata.to_csv(out_metadata_handle, new_data_dict=new_column_dict)
+    metadata.to_csv(out_metadata_handle, include_omitted=True, new_data_dict=new_column_dict)
     out_metadata_handle.close()
     metadata.close()
 

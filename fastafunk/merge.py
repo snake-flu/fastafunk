@@ -63,10 +63,10 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
         if os.path.exists(metadata_file):
             metadata = MetadataReader(metadata_file, None, filter_columns=metadata_columns, index=index_column)
             if first:
-                metadata.to_csv(out_metadata_handle, header=True)
+                metadata.to_csv(out_metadata_handle, include_omitted=True, header=True)
                 first = False
             else:
-                metadata.to_csv(out_metadata_handle, header=False)
+                metadata.to_csv(out_metadata_handle, include_omitted=True, header=False)
             metadata.close()
         else:
             print("File does not exist, program exiting.")
@@ -85,17 +85,19 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
             else:
                 id_string = record
 
-            if id_string is not None and id_string in index_column_values:
-                if id_string in sequence_list:
+            if id_string is not None:
+                if not low_memory and id_string in sequence_list:
                     log_handle.write("%s is a duplicate record, keeping earliest\n" % id_string)
+                elif id_string not in index_column_values:
+                    log_handle.write("%s has no corresponding entry in metadata table\n" %id_string)
                 elif type(record) == SeqRecord:
                     SeqIO.write(record, out_handle, "fasta-2line")
                     sequence_list.append(id_string)
+                    index_column_values.remove(id_string)
                 else:
                     SeqIO.write(record_dict[id_string], out_handle, "fasta-2line")
                     sequence_list.append(id_string)
-            else:
-                log_handle.write("%s has no corresponding entry in metadata table\n" %id_string)
+                    index_column_values.remove(id_string)
 
     if len(sequence_list) == 0:
         print("There is no matching sequences to metadata. Program exiting")
