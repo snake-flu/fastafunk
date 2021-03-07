@@ -20,6 +20,7 @@ class MetadataReader:
         self.columns = []
         self.where_column_dict = {}
         self.rows = []
+        self.omit_rows = []
         self.index = None
         self.reader = None
         self.sep = ","
@@ -67,7 +68,9 @@ class MetadataReader:
                 if row[column] not in ["False", False, None, "None", ""]:
                     omit = True
                     continue
-            if not omit:
+            if omit:
+                self.omit_rows.append(row[self.index])
+            else:
                 self.rows.append(row[self.index])
 
     def get_reader(self):
@@ -103,7 +106,8 @@ class MetadataReader:
         return clean_values
 
     def restrict(self, sequence_list):
-        self.rows = [r for r in self.rows if r in sequence_list]
+        self.omit_rows.extend(self.rows)
+        self.rows = sequence_list
 
     def to_csv(self, out_handle, header=True, include_omitted=False, new_data_dict=None):
         self.get_reader()
@@ -111,7 +115,7 @@ class MetadataReader:
         if header:
             writer.writeheader()
         for row in self.reader:
-            if row[self.index] in self.rows or include_omitted:
+            if include_omitted or row[self.index] not in self.omit_rows:
                 if new_data_dict is not None and row[self.index] in new_data_dict:
                     writer.writerow(self.clean_row(row, new_data_dict[row[self.index]]))
                 else:

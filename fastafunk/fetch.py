@@ -55,17 +55,20 @@ def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column
                 id_string = record.id
             else:
                 id_string = record
-            if id_string is not None and id_string in index_column_values:
-                if id_string in sequence_list:
+
+            if id_string is not None:
+                if not low_memory and id_string in sequence_list:
                     log_handle.write("%s is a duplicate record, keeping earliest\n" % id_string)
+                elif id_string not in index_column_values:
+                    log_handle.write("%s has no corresponding entry in metadata table\n" %id_string)
                 elif type(record) == SeqRecord:
                     SeqIO.write(record, out_handle, "fasta-2line")
                     sequence_list.append(id_string)
+                    index_column_values.remove(id_string)
                 else:
                     SeqIO.write(record_dict[id_string], out_handle, "fasta-2line")
                     sequence_list.append(id_string)
-            else:
-                log_handle.write("%s has no corresponding entry in metadata table\n" %id_string)
+                    index_column_values.remove(id_string)
         close_handle(out_handle)
     print("Found %i fasta rows" %len(sequence_list))
 
