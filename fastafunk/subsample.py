@@ -46,10 +46,6 @@ def subsample_fasta(in_fasta,in_metadata,index_field,index_column,group_column,w
             else:
                 id_string = record
 
-            if id_string != "" and id_string in index_column_values:
-                SeqIO.write(record_dict[id_string], out_handle, "fasta-2line")
-            else:
-                log_handle.write("%s\n" %id_string)
             if id_string is not None:
                 if id_string not in index_column_values:
                     log_handle.write("%s\n" %id_string)
