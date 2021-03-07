@@ -52,7 +52,7 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
         if os.path.exists(metadata_file):
             metadata = MetadataReader(metadata_file, None, None, index_column)
             index_column_values.extend(metadata.rows)
-            metadata_columns.extend(metadata.columns)
+            metadata_columns.extend([c for c in metadata.columns if c not in metadata_columns])
             metadata.close()
         else:
             print("File does not exist, program exiting.")
