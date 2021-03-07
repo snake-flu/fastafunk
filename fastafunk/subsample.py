@@ -47,9 +47,18 @@ def subsample_fasta(in_fasta,in_metadata,index_field,index_column,group_column,w
                 id_string = record
 
             if id_string != "" and id_string in index_column_values:
-                SeqIO.write(records[id_string], out_handle, "fasta-2line")
+                SeqIO.write(record_dict[id_string], out_handle, "fasta-2line")
             else:
                 log_handle.write("%s\n" %id_string)
+            if id_string is not None:
+                if id_string not in index_column_values:
+                    log_handle.write("%s\n" %id_string)
+                elif type(record) == SeqRecord:
+                    SeqIO.write(record, out_handle, "fasta-2line")
+                    index_column_values.remove(id_string)
+                else:
+                    SeqIO.write(record_dict[id_string], out_handle, "fasta-2line")
+                    index_column_values.remove(id_string)
 
     if out_metadata:
         add_subsample_omit_column(metadata, non_omitted_df, subsampled_metadata)
