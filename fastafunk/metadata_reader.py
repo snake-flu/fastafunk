@@ -16,7 +16,7 @@ def clean_dict(d, column_names=None):
 
 class MetadataReader:
 
-    def __init__(self, metadata_file, where_columns=None, filter_columns=None, index=None):
+    def __init__(self, metadata_file, where_columns=None, filter_columns=None, index=None, omit_labelled_rows=True):
         self.columns = []
         self.where_column_dict = {}
         self.rows = []
@@ -27,7 +27,7 @@ class MetadataReader:
         self.file = metadata_file
         self.handle = open(metadata_file, "r")
 
-        self.load_from_file(metadata_file, where_columns, filter_columns, index)
+        self.load_from_file(metadata_file, where_columns, filter_columns, index, omit_labelled_rows)
 
 
     def get_index(self, index):
@@ -60,7 +60,7 @@ class MetadataReader:
         if filter_columns:
             self.columns = filter_columns
 
-    def get_rows(self):
+    def get_rows(self, omit_labelled_rows=True):
         omit_columns = [ c for c in self.reader.fieldnames if "omit" in c.lower() or c in ["duplicate", "why_excluded"]]
         for row in self.reader:
             omit = False
@@ -68,7 +68,7 @@ class MetadataReader:
                 if row[column] not in ["False", False, None, "None", ""]:
                     omit = True
                     continue
-            if omit:
+            if omit_labelled_rows and omit:
                 self.omit_rows.append(row[self.index])
             else:
                 self.rows.append(row[self.index])
@@ -76,13 +76,13 @@ class MetadataReader:
     def get_reader(self):
         self.reader = csv.DictReader(self.handle, delimiter=self.sep)
 
-    def load_from_file(self, metadata_file, where_columns=None, filter_columns=None, index=None):
+    def load_from_file(self, metadata_file, where_columns=None, filter_columns=None, index=None, omit_labelled_rows=True):
         if metadata_file.endswith('tsv'):
             self.sep = '\t'
         self.get_reader()
         self.get_columns(where_columns, filter_columns)
         self.get_index(index)
-        self.get_rows()
+        self.get_rows(omit_labelled_rows)
         self.close()
         self.handle = open(self.file, "r")
         self.get_reader()

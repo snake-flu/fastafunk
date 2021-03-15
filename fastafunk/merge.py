@@ -50,7 +50,7 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
 
     for metadata_file in in_metadata:
         if os.path.exists(metadata_file):
-            metadata = MetadataReader(metadata_file, None, None, index_column)
+            metadata = MetadataReader(metadata_file, None, None, index_column,omit_labelled_rows=False)
             index_column_values.extend(metadata.rows)
             metadata_columns.extend([c for c in metadata.columns if c not in metadata_columns])
             metadata.close()
@@ -61,7 +61,7 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
     first = True
     for metadata_file in in_metadata:
         if os.path.exists(metadata_file):
-            metadata = MetadataReader(metadata_file, None, filter_columns=metadata_columns, index=index_column)
+            metadata = MetadataReader(metadata_file, None, filter_columns=metadata_columns, index=index_column, omit_labelled_rows=False)
             if first:
                 metadata.to_csv(out_metadata_handle, include_omitted=True, header=True)
                 first = False

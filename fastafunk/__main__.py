@@ -550,6 +550,10 @@ def main(args=None):
         help='Only outputs metadata rows with a corresponding fasta entry'
     )
     subparser_fetch.add_argument(
+        '--keep-omit-rows', dest='keep_omit_rows', action='store_true', required=False,
+        help='Allows rows with with metadata saying omit to be kept'
+    )
+    subparser_fetch.add_argument(
         '--low-memory', dest='low_memory', action='store_true', required=False,
         help='Assumes no duplicate sequences within a  FASTA so can use SeqIO index'
     )

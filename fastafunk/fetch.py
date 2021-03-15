@@ -21,7 +21,7 @@ import os
 from fastafunk.metadata_reader import *
 from fastafunk.utils import *
 
-def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column, restrict, out_fasta, out_metadata, log_file, low_memory):
+def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column, restrict, out_fasta, out_metadata, log_file, low_memory, keep_omit_rows):
     """
     Fetches fasta entries with a corresponding entry in a metadata file
 
@@ -36,7 +36,10 @@ def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column
     """
     log_handle = get_log_handle(log_file, out_fasta)
 
-    metadata = MetadataReader(in_metadata, where_column, filter_column, index_column)
+    omit_labelled_rows = True
+    if keep_omit_rows:
+        omit_labelled_rows = False
+    metadata = MetadataReader(in_metadata, where_column, filter_column, index_column, omit_labelled_rows)
     index_column_values = metadata.rows
     print("Found %i metadata rows" %len(index_column_values))
 

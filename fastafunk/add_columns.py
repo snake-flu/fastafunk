@@ -36,7 +36,7 @@ def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_me
 
     new_column_dict = {}
 
-    new_data = MetadataReader(in_data, index=join_on)
+    new_data = MetadataReader(in_data, index=join_on, omit_labelled_rows=False)
     if new_columns is not None and len(new_columns) > 0:
         new_data.columns = new_columns.copy()
         new_data.columns.append(join_on)
@@ -51,7 +51,7 @@ def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_me
             new_column_dict[row[join_on]] = new_data.clean_row(row)
     new_data.close()
 
-    metadata = MetadataReader(in_metadata, index=index_column)
+    metadata = MetadataReader(in_metadata, index=index_column, omit_labelled_rows=False)
     metadata.add_columns(new_columns)
     out_metadata_handle = open(out_metadata,"w",newline='')
     metadata.to_csv(out_metadata_handle, include_omitted=True, new_data_dict=new_column_dict)

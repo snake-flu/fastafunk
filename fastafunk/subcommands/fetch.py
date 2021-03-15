@@ -17,5 +17,6 @@ def run(options):
         options.out_fasta,
         options.out_metadata,
         options.log_file,
-        options.low_memory
+        options.low_memory,
+        options.keep_omit_rows
     )
