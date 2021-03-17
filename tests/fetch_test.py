@@ -139,3 +139,24 @@ class TestFetch(unittest.TestCase):
         os.unlink(out_metadata)
         os.unlink(out_fasta)
         os.unlink(log_file)
+
+    def test_run_fetch_no_filter_column(self):
+        in_fasta = ["%s/in_fasta.fa" % data_dir]
+        in_metadata = "%s/in_metadata.csv" %data_dir
+        index_column = "first"
+        filter_column = None
+        where_column = None
+        restrict = False
+        out_fasta = "%s/tmp.fetch_no_filter_column.fa" % data_dir
+        out_metadata = "%s/tmp.fetch_no_filter_column.csv" % data_dir
+        log_file = "%s/tmp.fetch_no_filter_column.log" % data_dir
+        low_memory = True
+        keep_omit_rows = True
+        fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column, restrict, out_fasta,out_metadata, log_file, low_memory, keep_omit_rows)
+        expected_metadata = "%s/in_metadata.csv" %data_dir
+        expected_fasta = "%s/expected_fetch.fa" % data_dir
+        self.assertTrue(filecmp.cmp(out_metadata, expected_metadata, shallow=False))
+        self.assertTrue(filecmp.cmp(out_fasta, expected_fasta, shallow=False))
+        os.unlink(out_metadata)
+        os.unlink(out_fasta)
+        os.unlink(log_file)
