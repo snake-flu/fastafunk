@@ -10,9 +10,9 @@ sequences with no trait value and sequences that does not have a match between f
 metadata files.
 
 Options:
-    --lineage: Allow user to specify specific lineages to split by. The lineage list does not
-    need to consist of all the lineage present. All sub-lineages will collapse to the closes
-    lineage. For example --lineage A, B, B.1 will collapse all B.1* to B.1 and others to B while
+    --lineages: Allow user to specify specific lineages to split by. The lineages list does not
+    need to consist of all the lineages present. All sub-lineages will collapse to the closes
+    lineage. For example --lineages A, B, B.1 will collapse all B.1* to B.1 and others to B while
     all A* will be grouped into A
 
 This file is part of Fastafunk (https://github.com/cov-ert/fastafunk).
@@ -34,11 +34,11 @@ def seq_is_outgroup(seq_id, lineage_dic):
         return True
     return False
 
-def get_parent(phylotype, lineage):
+def get_parent(phylotype, lineages):
     parent = phylotype
     while parent != "":
         parent = ".".join(parent.split('.')[:-1])
-        if parent in lineage:
+        if parent in lineages:
             return parent
     return None
 
@@ -55,7 +55,22 @@ def expand_alias(phylotype, alias_dict, log_handle):
         sys.exit("Phylotype %s has no alias provided. Please update --aliases JSON" %phylotype[0])
     return phylotype
 
-def split_fasta(in_fasta,in_metadata,index_field,index_column,lineage,lineage_csv,aliases,out_folder,log_file):
+def get_clade(phylotype, ordered_lineages, alias_dict, log_handle):
+    phylotype = expand_alias(phylotype, alias_dict, log_handle)
+    phylo_type = phylotype.split(".")
+    for cluster in ordered_lineages:
+        cluster_type = cluster.split(".")
+        cluster_length = len(cluster_type)
+        # if the length of the phylotype is shorter than the parent, it
+        # can't possibly be a match, so move on to next sequence
+        if len(phylo_type) < cluster_length:
+            continue
+        if phylo_type[:cluster_length] == cluster_type:
+            return cluster
+    return "A"
+
+
+def split_fasta(in_fasta,in_metadata,index_field,index_column,lineages,lineage_csv,aliases,out_prefix,log_file):
     """
     Split the fasta file into multiple fasta files based on criteria set by user
 
@@ -65,134 +80,92 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,lineage,lineage_cs
     that the user wants to split the fasta file by. Metadata file must be in .csv format (Required)
     :param index_field: The matching criteria the fasta file needs to be splitted by. (Required)
     :param index_column: The column with matching sequence IDs with fasta file (Default: header). (Optional)
-    :param lineage: Only apply to lineage specific fields. The file will consist of all the specific lineages the user
-    wants to split by. All sub-lineages will be collapsed to the closest lineage (e.g. 1.1.2 to 1.1). (Optional)
-    :param lineage_csv: Only apply to lineage specific fields. The file contains two columns, named 'lineage' and
+    :param lineages: Only apply to lineages specific fields. The file will consist of all the specific lineages the user
+    wants to split by. All sub-lineages will be collapsed to the closest lineages (e.g. 1.1.2 to 1.1). (Optional)
+    :param lineage_csv: Only apply to lineages specific fields. The file contains two columns, named 'lineage' and
     'outgroup'. Sub-lineages are collapsed as when lineages are provided, and additionally the child outgroups are
     included in the parent file. (Optional)
-    :param out_folder: Output folder for all fasta files splitted based on matching criteria (Default: ./). (Optional)
+    :param out_prefix: Output folder for all fasta files splitted based on matching criteria (Default: ./). (Optional)
     :param log_file: Output log file (Default: stdout). (Optional)
 
     :return:
     """
-    metadata_dic = {}
-    phylotype_dic = {}
-    seq_dic = {}
+    log_handle = get_log_handle(log_file, out_prefix)
+
     lineage_dic = {}
-    alias_dict = {}
-    log_handle = get_log_handle(log_file, out_folder)
-
-    with open(in_metadata,"r") as f:
-        reader = csv.DictReader(f)
-        reader.fieldnames = [name.lower() for name in reader.fieldnames]
-        metadata = [r for r in reader]
-
-    if index_field.lower() not in reader.fieldnames or index_column.lower() not in reader.fieldnames:
-        print("Column name not in metadata file, please re-check metadata file and reinsert a column name.")
-        sys.exit()
-    for items in metadata:
-        if items[index_column] in metadata_dic.keys():
-            print("Duplicate sequences with name: " + items[index_column] + " in metadata file.", file=log_handle)
-        else:
-            metadata_dic[items[index_column]] = items[index_field.lower()]
-
-    for record in SeqIO.parse(in_fasta, 'fasta'):
-        seq_dic[record.id]= record.seq
-
-    if len(set(metadata_dic.keys())&set(seq_dic.keys())) == 0:
-        sys.exit("No matching sequence name with metadata name. Program Exit")
-
     if lineage_csv:
         with open(lineage_csv) as csv_handle:
             csv_reader = csv.DictReader(csv_handle)
             for row in csv_reader:
                 lineage_dic[row['outgroup']] = row['lineage']
-        lineage = [lineage_dic[outgroup] for outgroup in lineage_dic.keys()]
-        print("Found lineages", lineage)
+        lineages = [lineage_dic[outgroup] for outgroup in lineage_dic.keys()]
+        print("Found lineages", lineages)
+    lineages.sort(key=lambda x: re.sub("[^A-Z0-9]", "", x), reverse=True)
+    phylotype_counts = {}
+    for lineage in lineages:
+        phylotype_counts[lineage] = 0
 
+    alias_dict = {}
     if aliases:
         print("Found alias file", aliases)
         with open(aliases, "r") as read_file:
             alias_dict = json.load(read_file)
         print("Found aliases for", alias_dict.keys())
 
-    if lineage != "":
-        # clades are the lineage rows in lineage_splits
-        for clades in lineage:
-            phylotype_dic[clades] = []
-        # print(phylotype_dic)
-        trait_order = list(phylotype_dic.keys())
-        # trait order is a list of the parent lineages in lineage_splits
-        # print(trait_order)
-
-        trait_order.sort(key=lambda x: re.sub("[^A-Z0-9]", "",x),reverse=True)
-        # print(trait_order)
-
-        for cluster in trait_order:
-            # cluster is parent lineage in lineage_splits
-            # phylotype is A, B.1, B.1.X, etc. - pangolin assigned lineage
-            for seq_id,phylotype in metadata_dic.items():
-                phylotype = expand_alias(phylotype, alias_dict, log_handle)
-                # print(seq_id,phylotype)
-                cluster_type = cluster.split(".")
-                # print(cluster_type)
-                cluster_length = len(cluster_type)
-                # print(cluster_length)
-                phylo_type = phylotype.split(".")
-                # print(phylo_type)
-                # if the length of the phylotype is shorter than the parent, it
-                # can't possibly be a match, so move on to next sequence
-                if len(phylo_type) < cluster_length:
-                    continue
-                # print(phylo_type[:cluster_length])
-
-                # if there's a match, then do the correct stuff:
-                if phylo_type[:cluster_length] == cluster_type:
-                    if seq_id in seq_dic.keys():
-                        phylotype_dic[cluster].append([seq_id,seq_dic[seq_id],phylotype])
-                        if seq_is_outgroup(seq_id, lineage_dic):
-                            parent = get_parent(phylotype, lineage)
-                            print("Seq", seq_id, "is outgroup with lineage" , phylotype, "and parent lineage", str(parent))
-                            if parent is not None:
-                                phylotype_dic[parent].append([seq_id, seq_dic[seq_id], phylotype])
-                        del seq_dic[seq_id]
-
-                # Ben's addition which is a bit of a hack - if A is the only lineage defined
-                # in trait_orders, then assign all Bs to A:
-                else:
-                    if len(trait_order) == 1 and trait_order == ['A']:
-                        if phylo_type[:1] != ['A']:
-                            if seq_id in seq_dic.keys():
-                                phylotype_dic[cluster].append([seq_id,seq_dic[seq_id],phylotype])
-                                if seq_is_outgroup(seq_id, lineage_dic):
-                                    parent = get_parent(phylotype, lineage)
-                                    print("Seq", seq_id, "is outgroup with lineage" , phylotype, "and parent lineage", str(parent))
-                                    if parent is not None:
-                                        phylotype_dic[parent].append([seq_id, seq_dic[seq_id], phylotype])
-                                del seq_dic[seq_id]
-
-    else:
-        for seq,trait in metadata_dic.items():
-            if trait == "":
-                print("Sequence " + seq + " have an empty " + trait + " value.", file=log_handle)
-            if seq not in seq_dic.keys():
-                print("Sequence " + seq + " does not match metadata sequence name.", file=log_handle)
-                continue
-            if trait not in phylotype_dic.keys():
-                phylotype_dic[trait] = []
-                phylotype_dic[trait].append([seq,seq_dic[seq]])
+    metadata_dic = {}
+    with open(in_metadata,"r") as f:
+        reader = csv.DictReader(f)
+        if index_field not in reader.fieldnames:
+            print("Index field name not in metadata file, please re-check metadata file.")
+            sys.exit()
+        if index_column not in reader.fieldnames:
+            print("Index column name not in metadata file, please re-check metadata file.")
+            sys.exit()
+        for row in reader:
+            if row[index_column] in metadata_dic:
+                print("Duplicate sequences with name: " + items[index_column] + " in metadata file.", file=log_handle)
             else:
-                phylotype_dic[trait].append([seq,seq_dic[seq]])
+                metadata_dic[row[index_column]] = row[index_field]
 
-    sort_key = sorted(phylotype_dic.keys())
+    output_files = {}
+    for lineage in lineages:
+        filename = out_prefix + "_" + lineage + ".fasta"
+        handle = open(filename, "w")
+        print(filename)
+        output_files[lineage] = handle
+
+    record_dict = SeqIO.index(in_fasta, "fasta")
+
+    for record_id in record_dict:
+        if record_id not in metadata_dic:
+            print("Sequence " + record_id + " does not match metadata sequence name.", file=log_handle)
+            continue
+
+        phylotype = metadata_dic[record_id]
+        if phylotype in ["",None,"None"]:
+            print("Sequence " + record_id + " has no lineage value.", file=log_handle)
+            continue
+
+        clade = get_clade(phylotype, lineages, alias_dict, log_handle)
+        print("Add seq", record_id, "with lineage", phylotype, "to clade", clade)
+        output_files[clade].write(">%s\n%s\n" % (record_id, str(record_dict[record_id].seq)))
+        phylotype_counts[clade] += 1
+
+        if seq_is_outgroup(record_id, lineage_dic):
+            parent = get_parent(phylotype, lineages)
+            print("Seq", record_id, "is outgroup with lineage", phylotype, "and parent lineage", str(parent))
+            if parent is not None:
+                output_files[parent].write(">%s\n%s\n" % (record_id, str(record_dict[record_id].seq)))
+                phylotype_counts[parent] += 1
+
+    for file in output_files:
+        if hasattr(file, 'close'):
+            file.close()
+
     sum_values = 0
-    for key in sort_key:
-        print("Trait:" + key + "\t\tTotal Number:" + str(len(phylotype_dic[key])), file=log_handle)
-        sum_values += len(phylotype_dic[key])
-        outfile = open(out_folder + key + ".fasta","w")
-        for sequences in phylotype_dic[key]:
-            record = SeqRecord(sequences[1],id=sequences[0],description="")
-            SeqIO.write(record, outfile, "fasta-2line")
-        outfile.close()
+    print(phylotype_counts)
+    for key in phylotype_counts:
+        print("Trait:" + key + "\t\tTotal Number:" + str(phylotype_counts[key]), file=log_handle)
+        sum_values += phylotype_counts[key]
     print("Total number of Sequences: " + str(sum_values),file=log_handle)
     close_handle(log_handle)

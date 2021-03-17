@@ -1,0 +1,13 @@
+sequence_name,lineage,why_excluded
+APPLE/CODE_X/2020,A,
+ORANGE/CODE_Y/2020,B,
+GRAPEFRUIT/CODE_Z/2020,B.1,
+KIWI/CODE_X/2020,B.1.3,
+GRAPE/CODE_Y/2020,B.1.1.7,
+BANANA/CODE_Z/2020,B.3,
+GrannySmith/CODE_X/2020,B.5,
+Tangerine/CODE_Y/2020,B.1.6,
+Clementine/CODE_Z/2020,A.3,
+Apricot/CODE_X/2020,P.1,
+Plum/CODE_Y/2020,A.3,
+Pear/CODE_Z/2020,B.1.7,

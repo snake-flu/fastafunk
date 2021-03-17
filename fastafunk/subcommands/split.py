@@ -15,6 +15,6 @@ def run(options):
         options.lineage,
         options.lineage_csv,
         options.aliases,
-        options.out_folder,
+        options.out_prefix,
         options.log_file
     )

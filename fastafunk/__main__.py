@@ -231,7 +231,7 @@ def main(args=None):
         help="JSON with aliases for lettered lineages."
     )
     subparser_split.add_argument(
-        '--out-folder', dest='out_folder', metavar='<filename>', default="./", required=False,
+        '--out-folder', dest='out_prefix', metavar='<filename>', default="./", required=False,
         help='A directory for output FASTA files'
     )
 
