@@ -22,7 +22,7 @@ class TestSplit(unittest.TestCase):
         lineage = None
         lineage_csv = "%s/lineage_splits.csv" %data_dir
         aliases = "%s/lineage_aliases.json" %data_dir
-        out_folder = "%s/tmp.split" %data_dir
+        out_folder = "%s/tmp.split_" %data_dir
         log_file = "%s/tmp.split.log" % data_dir
         split_fasta(in_fasta, in_metadata, index_field, index_column, lineage, lineage_csv, aliases, out_folder, log_file)
         for lineage in ["A", "B", "B.1", "B.1.1.7"]:

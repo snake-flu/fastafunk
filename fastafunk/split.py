@@ -129,7 +129,7 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,lineages,lineage_c
 
     output_files = {}
     for lineage in lineages:
-        filename = out_prefix + "_" + lineage + ".fasta"
+        filename = out_prefix + lineage + ".fasta"
         handle = open(filename, "w")
         print(filename)
         output_files[lineage] = handle
