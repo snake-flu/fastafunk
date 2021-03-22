@@ -568,6 +568,26 @@ def main(args=None):
 
     subparser_fetch.set_defaults(func=fastafunk.subcommands.fetch.run)
 
+    # _______________________________  shuffle  __________________________________#
+
+    subparser_shuffle = subparsers.add_parser(
+        "shuffle",
+        parents=[common],
+        help="Shuffles lines of a metadata file",
+    )
+
+    subparser_shuffle.add_argument(
+        '--in-metadata', dest='in_metadata', metavar='<filename>', required=True,
+        help='CSV or TSV of metadata'
+    )
+
+    subparser_shuffle.add_argument(
+        '--out-metadata', dest='out_metadata', metavar='<filename>', required=True,
+        help='CSV or TSV of metadata'
+    )
+
+    subparser_shuffle.set_defaults(func=fastafunk.subcommands.shuffle.run)
+
     # _________________________________________________________________________#
 
 
