@@ -480,6 +480,31 @@ def main(args=None):
 
     subparser_add_columns.set_defaults(func=fastafunk.subcommands.add_columns.run)
 
+    # _______________________________  drop_columns  __________________________________#
+
+    subparser_drop_columns = subparsers.add_parser(
+        "drop_columns",
+        parents=[common],
+        help="Drop columns from a metadata file "
+    )
+
+    subparser_drop_columns.add_argument(
+        '--in-metadata', dest='in_metadata', metavar='<filename>', required=True,
+        help='ONE CSV table of metadata'
+    )
+
+    subparser_drop_columns.add_argument(
+        '--drop-columns', dest='drop_columns', nargs='+', metavar='<column>', required=False,
+        help='Column(s) in the metadata to drop'
+    )
+
+    subparser_drop_columns.add_argument(
+        '--out-metadata', dest='out_metadata', metavar='<filename>', required=True,
+        help='A metadata file to write'
+    )
+
+    subparser_drop_columns.set_defaults(func=fastafunk.subcommands.drop_columns.run)
+
 
     # _______________________________  new  __________________________________#
 
