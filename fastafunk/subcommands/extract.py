@@ -12,5 +12,6 @@ def run(options):
         options.in_metadata,
         options.in_tree,
         options.out_fasta,
+        options.reject_fasta,
         options.log_file
     )

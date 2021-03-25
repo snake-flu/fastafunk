@@ -20,7 +20,7 @@ from Bio import SeqIO
 
 from fastafunk.utils import *
 
-def extract_fasta(in_fasta, in_metadata, in_tree, out_fasta, log_file):
+def extract_fasta(in_fasta, in_metadata, in_tree, out_fasta, reject_fasta, log_file):
     """
     Extract sequences from fasta file with matching sequence names within the metadata file
 
@@ -50,16 +50,20 @@ def extract_fasta(in_fasta, in_metadata, in_tree, out_fasta, log_file):
         sys.exit("please specify one or both out of --in-metadata, --in-tree")
 
     out_handle = get_out_handle(out_fasta)
+    if reject_fasta:
+        reject_handle = get_out_handle(reject_fasta)
     log_handle = get_log_handle(log_file, out_fasta)
 
     for fasta_file in in_fasta:
-        fasta_handle = get_in_handle(fasta_file)
-        for record in SeqIO.parse(fasta_handle, "fasta"):
-            if record.id in metadata_dictionary.keys() or record.id in tree_taxon_set:
-                SeqIO.write(record, out_handle, "fasta-2line")
+        record_dict = SeqIO.index(fasta_file, "fasta")
+        for record in record_dict:
+            if record in metadata_dictionary.keys() or record in tree_taxon_set:
+                SeqIO.write(record_dict[record], out_handle, "fasta-2line")
+            elif reject_fasta:
+                SeqIO.write(record_dict[record], log_handle, "fasta-2line")
             else:
                 print("Sequence " + record.id + " removed due to no match to metadata", file=log_handle)
-        close_handle(fasta_handle)
 
+    close_handle(reject_handle)
     close_handle(out_handle)
     close_handle(log_handle)

@@ -131,6 +131,10 @@ def main(args=None):
         '--out-fasta', dest='out_fasta', metavar='<filename>', required=False, default="",
         help='A FASTA file (else writes to stdout)'
     )
+    subparser_extract.add_argument(
+        '--reject-fasta', dest='reject_fasta', metavar='<filename>', required=False, default="",
+        help='A FASTA file to write the omitted sequences '
+    )
 
     subparser_extract.set_defaults(func=fastafunk.subcommands.extract.run)
 
