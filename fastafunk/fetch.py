@@ -72,7 +72,7 @@ def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column
                     SeqIO.write(record_dict[id_string], out_handle, "fasta-2line")
                     sequence_list.append(id_string)
                     index_column_values.remove(id_string)
-        close_handle(out_handle)
+    close_handle(out_handle)
     print("Found %i fasta rows" %len(sequence_list))
 
     if out_metadata:
