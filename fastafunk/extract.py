@@ -60,7 +60,7 @@ def extract_fasta(in_fasta, in_metadata, in_tree, out_fasta, reject_fasta, log_f
             if record in metadata_dictionary.keys() or record in tree_taxon_set:
                 SeqIO.write(record_dict[record], out_handle, "fasta-2line")
             elif reject_fasta:
-                SeqIO.write(record_dict[record], log_handle, "fasta-2line")
+                SeqIO.write(record_dict[record], reject_handle, "fasta-2line")
             else:
                 print("Sequence " + record.id + " removed due to no match to metadata", file=log_handle)
 
