@@ -498,7 +498,7 @@ def main(args=None):
     )
 
     subparser_drop_columns.add_argument(
-        '--drop-columns', dest='columns', nargs='+', metavar='<column>', required=False,
+        '--columns', dest='columns', nargs='+', metavar='<column>', required=False,
         help='Column(s) in the metadata to drop'
     )
 
