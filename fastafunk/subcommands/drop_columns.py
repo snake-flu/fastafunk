@@ -1,5 +1,5 @@
 
-from fastafunk.add_columns import *
+from fastafunk.drop_columns import *
 
 def run(options):
 

@@ -15,7 +15,6 @@ import re
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 
-from fastafunk.metadata_reader import *
 from fastafunk.utils import *
 
 def drop_columns(in_metadata, columns, out_metadata, log_file):
