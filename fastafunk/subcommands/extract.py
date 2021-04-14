@@ -13,5 +13,6 @@ def run(options):
         options.in_tree,
         options.out_fasta,
         options.reject_fasta,
+        options.low_memory,
         options.log_file
     )

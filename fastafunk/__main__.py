@@ -135,6 +135,10 @@ def main(args=None):
         '--reject-fasta', dest='reject_fasta', metavar='<filename>', required=False, default="",
         help='A FASTA file to write the omitted sequences '
     )
+    subparser_extract.add_argument(
+        '--low-memory', dest='low_memory', action='store_true', required=False,
+        help='Extracts tip labels from trees using text wrangling instead of dendropy'
+    )
 
     subparser_extract.set_defaults(func=fastafunk.subcommands.extract.run)
 

@@ -14,13 +14,41 @@ Add the ability to extract sequences from a fasta file based on matched to a tre
 This file is part of Fastafunk (https://github.com/cov-ert/fastafunk).
 Copyright 2020 Xiaoyu Yu (xiaoyu.yu@ed.ac.uk) & Rachel Colquhoun (rachel.colquhoun@ed.ac.uk).
 """
-
 import csv
 from Bio import SeqIO
+import re
+import tracemalloc
 
 from fastafunk.utils import *
 
-def extract_fasta(in_fasta, in_metadata, in_tree, out_fasta, reject_fasta, log_file):
+def wrangle_tip_labels(in_tree):
+    tree_taxon_set = set()
+    for tree_file in in_tree:
+        with open(tree_file, 'r') as tree:
+            line = tree.readline()
+            if "#NEXUS" in line:
+                tax_labels = False
+                while (not tax_labels and line):
+                    line = tree.readline()
+                    if "TAXLABELS" in line.upper():
+                        tax_labels = True
+                while (tax_labels and line):
+                    if ";" in line:
+                        break
+                    else:
+                        tree_taxon_set.add(line.strip())
+                        line = tree.readline()
+            else:
+                while line:
+                    tips = re.split(r"[,\(\);]+", line.strip())
+                    tips = [t.split(":")[0] for t in tips if t.split(":")[0] != '']
+                    tree_taxon_set.update(tips)
+                    line = tree.readline()
+        print("Found", len(tree_taxon_set), "tips")
+        print(tree_taxon_set)
+        return tree_taxon_set
+
+def extract_fasta(in_fasta, in_metadata, in_tree, out_fasta, reject_fasta, low_memory, log_file):
     """
     Extract sequences from fasta file with matching sequence names within the metadata file
 
@@ -33,6 +61,7 @@ def extract_fasta(in_fasta, in_metadata, in_tree, out_fasta, reject_fasta, log_f
 
     :return:
     """
+    tracemalloc.start()
     if not in_fasta:
         in_fasta = [""]
 
@@ -42,7 +71,10 @@ def extract_fasta(in_fasta, in_metadata, in_tree, out_fasta, reject_fasta, log_f
         metadata_dictionary = {}
 
     if in_tree:
-        tree_taxon_set = set(trees_to_taxa(in_tree))
+        if low_memory:
+            tree_taxon_set = wrangle_tip_labels(in_tree)
+        else:
+            tree_taxon_set = set(trees_to_taxa(in_tree))
     else:
         tree_taxon_set = set()
 
@@ -62,8 +94,12 @@ def extract_fasta(in_fasta, in_metadata, in_tree, out_fasta, reject_fasta, log_f
             elif reject_fasta:
                 SeqIO.write(record_dict[record], reject_handle, "fasta-2line")
             else:
-                print("Sequence " + record.id + " removed due to no match to metadata", file=log_handle)
+                print("Sequence " + record + " removed due to no match to metadata", file=log_handle)
 
+
+    current, peak = tracemalloc.get_traced_memory()
+    print(f"Current memory usage is {current / 10 ** 6}MB; Peak was {peak / 10 ** 6}MB")
+    tracemalloc.stop()
     close_handle(reject_handle)
     close_handle(out_handle)
     close_handle(log_handle)
