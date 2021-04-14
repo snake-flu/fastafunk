@@ -17,7 +17,6 @@ Copyright 2020 Xiaoyu Yu (xiaoyu.yu@ed.ac.uk) & Rachel Colquhoun (rachel.colquho
 import csv
 from Bio import SeqIO
 import re
-import tracemalloc
 
 from fastafunk.utils import *
 
@@ -44,8 +43,6 @@ def wrangle_tip_labels(in_tree):
                     tips = [t.split(":")[0] for t in tips if t.split(":")[0] != '']
                     tree_taxon_set.update(tips)
                     line = tree.readline()
-        print("Found", len(tree_taxon_set), "tips")
-        print(tree_taxon_set)
         return tree_taxon_set
 
 def extract_fasta(in_fasta, in_metadata, in_tree, out_fasta, reject_fasta, low_memory, log_file):
@@ -61,7 +58,6 @@ def extract_fasta(in_fasta, in_metadata, in_tree, out_fasta, reject_fasta, low_m
 
     :return:
     """
-    tracemalloc.start()
     if not in_fasta:
         in_fasta = [""]
 
@@ -96,10 +92,6 @@ def extract_fasta(in_fasta, in_metadata, in_tree, out_fasta, reject_fasta, low_m
             else:
                 print("Sequence " + record + " removed due to no match to metadata", file=log_handle)
 
-
-    current, peak = tracemalloc.get_traced_memory()
-    print(f"Current memory usage is {current / 10 ** 6}MB; Peak was {peak / 10 ** 6}MB")
-    tracemalloc.stop()
     close_handle(reject_handle)
     close_handle(out_handle)
     close_handle(log_handle)
