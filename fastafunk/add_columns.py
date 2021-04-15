@@ -36,7 +36,7 @@ def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_me
 
     new_column_dict = {}
 
-    new_data = MetadataReader(in_data, index=join_on, omit_labelled_rows=False)
+    new_data = MetadataReader(in_data, where_columns=where_column, index=join_on, omit_labelled_rows=False)
     if new_columns is not None and len(new_columns) > 0:
         new_data.columns = new_columns.copy()
         new_data.columns.append(join_on)
