@@ -62,7 +62,10 @@ def metadata_to_dict(list_metadata_files):
         with open(metadata_file) as csv_handle:
             csv_reader = csv.reader(csv_handle, delimiter=sep)
             for row in csv_reader:
-                metadata_dictionary[row[0]] = row[1:]
+                if len(row) > 1:
+                    metadata_dictionary[row[0]] = row[1:]
+                else:
+                    metadata_dictionary[row[0]] = None
 
     return metadata_dictionary
 

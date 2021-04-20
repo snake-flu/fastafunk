@@ -92,6 +92,7 @@ def extract_fasta(in_fasta, in_metadata, in_tree, out_fasta, reject_fasta, low_m
             else:
                 print("Sequence " + record + " removed due to no match to metadata", file=log_handle)
 
-    close_handle(reject_handle)
+    if reject_fasta:
+        close_handle(reject_handle)
     close_handle(out_handle)
     close_handle(log_handle)
