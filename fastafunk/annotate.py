@@ -57,7 +57,11 @@ def annotate(in_fasta, in_metadata, index_column, index_field, out_fasta, out_me
                 continue
             record_stats = []
             for stat in stats:
-                result = get_stat(stat, record)
+                try:
+                    result = get_stat(stat, record)
+                except:
+                    log_handle.write("Check record %s" % record.id)
+                    result = 0
                 record_stats.append("%s=%s" %(stat,str(result)))
                 stats[stat].append(result)
             ids.append(id)
