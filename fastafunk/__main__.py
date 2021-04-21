@@ -516,7 +516,7 @@ def main(args=None):
     # _______________________________  filter_column  __________________________________#
 
     subparser_filter_column = subparsers.add_parser(
-        "filter_colum",
+        "filter_column",
         parents=[common],
         help="Filter metadata file based on column"
     )

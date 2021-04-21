@@ -44,6 +44,6 @@ def filter_column(in_metadata, column, out_metadata, is_true, is_false, log_file
                 continue
             if is_true and val in [True, "true", "t", "yes", "y"]:
                 continue
-            writer.writerow()
+            writer.writerow(row)
 
     log_handle.close()
