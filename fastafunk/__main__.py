@@ -513,6 +513,34 @@ def main(args=None):
 
     subparser_drop_columns.set_defaults(func=fastafunk.subcommands.drop_columns.run)
 
+    # _______________________________  filter_column  __________________________________#
+
+    subparser_filter_column = subparsers.add_parser(
+        "filter_colum",
+        parents=[common],
+        help="Filter metadata file based on column"
+    )
+
+    subparser_filter_column.add_argument(
+        '--in-metadata', dest='in_metadata', metavar='<filename>', required=True,
+        help='ONE table of metadata'
+    )
+
+    subparser_filter_column.add_argument(
+        '--column', dest='column', metavar='<column>', required=True,
+        help='Column in the metadata to filter on'
+    )
+
+    subparser_filter_column.add_argument(
+        '--out-metadata', dest='out_metadata', metavar='<filename>', required=True,
+        help='A metadata file to write'
+    )
+
+    subparser_filter_column.add_argument('--is_true', action='store_true', required=False, help='filter if column is true')
+    subparser_filter_column.add_argument('--is_false', action='store_true', required=False, help='filter if column is false')
+
+    subparser_filter_column.set_defaults(func=fastafunk.subcommands.filter_column.run)
+
 
     # _______________________________  new  __________________________________#
 
