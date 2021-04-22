@@ -64,6 +64,8 @@ def metadata_to_dict(list_metadata_files):
             for row in csv_reader:
                 if len(row) > 1:
                     metadata_dictionary[row[0]] = row[1:]
+                elif len(row) == 0:
+                    continue
                 else:
                     metadata_dictionary[row[0]] = None
 
