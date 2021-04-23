@@ -7,6 +7,7 @@ Description: Merges two or more fasta files avoiding duplicates based on matches
 Takes the first appearance according to the sequence of files within the input (--in-fasta command).
 At least two fasta files must be within the input command and only those sequences matching metadata
 will be processed into output fasta file.
+If repeats in metadata, only first is kept
 
 This file is part of Fastafunk (https://github.com/cov-ert/fastafunk).
 Copyright 2020 Xiaoyu Yu (xiaoyu.yu@ed.ac.uk) & Rachel Colquhoun (rachel.colquhoun@ed.ac.uk).
@@ -38,7 +39,7 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
     :return:
     """
     if not in_fasta:
-        in_fasta = [""]
+        in_fasta = []
 
     out_handle = get_out_handle(out_fasta)
     out_metadata_handle = open(out_metadata,"w",newline='')
@@ -46,11 +47,13 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
 
     sequence_list = []
     index_column_values = []
+    duplicates = []
     metadata_columns = []
 
     for metadata_file in in_metadata:
         if os.path.exists(metadata_file):
             metadata = MetadataReader(metadata_file, None, None, index_column,omit_labelled_rows=False)
+            duplicates.extend([r for r in metadata.rows if r in index_column_values])
             index_column_values.extend(metadata.rows)
             metadata_columns.extend([c for c in metadata.columns if c not in metadata_columns])
             metadata.close()
@@ -66,14 +69,20 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
                 metadata.to_csv(out_metadata_handle, include_omitted=True, header=True)
                 first = False
             else:
-                metadata.to_csv(out_metadata_handle, include_omitted=True, header=False)
+                metadata.omit_rows = duplicates
+                metadata.to_csv(out_metadata_handle, include_omitted=False, header=False)
             metadata.close()
         else:
             print("File does not exist, program exiting.")
             sys.exit()
+    for r in duplicates:
+        log_handle.write("%s is a duplicate metadata record, keeping earliest\n" % r)
     out_metadata_handle.close()
 
     for fasta_file in in_fasta:
+        if fasta_file == '':
+            continue
+        print("'%s'" %fasta_file)
         if low_memory:
             record_dict = SeqIO.index(fasta_file, "fasta")
         else:
@@ -99,7 +108,7 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
                     sequence_list.append(id_string)
                     index_column_values.remove(id_string)
 
-    if len(sequence_list) == 0:
+    if len(sequence_list) == 0 and len(in_fasta) > 0:
         print("There is no matching sequences to metadata. Program exiting")
         sys.exit()
 

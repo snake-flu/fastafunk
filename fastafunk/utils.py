@@ -28,6 +28,8 @@ def get_log_handle(log_file, out_fasta):
     return log_handle
 
 def get_out_handle(out_fasta):
+    if out_fasta == '' or out_fasta == [] or out_fasta == ['']:
+        out_fasta = None
     if not out_fasta:
         out_handle = sys.stdout
     else:
