@@ -53,8 +53,11 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
     for metadata_file in in_metadata:
         if os.path.exists(metadata_file):
             metadata = MetadataReader(metadata_file, None, None, index_column,omit_labelled_rows=False)
-            duplicates.extend([r for r in metadata.rows if r in index_column_values])
-            index_column_values.extend(metadata.rows)
+            for r in metadata.rows:
+                if r in index_column_values:
+                    duplicates.append(r)
+                else:
+                    index_column_values.append(r)
             metadata_columns.extend([c for c in metadata.columns if c not in metadata_columns])
             metadata.close()
         else:
@@ -95,7 +98,7 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
                 id_string = record
 
             if id_string is not None:
-                if not low_memory and id_string in sequence_list:
+                if id_string in sequence_list:
                     log_handle.write("%s is a duplicate record, keeping earliest\n" % id_string)
                 elif id_string not in index_column_values:
                     log_handle.write("%s has no corresponding entry in metadata table\n" %id_string)
