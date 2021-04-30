@@ -110,6 +110,10 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,lineages,lineage_c
         print("Found alias file", aliases)
         with open(aliases, "r") as read_file:
             alias_dict = json.load(read_file)
+        if "A" in alias_dict:
+            del alias_dict["A"]
+        if "B" in alias_dict:
+            del alias_dict["B"]
         print("Found aliases for", alias_dict.keys())
 
     metadata_dic = {}
