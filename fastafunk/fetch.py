@@ -47,7 +47,7 @@ def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column
         in_fasta = [""]
 
     out_handle = get_out_handle(out_fasta)
-    sequence_list = []
+    sequence_list = set()
     for fasta_file in in_fasta:
         if low_memory:
             record_dict = SeqIO.index(fasta_file, "fasta")
@@ -66,11 +66,11 @@ def fetch_fasta(in_fasta, in_metadata, index_column, filter_column, where_column
                     log_handle.write("%s has no corresponding entry in metadata table\n" %id_string)
                 elif type(record) == SeqRecord:
                     SeqIO.write(record, out_handle, "fasta-2line")
-                    sequence_list.append(id_string)
+                    sequence_list.add(id_string)
                     index_column_values.remove(id_string)
                 else:
                     SeqIO.write(record_dict[id_string], out_handle, "fasta-2line")
-                    sequence_list.append(id_string)
+                    sequence_list.add(id_string)
                     index_column_values.remove(id_string)
     close_handle(out_handle)
     print("Found %i fasta rows" %len(sequence_list))

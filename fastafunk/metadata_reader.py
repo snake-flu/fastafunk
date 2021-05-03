@@ -19,8 +19,8 @@ class MetadataReader:
     def __init__(self, metadata_file, where_columns=None, filter_columns=None, index=None, omit_labelled_rows=True):
         self.columns = []
         self.where_column_dict = {}
-        self.rows = []
-        self.omit_rows = []
+        self.rows = set()
+        self.omit_rows = set()
         self.index = None
         self.reader = None
         self.sep = ","
@@ -61,7 +61,7 @@ class MetadataReader:
             self.columns = filter_columns
 
     def get_rows(self, omit_labelled_rows=True):
-        omit_columns = [ c for c in self.reader.fieldnames if "omit" in c.lower() or c in ["duplicate", "why_excluded"]]
+        omit_columns = [c for c in self.reader.fieldnames if "omit" in c.lower() or c in ["duplicate", "why_excluded"]]
         for row in self.reader:
             omit = False
             for column in omit_columns:
@@ -69,9 +69,9 @@ class MetadataReader:
                     omit = True
                     continue
             if omit_labelled_rows and omit:
-                self.omit_rows.append(row[self.index])
+                self.omit_rows.add(row[self.index])
             else:
-                self.rows.append(row[self.index])
+                self.rows.add(row[self.index])
 
     def get_reader(self):
         self.reader = csv.DictReader(self.handle, delimiter=self.sep)
@@ -106,12 +106,12 @@ class MetadataReader:
         return clean_values
 
     def restrict(self, sequence_list):
-        self.omit_rows.extend(self.rows)
+        self.omit_rows.update(self.rows)
         self.rows = sequence_list
 
     def to_csv(self, out_handle, header=True, include_omitted=False, new_data_dict=None):
         self.get_reader()
-        writer = csv.DictWriter(out_handle, fieldnames = self.columns, delimiter=",", quotechar='\"', quoting=csv.QUOTE_MINIMAL, dialect = "unix")
+        writer = csv.DictWriter(out_handle, fieldnames=self.columns, delimiter=",", quotechar='\"', quoting=csv.QUOTE_MINIMAL, dialect = "unix")
         if header:
             writer.writeheader()
         for row in self.reader:

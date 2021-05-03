@@ -45,20 +45,20 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
     out_metadata_handle = open(out_metadata,"w",newline='')
     log_handle = get_log_handle(log_file, out_fasta)
 
-    sequence_list = []
-    index_column_values = []
-    duplicates = []
-    metadata_columns = []
+    sequence_list = set()
+    index_column_values = set()
+    duplicates = set()
+    metadata_columns = set()
 
     for metadata_file in in_metadata:
         if os.path.exists(metadata_file):
-            metadata = MetadataReader(metadata_file, None, None, index_column,omit_labelled_rows=False)
+            metadata = MetadataReader(metadata_file, None, None, index_column, omit_labelled_rows=False)
             for r in metadata.rows:
                 if r in index_column_values:
-                    duplicates.append(r)
+                    duplicates.add(r)
                 else:
-                    index_column_values.append(r)
-            metadata_columns.extend([c for c in metadata.columns if c not in metadata_columns])
+                    index_column_values.add(r)
+            metadata_columns.update(metadata.columns)
             metadata.close()
         else:
             print("File does not exist, program exiting.")
@@ -104,11 +104,11 @@ def merge_fasta(in_fasta, in_metadata, index_column, out_metadata, out_fasta, lo
                     log_handle.write("%s has no corresponding entry in metadata table\n" %id_string)
                 elif type(record) == SeqRecord:
                     SeqIO.write(record, out_handle, "fasta-2line")
-                    sequence_list.append(id_string)
+                    sequence_list.add(id_string)
                     index_column_values.remove(id_string)
                 else:
                     SeqIO.write(record_dict[id_string], out_handle, "fasta-2line")
-                    sequence_list.append(id_string)
+                    sequence_list.add(id_string)
                     index_column_values.remove(id_string)
 
     if len(sequence_list) == 0 and len(in_fasta) > 0:
