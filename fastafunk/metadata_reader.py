@@ -61,7 +61,7 @@ class MetadataReader:
             self.columns = filter_columns
 
     def get_rows(self, omit_labelled_rows=True):
-        omit_columns = [c for c in self.reader.fieldnames if "omit" in c.lower() or c in ["duplicate", "why_excluded"]]
+        omit_columns = [c for c in self.reader.fieldnames if "omit" in c.lower() or c in ["why_excluded"]]
         for row in self.reader:
             omit = False
             for column in omit_columns:
