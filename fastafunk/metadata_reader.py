@@ -94,13 +94,13 @@ class MetadataReader:
         clean_values = {}
         for column in self.columns:
             value = None
+            if column in row_dict:
+                value = row_dict[column]
             if column in self.where_column_dict:
                 for where_column in self.where_column_dict[column]:
                     if row_dict[where_column] not in [None, "None", ""]:
                         value = row_dict[where_column]
-            elif column in row_dict:
-                value = row_dict[column]
-            if new_data_dict is not None and column in new_data_dict:
+            if new_data_dict is not None and column in new_data_dict and new_data_dict[column] not in [None, "None", ""]:
                 value = new_data_dict[column]
             clean_values[column] = value
         return clean_values
