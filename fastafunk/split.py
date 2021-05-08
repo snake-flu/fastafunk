@@ -127,7 +127,7 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,lineages,lineage_c
             sys.exit()
         for row in reader:
             if row[index_column] in metadata_dic:
-                print("Duplicate sequences with name: " + items[index_column] + " in metadata file.", file=log_handle)
+                print("Duplicate sequences with name: " + row[index_column] + " in metadata file.", file=log_handle)
             else:
                 metadata_dic[row[index_column]] = row[index_field]
 
