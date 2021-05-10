@@ -10,5 +10,5 @@ def run(options):
                 options.new_columns,
                 options.out_metadata,
                 options.where_column,
-                options.log_file
-                            )
+                options.log_file,
+                options.force_overwrite)

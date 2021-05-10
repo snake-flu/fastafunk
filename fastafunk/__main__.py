@@ -485,6 +485,8 @@ def main(args=None):
         '--where-column', dest='where_column', nargs='+', metavar='<column>=<regex>', required=False,
         help='Additional matches to columns e.g. if want to rename'
     )
+    subparser_add_columns.add_argument('--force-overwrite', dest='force_overwrite', action='store_true', required=False,
+                                       help='Overwrite even if new data is blank/None')
 
     subparser_add_columns.set_defaults(func=fastafunk.subcommands.add_columns.run)
 

@@ -90,7 +90,7 @@ class MetadataReader:
     def add_columns(self, new_columns):
         self.columns.extend([c for c in new_columns if c not in self.columns])
 
-    def clean_row(self, row_dict, new_data_dict=None):
+    def clean_row(self, row_dict, new_data_dict=None, force_overwrite=False):
         clean_values = {}
         for column in self.columns:
             value = None
@@ -100,8 +100,13 @@ class MetadataReader:
                 for where_column in self.where_column_dict[column]:
                     if row_dict[where_column] not in [None, "None", ""]:
                         value = row_dict[where_column]
-            if new_data_dict is not None and column in new_data_dict and new_data_dict[column] not in [None, "None", ""]:
-                value = new_data_dict[column]
+                    elif force_overwrite:
+                        value = row_dict[where_column]
+            if new_data_dict is not None and column in new_data_dict:
+                if new_data_dict[column] not in [None, "None", ""]:
+                    value = new_data_dict[column]
+                elif force_overwrite:
+                    value = new_data_dict[column]
             clean_values[column] = value
         return clean_values
 
@@ -109,7 +114,7 @@ class MetadataReader:
         self.omit_rows.update(self.rows)
         self.rows = sequence_list
 
-    def to_csv(self, out_handle, header=True, include_omitted=False, new_data_dict=None):
+    def to_csv(self, out_handle, header=True, include_omitted=False, new_data_dict=None, force_overwrite=False):
         self.get_reader()
         writer = csv.DictWriter(out_handle, fieldnames=self.columns, delimiter=",", quotechar='\"', quoting=csv.QUOTE_MINIMAL, dialect = "unix")
         if header:
@@ -117,9 +122,9 @@ class MetadataReader:
         for row in self.reader:
             if include_omitted or row[self.index] not in self.omit_rows:
                 if new_data_dict is not None and row[self.index] in new_data_dict:
-                    writer.writerow(self.clean_row(row, new_data_dict[row[self.index]]))
+                    writer.writerow(self.clean_row(row, new_data_dict[row[self.index]], force_overwrite=force_overwrite))
                 else:
-                    writer.writerow(self.clean_row(row, None))
+                    writer.writerow(self.clean_row(row, None, force_overwrite=force_overwrite))
 
     def close(self):
         self.handle.close()

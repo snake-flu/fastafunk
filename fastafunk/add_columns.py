@@ -18,7 +18,7 @@ from Bio.SeqRecord import SeqRecord
 from fastafunk.metadata_reader import *
 from fastafunk.utils import *
 
-def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_metadata, where_column, log_file):
+def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_metadata, where_column, log_file, force_overwrite=False):
     """
     in_metadata - a list of metadata files to update
     in_data - a file with info used to populate new metadata columns
@@ -48,13 +48,13 @@ def add_columns(in_metadata, in_data, index_column, join_on, new_columns, out_me
         if row[join_on] in new_column_dict.keys():
             log_handle.write("Sequence " + row[join_on] + " had a duplicate in in-data and only first kept\n")
         else:
-            new_column_dict[row[join_on]] = new_data.clean_row(row)
+            new_column_dict[row[join_on]] = new_data.clean_row(row, force_overwrite=force_overwrite)
     new_data.close()
 
     metadata = MetadataReader(in_metadata, index=index_column, omit_labelled_rows=False)
     metadata.add_columns(new_columns)
     out_metadata_handle = open(out_metadata,"w",newline='')
-    metadata.to_csv(out_metadata_handle, include_omitted=True, new_data_dict=new_column_dict)
+    metadata.to_csv(out_metadata_handle, include_omitted=True, new_data_dict=new_column_dict, force_overwrite=force_overwrite)
     out_metadata_handle.close()
     metadata.close()
 
