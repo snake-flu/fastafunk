@@ -25,7 +25,7 @@ class TestSplit(unittest.TestCase):
         out_folder = "%s/tmp.split_" %data_dir
         log_file = "%s/tmp.split.log" % data_dir
         split_fasta(in_fasta, in_metadata, index_field, index_column, lineage, lineage_csv, aliases, out_folder, log_file)
-        for lineage in ["A", "B", "B.1", "B.1.1.7"]:
+        for lineage in ["A", "B", "B.1", "B.1.1.7", "XA"]:
             expected_fasta = "%s/expected_%s.fasta" % (data_dir, lineage)
             out_fasta = "%s/tmp.split_%s.fasta" % (data_dir, lineage)
             self.assertTrue(filecmp.cmp(out_fasta, expected_fasta, shallow=False))

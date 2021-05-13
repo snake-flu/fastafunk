@@ -46,16 +46,20 @@ def expand_alias(phylotype, alias_dict, log_handle):
     if not phylotype or phylotype == "":
         return phylotype
 
-    if phylotype[0] in alias_dict.keys():
-        if len(phylotype) > 1:
-            phylotype = alias_dict[phylotype[0]] + phylotype[1:]
+    phylo_parts = phylotype.split(".")
+    while phylo_parts[0] in alias_dict.keys():
+        if len(phylo_parts) > 1:
+            phylotype = alias_dict[phylo_parts[0]] + "." + ".".join(phylo_parts[1:])
         else:
-            phylotype = alias_dict[phylotype[0]]
-    if phylotype[0] not in ["A","B"]:
-        sys.exit("Phylotype %s has no alias provided. Please update --aliases JSON" %phylotype[0])
+            phylotype = alias_dict[phylo_parts[0]]
+        phylo_parts = phylotype.split(".")
+    if phylo_parts[0] not in ["A","B"]:
+        sys.exit("Phylotype %s has no alias provided. Please update --aliases JSON" %phylo_parts[0])
     return phylotype
 
 def get_clade(phylotype, ordered_lineages, alias_dict, log_handle):
+    if phylotype.startswith("X"):
+        return phylotype.split(".")[0]
     phylotype = expand_alias(phylotype, alias_dict, log_handle)
     phylo_type = phylotype.split(".")
     for cluster in ordered_lineages:
@@ -151,6 +155,11 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,lineages,lineage_c
             continue
 
         clade = get_clade(phylotype, lineages, alias_dict, log_handle)
+        if clade.startswith("X") and clade not in output_files:
+            filename = out_prefix + clade + ".fasta"
+            handle = open(filename, "w")
+            output_files[clade] = handle
+            phylotype_counts[clade] = 0
         print("Add seq", record_id, "with lineage", phylotype, "to clade", clade)
         output_files[clade].write(">%s\n%s\n" % (record_id, str(record_dict[record_id].seq)))
         phylotype_counts[clade] += 1
