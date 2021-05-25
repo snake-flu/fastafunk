@@ -156,7 +156,7 @@ class Metadata:
         for i,row in enumerate(self.rows):
             omit = False
             for column in omit_columns:
-                if row[column] == "True":
+                if row[column] in [True, "True", "Y", "Yes", "y", "yes"]:
                     omit = True
                     break
             if not inverse and omit:
