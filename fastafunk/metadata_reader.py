@@ -21,6 +21,7 @@ class MetadataReader:
         self.where_column_dict = {}
         self.rows = set()
         self.omit_rows = set()
+        self.duplicate_indexes = set()
         self.index = None
         self.reader = None
         self.sep = ","
@@ -73,6 +74,16 @@ class MetadataReader:
             else:
                 self.rows.add(row[self.index])
 
+    def is_omit_row(self, row):
+        # NB this is not efficient and should only be called for small numbers of rows
+        omit_columns = [c for c in self.reader.fieldnames if "omit" in c.lower() or c in ["why_excluded"]]
+        omit = False
+        for column in omit_columns:
+            if row[column] not in ["False", False, None, "None", "", "N", "No", "n", "no"]:
+                omit = True
+                continue
+        return omit
+
     def get_reader(self):
         self.reader = csv.DictReader(self.handle, delimiter=self.sep)
 
@@ -114,13 +125,19 @@ class MetadataReader:
         self.omit_rows.update(self.rows)
         self.rows = sequence_list
 
+    def get_duplicate_indexes(self):
+        for id in self.omit_rows:
+            if id in self.rows:
+                self.duplicate_indexes.add(id)
+
     def to_csv(self, out_handle, header=True, include_omitted=False, new_data_dict=None, force_overwrite=False):
         self.get_reader()
+        self.get_duplicate_indexes()
         writer = csv.DictWriter(out_handle, fieldnames=self.columns, delimiter=",", quotechar='\"', quoting=csv.QUOTE_MINIMAL, dialect = "unix")
         if header:
             writer.writeheader()
         for row in self.reader:
-            if include_omitted or row[self.index] not in self.omit_rows:
+            if include_omitted or row[self.index] not in self.omit_rows or ( row[self.index] in self.duplicate_indexes and self.is_omit_row(row) ):
                 if new_data_dict is not None and row[self.index] in new_data_dict:
                     writer.writerow(self.clean_row(row, new_data_dict[row[self.index]], force_overwrite=force_overwrite))
                 else:
