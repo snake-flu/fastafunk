@@ -137,7 +137,7 @@ class MetadataReader:
         if header:
             writer.writeheader()
         for row in self.reader:
-            if include_omitted or row[self.index] not in self.omit_rows or ( row[self.index] in self.duplicate_indexes and self.is_omit_row(row) ):
+            if include_omitted or row[self.index] not in self.omit_rows or ( row[self.index] in self.duplicate_indexes and not self.is_omit_row(row) ):
                 if new_data_dict is not None and row[self.index] in new_data_dict:
                     writer.writerow(self.clean_row(row, new_data_dict[row[self.index]], force_overwrite=force_overwrite))
                 else:
