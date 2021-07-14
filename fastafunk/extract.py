@@ -63,14 +63,17 @@ def extract_fasta(in_fasta, in_metadata, in_tree, out_fasta, reject_fasta, low_m
 
     if in_metadata:
         metadata_dictionary = metadata_to_dict(in_metadata)
+        metadata_set = set([key.lower() for key in metadata_dictionary])
+        del metadata_dictionary
     else:
-        metadata_dictionary = {}
+        metadata_set = {}
 
     if in_tree:
         if low_memory:
             tree_taxon_set = wrangle_tip_labels(in_tree)
         else:
             tree_taxon_set = set(trees_to_taxa(in_tree))
+        tree_taxon_set = [t.lower() for t in tree_taxon_set]
     else:
         tree_taxon_set = set()
 
@@ -85,7 +88,8 @@ def extract_fasta(in_fasta, in_metadata, in_tree, out_fasta, reject_fasta, low_m
     for fasta_file in in_fasta:
         record_dict = SeqIO.index(fasta_file, "fasta")
         for record in record_dict:
-            if record in metadata_dictionary.keys() or record in tree_taxon_set:
+            lowercase_record = record.lower()
+            if lowercase_record in metadata_set or lowercase_record in tree_taxon_set:
                 SeqIO.write(record_dict[record], out_handle, "fasta-2line")
             elif reject_fasta:
                 SeqIO.write(record_dict[record], reject_handle, "fasta-2line")
