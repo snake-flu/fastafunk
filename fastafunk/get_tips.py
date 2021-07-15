@@ -72,4 +72,4 @@ def get_tips(in_metadata, in_tree, out_tips, low_memory):
             out_handle.write("'%s'\\n" % tip)
             out_handle.write("%s\\n" % tip)
 
-    close_handle(out_tips)
+    close_handle(out_handle)
