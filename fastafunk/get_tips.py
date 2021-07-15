@@ -48,21 +48,25 @@ def get_tips(in_metadata, in_tree, out_tips, low_memory):
 
     :return:
     """
-    if in_metadata:
-        metadata_dictionary = metadata_to_dict(in_metadata)
-        metadata_set = set([key.lower() for key in metadata_dictionary])
-        del metadata_dictionary
-    else:
+    if not in_metadata:
         sys.exit("Please specify metadata with --in-metadata")
-
-    if in_tree:
-        if low_memory:
-            tree_taxon_set = wrangle_tip_labels(in_tree)
-        else:
-            tree_taxon_set = set(trees_to_taxa(in_tree))
-        tree_taxon_set = [t.replace('"','').replace("'","") for t in tree_taxon_set]
-    else:
+    if not in_tree:
         sys.exit("Please specify tree with --in-tree")
+
+    metadata_set = set()
+    with open(in_metadata, 'r', newline='') as csv_in:
+        reader = csv.DictReader(csv_in, delimiter=",", quotechar='\"', dialect="unix")
+        if "sequence_name" not in reader.fieldnames:
+            sys.exit("Index column 'sequence_name' not in CSV")
+        for row in reader:
+            metadata_set.insert(row["sequence_name"].lower())
+
+    if low_memory:
+        tree_taxon_set = wrangle_tip_labels(in_tree)
+    else:
+        tree_taxon_set = set(trees_to_taxa(in_tree))
+    tree_taxon_set = [t.replace('"','').replace("'","") for t in tree_taxon_set]
+
 
 
     out_handle = get_out_handle(out_tips)
