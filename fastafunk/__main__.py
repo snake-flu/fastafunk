@@ -142,6 +142,33 @@ def main(args=None):
 
     subparser_extract.set_defaults(func=fastafunk.subcommands.extract.run)
 
+    # _______________________________  get_tips  __________________________________#
+
+    subparser_get_tips = subparsers.add_parser(
+        "get_tips",
+        parents=[common],
+        help="get_tips based on matches between the metadata/tree",
+    )
+
+    subparser_get_tips.add_argument(
+        '--in-metadata', dest='in_metadata', nargs='+', metavar='<filename>', required=True,
+        help='One or more CSV or TSV tables of metadata'
+    )
+    subparser_get_tips.add_argument(
+        '--in-tree', dest='in_tree', nargs='+', metavar='<filename>', required=True,
+        help='One or more tree files in either nexus or newick format'
+    )
+    subparser_get_tips.add_argument(
+        '--out-tips', dest='out_tips', metavar='<filename>', required=True,
+        help='A file to write the tip names '
+    )
+    subparser_get_tips.add_argument(
+        '--low-memory', dest='low_memory', action='store_true', required=False,
+        help='Extracts tip labels from trees using text wrangling instead of dendropy'
+    )
+
+    subparser_get_tips.set_defaults(func=fastafunk.subcommands.get_tips.run)
+
     # _______________________________  merge  __________________________________#
 
     subparser_merge = subparsers.add_parser(
