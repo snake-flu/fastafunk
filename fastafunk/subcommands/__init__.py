@@ -4,6 +4,7 @@ Copyright 2020 Xiaoyu Yu (xiaoyu.yu@ed.ac.uk) & Rachel Colquhoun (rachel.colquho
 """
 
 __all__ = ["consensus", "extract", "merge", "remove", "split", "count", "subsample", "annotate",
-           "unwrap","strip", "new", "add_columns", "fetch", "shuffle", "drop_columns", "filter_column"]
+           "unwrap","strip", "new", "add_columns", "fetch", "shuffle", "drop_columns", "filter_column",
+           "get_tips"]
 
 from fastafunk.subcommands import *

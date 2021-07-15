@@ -1,5 +1,5 @@
 """
-Name: get_tups.py
+Name: get_tips.py
 Author: Rachel Colquhoun
 Date: 15 July 2021
 Description: Extract tip names corresponding to metadata.
@@ -8,7 +8,6 @@ This file is part of Fastafunk (https://github.com/cov-ert/fastafunk).
 Copyright 2020 Xiaoyu Yu (xiaoyu.yu@ed.ac.uk) & Rachel Colquhoun (rachel.colquhoun@ed.ac.uk).
 """
 import csv
-from Bio import SeqIO
 import re
 
 from fastafunk.utils import *
