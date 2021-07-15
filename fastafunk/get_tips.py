@@ -60,7 +60,7 @@ def get_tips(in_metadata, in_tree, out_tips, low_memory):
             if "sequence_name" not in reader.fieldnames:
                 sys.exit("Index column 'sequence_name' not in CSV")
             for row in reader:
-                metadata_set.insert(row["sequence_name"].lower())
+                metadata_set.add(row["sequence_name"].lower())
 
     if low_memory:
         tree_taxon_set = wrangle_tip_labels(in_tree)
