@@ -68,7 +68,7 @@ def get_tips(in_metadata, in_tree, out_tips, low_memory):
     out_handle = get_out_handle(out_tips)
 
     for tip in tree_taxon_set:
-        if tip.lower() not in metadata_set:
+        if tip.lower() in metadata_set:
             out_handle.write("'%s'\n" % tip)
             out_handle.write("%s\n" % tip)
 
