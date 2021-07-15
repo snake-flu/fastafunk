@@ -54,12 +54,13 @@ def get_tips(in_metadata, in_tree, out_tips, low_memory):
         sys.exit("Please specify tree with --in-tree")
 
     metadata_set = set()
-    with open(in_metadata, 'r', newline='') as csv_in:
-        reader = csv.DictReader(csv_in, delimiter=",", quotechar='\"', dialect="unix")
-        if "sequence_name" not in reader.fieldnames:
-            sys.exit("Index column 'sequence_name' not in CSV")
-        for row in reader:
-            metadata_set.insert(row["sequence_name"].lower())
+    for metadata_file in in_metadata:
+        with open(metadata_file, 'r', newline='') as csv_in:
+            reader = csv.DictReader(csv_in, delimiter=",", quotechar='\"', dialect="unix")
+            if "sequence_name" not in reader.fieldnames:
+                sys.exit("Index column 'sequence_name' not in CSV")
+            for row in reader:
+                metadata_set.insert(row["sequence_name"].lower())
 
     if low_memory:
         tree_taxon_set = wrangle_tip_labels(in_tree)
