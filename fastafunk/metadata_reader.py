@@ -53,7 +53,7 @@ class MetadataReader:
                     self.where_column_dict[column] = []
                 regex = re.compile(regex)
                 for original_column in self.columns:
-                    match = re.search(regex, original_column)
+                    match = re.fullmatch(regex, original_column)
                     if match:
                         self.where_column_dict[column].append(original_column)
                 if column not in self.columns:
