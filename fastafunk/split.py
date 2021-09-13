@@ -154,22 +154,27 @@ def split_fasta(in_fasta,in_metadata,index_field,index_column,lineages,lineage_c
             print("Sequence " + record_id + " has no lineage value.", file=log_handle)
             continue
 
-        clade = get_clade(phylotype, lineages, alias_dict, log_handle)
-        if clade.startswith("X") and clade not in output_files:
-            filename = out_prefix + clade + ".fasta"
-            handle = open(filename, "w")
-            output_files[clade] = handle
-            phylotype_counts[clade] = 0
-        print("Add seq", record_id, "with lineage", phylotype, "to clade", clade)
-        output_files[clade].write(">%s\n%s\n" % (record_id, str(record_dict[record_id].seq)))
-        phylotype_counts[clade] += 1
-
         if seq_is_outgroup(record_id, lineage_dic):
-            parent = get_parent(phylotype, lineages)
+            clade = lineage_dic[record_id]
+            print("Add outgroup seq", record_id, "with lineage", phylotype, "to clade", clade)
+            output_files[clade].write(">%s\n%s\n" % (record_id, str(record_dict[record_id].seq)))
+            phylotype_counts[clade] += 1
+            parent = get_parent(clade, lineages)
             print("Seq", record_id, "is outgroup with lineage", phylotype, "and parent lineage", str(parent))
             if parent is not None:
                 output_files[parent].write(">%s\n%s\n" % (record_id, str(record_dict[record_id].seq)))
                 phylotype_counts[parent] += 1
+        else:
+            clade = get_clade(phylotype, lineages, alias_dict, log_handle)
+            if clade.startswith("X") and clade not in output_files:
+                filename = out_prefix + clade + ".fasta"
+                handle = open(filename, "w")
+                output_files[clade] = handle
+                phylotype_counts[clade] = 0
+            print("Add seq", record_id, "with lineage", phylotype, "to clade", clade)
+            output_files[clade].write(">%s\n%s\n" % (record_id, str(record_dict[record_id].seq)))
+            phylotype_counts[clade] += 1
+
 
     for file in output_files:
         if hasattr(file, 'close'):
